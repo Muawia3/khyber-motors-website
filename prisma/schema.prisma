@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+}
+
+model Vehicle {
+  id                String   @id @default(uuid())
+  name              String
+  fullTitle         String?
+  slug              String   @unique
+  tagline           String?
+  category          String
+  subcategory       String?
+  categoryLabel     String?
+  status            String   @default("Published")
+  isFlagship        Boolean  @default(false)
+  isNew             Boolean  @default(false)
+  mainImage         String?
+  heroImage         String?
+  altText           String?
+  gallery           String   @default("[]")
+  specs             String   @default("{}")
+  features          String   @default("[]")
+  whyT9Benefits     String   @default("[]")
+  colorOptions      String   @default("[]")
+  overview          String?
+  warranty          String?
+  brochureAvailable Boolean  @default(true)
+  brochureUrl       String?
+  stockStatus       String   @default("out_of_stock")
+  stockQuantity     Int      @default(0)
+  seoTitle          String?
+  metaDescription   String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Lead {
+  id              String   @id @default(uuid())
+  name            String
+  phone           String
+  email           String?
+  vehicleInterest String?
+  department      String?
+  subject         String?
+  message         String?
+  status          String   @default("New")
+  createdAt       DateTime @default(now())
+}
+
+model TestDrive {
+  id            String   @id @default(uuid())
+  fullName      String
+  phone         String
+  email         String?
+  vehicleId     String
+  preferredDate String
+  preferredTime String
+  message       String?
+  status        String   @default("Requested")
+  createdAt     DateTime @default(now())
+}
+
+model PageContent {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  data      String
+  updatedAt DateTime @updatedAt
+}
+
+model HeroImage {
+  id           String   @id @default(uuid())
+  url          String
+  title        String?
+  altText      String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SocialLink {
+  id           String   @id @default(uuid())
+  platform     String
+  url          String
+  icon         String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  type      String
+  title     String
+  message   String
+  relatedId String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+model Review {
+  id           String   @id @default(uuid())
+  customerName String
+  avatarUrl    String?
+  rating       Int      @default(5)
+  reviewText   String
+  reviewDate   String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model DepartmentContact {
+  id            String   @id @default(uuid())
+  name          String
+  contactPerson String?
+  phone         String
+  whatsapp      String?
+  email         String?
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TeamMember {
+  id               String       @id @default(uuid())
+  name             String
+  designation      String
+  department       String
+  shortDescription String?
+  imageUrl         String?
+  parentId         String?
+  parent           TeamMember?  @relation("TeamHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children         TeamMember[] @relation("TeamHierarchy")
+  displayOrder     Int          @default(0)
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+
