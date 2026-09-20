@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { Upload, FileText, ExternalLink, Download, Trash2, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, FileText, ExternalLink, Download, Trash2, CheckCircle2, Loader2, AlertCircle, Link as LinkIcon } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 import { vehicleService } from '../../services/vehicleService';
 import { getBrochurePreviewUrl, handleDownloadBrochure } from '../../utils/brochureHelper';
 
@@ -13,6 +14,7 @@ export const BrochureUploader = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [downloading, setDownloading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
   // Handle PDF File Selection & Direct Backend Upload
   const handleFileSelect = async (e) => {
@@ -21,6 +23,18 @@ export const BrochureUploader = ({
 
     if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
       setUploadError('Invalid file format. Please upload a valid PDF file.');
+      return;
+    }
+
+    // Check Vercel 4.5 MB payload limit
+    const MAX_SIZE_MB = 4.5;
+    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      setUploadError(
+        `File size (${fileSizeMB} MB) exceeds Vercel's 4.5 MB serverless limit. Please compress your PDF below 4.5 MB or paste a direct PDF URL link.`
+      );
+      setShowUrlInput(true);
       return;
     }
 
@@ -82,32 +96,66 @@ export const BrochureUploader = ({
         className="hidden"
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-gray-700">
             Vehicle Brochure PDF
           </label>
           <p className="text-[11px] text-gray-500">
-            Upload vehicle-specific PDF sales brochure (PDF format only, saved persistently).
+            Upload PDF sales brochure (max 4.5 MB for serverless) or paste a direct PDF URL.
           </p>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          disabled={isUploading}
-          onClick={() => fileInputRef.current?.click()}
-          leftIcon={isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C8102E]" /> : <Upload className="w-3.5 h-3.5 text-[#C8102E]" />}
-        >
-          {isUploading ? 'Uploading PDF...' : (brochureUrl ? 'Replace PDF' : 'Upload PDF')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            leftIcon={<LinkIcon className="w-3.5 h-3.5 text-gray-600" />}
+          >
+            {showUrlInput ? 'Hide URL Link' : 'Paste PDF Link'}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            disabled={isUploading}
+            onClick={() => fileInputRef.current?.click()}
+            leftIcon={isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C8102E]" /> : <Upload className="w-3.5 h-3.5 text-[#C8102E]" />}
+          >
+            {isUploading ? 'Uploading PDF...' : (brochureUrl ? 'Replace PDF' : 'Upload PDF')}
+          </Button>
+        </div>
       </div>
 
       {uploadError && (
         <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-xs flex items-center gap-2">
           <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
           <span>{uploadError}</span>
+        </div>
+      )}
+
+      {/* Direct PDF URL Input Field */}
+      {showUrlInput && (
+        <div className="p-3 bg-gray-50 border border-gray-200 rounded-xs space-y-2 animate-fadeIn">
+          <label className="block text-[11px] font-bold text-gray-700 uppercase tracking-wider">
+            Direct PDF Brochure URL / Cloud Link:
+          </label>
+          <Input
+            type="url"
+            placeholder="https://example.com/jac-t9-brochure.pdf"
+            value={brochureUrl || ''}
+            onChange={(e) => {
+              setUploadError('');
+              onBrochureChange(e.target.value, 'custom-brochure.pdf');
+            }}
+            className="bg-white text-xs"
+          />
+          <p className="text-[10px] text-gray-400">
+            Paste Google Drive, Dropbox, or any direct PDF URL if file size exceeds 4.5 MB.
+          </p>
         </div>
       )}
 
@@ -179,7 +227,7 @@ export const BrochureUploader = ({
         </div>
       ) : (
         <div className="p-4 bg-gray-50 border border-dashed border-gray-300 rounded-xs text-center text-xs text-gray-500">
-          No PDF brochure attached for this vehicle. Click "Upload PDF" to upload a sales brochure file to permanent storage.
+          No PDF brochure attached for this vehicle. Upload a PDF (max 4.5 MB) or click "Paste PDF Link" to add a brochure URL.
         </div>
       )}
     </div>
