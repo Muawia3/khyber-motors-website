@@ -40,8 +40,10 @@ router.post('/login', async (req, res) => {
     }
 
     const cleanEmail = String(email).toLowerCase().trim();
-    const defaultEmail = (process.env.ADMIN_EMAIL || 'admin@khybermotors.com.pk').toLowerCase().trim();
-    const defaultPass = process.env.ADMIN_PASSWORD || 'Admin@123456';
+    const defaultEmail = (process.env.ADMIN_EMAIL || 'muawiakhan000@gmail.com').toLowerCase().trim();
+    const defaultPass = process.env.ADMIN_PASSWORD || 'Ameer100$';
+    const altEmail = 'admin@khybermotors.com.pk';
+    const altPass = 'Admin@123456';
 
     let admin = null;
     try {
@@ -53,40 +55,40 @@ router.post('/login', async (req, res) => {
     }
 
     // Fallback for primary admin if database is unseeded or table is empty on serverless
-    if (!admin && cleanEmail === defaultEmail) {
-      const isDefaultPassMatch = (String(password) === defaultPass) ||
-        await bcrypt.compare(String(password), await bcrypt.hash(defaultPass, 10)).catch(() => false);
+    const isPrimaryMatch = (cleanEmail === defaultEmail && (String(password) === defaultPass || await bcrypt.compare(String(password), await bcrypt.hash(defaultPass, 10)).catch(() => false)));
+    const isAltMatch = (cleanEmail === altEmail && (String(password) === altPass || await bcrypt.compare(String(password), await bcrypt.hash(altPass, 10)).catch(() => false)));
 
-      if (isDefaultPassMatch) {
-        try {
-          const passwordHash = await bcrypt.hash(defaultPass, 10);
-          admin = await prisma.adminUser.upsert({
-            where: { email: defaultEmail },
-            update: { isActive: true, isPrimary: true },
-            create: {
-              email: defaultEmail,
-              passwordHash,
-              name: 'Primary Super Admin',
-              role: 'SUPER_ADMIN',
-              isPrimary: true,
-              isActive: true,
-            },
-          }).catch(() => null);
-        } catch (sErr) {
-          console.warn('Auto-seed primary admin notice:', sErr.message);
-        }
-
-        if (!admin) {
-          admin = {
-            id: 'primary-admin-fallback',
-            email: defaultEmail,
+    if (!admin && (isPrimaryMatch || isAltMatch)) {
+      const activeEmail = isPrimaryMatch ? defaultEmail : altEmail;
+      const activePass = isPrimaryMatch ? defaultPass : altPass;
+      try {
+        const passwordHash = await bcrypt.hash(activePass, 10);
+        admin = await prisma.adminUser.upsert({
+          where: { email: activeEmail },
+          update: { isActive: true, isPrimary: true },
+          create: {
+            email: activeEmail,
+            passwordHash,
             name: 'Primary Super Admin',
             role: 'SUPER_ADMIN',
             isPrimary: true,
             isActive: true,
-            passwordHash: await bcrypt.hash(defaultPass, 10),
-          };
-        }
+          },
+        }).catch(() => null);
+      } catch (sErr) {
+        console.warn('Auto-seed primary admin notice:', sErr.message);
+      }
+
+      if (!admin) {
+        admin = {
+          id: 'primary-admin-fallback',
+          email: activeEmail,
+          name: 'Primary Super Admin',
+          role: 'SUPER_ADMIN',
+          isPrimary: true,
+          isActive: true,
+          passwordHash: await bcrypt.hash(activePass, 10),
+        };
       }
     }
 
