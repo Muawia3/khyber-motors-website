@@ -195,8 +195,49 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (!existing) {
       existing = await prisma.vehicle.findUnique({ where: { slug: id } }).catch(() => null);
     }
+    if (!existing && body.slug) {
+      existing = await prisma.vehicle.findUnique({ where: { slug: body.slug } }).catch(() => null);
+    }
+    if (!existing && body.name) {
+      existing = await prisma.vehicle.findFirst({
+        where: { name: { contains: body.name, mode: 'insensitive' } },
+      }).catch(() => null);
+    }
+
+    // Fallback: If vehicle row is not found in database, create it dynamically
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Vehicle not found in database.' });
+      const slug = body.slug || (body.name ? body.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : 'vehicle-' + Date.now());
+      const newVehicle = await prisma.vehicle.create({
+        data: {
+          name: body.name || 'JAC Vehicle',
+          fullTitle: body.fullTitle || body.name || 'JAC Vehicle',
+          slug,
+          tagline: body.tagline || body.shortDescription || '',
+          category: (body.category || 'PASSENGERS').toUpperCase(),
+          subcategory: body.subcategory ? body.subcategory.toUpperCase() : null,
+          categoryLabel: body.categoryLabel || null,
+          status: body.status || 'Published',
+          stockStatus: body.stockStatus || 'in_stock',
+          stockQuantity: body.stockQuantity ?? 1,
+          isFlagship: Boolean(body.isFlagship),
+          isNew: Boolean(body.isNew),
+          mainImage: body.mainImage || body.heroImage || '',
+          heroImage: body.heroImage || body.mainImage || '',
+          altText: body.altText || body.name || '',
+          gallery: stringifyIfNeeded(body.gallery || body.galleryImages, '[]'),
+          specs: stringifyIfNeeded(body.specs || body.specsArray, '{}'),
+          features: stringifyIfNeeded(body.features || body.featuresArray, '[]'),
+          whyT9Benefits: stringifyIfNeeded(body.whyT9Benefits || body.highlightsArray, '[]'),
+          colorOptions: stringifyIfNeeded(body.colorOptions, '[]'),
+          overview: body.overview || body.fullDescription || '',
+          warranty: body.warranty || '',
+          brochureAvailable: body.brochureAvailable ?? true,
+          brochureUrl: body.brochureUrl || null,
+          seoTitle: body.seoTitle || body.name || '',
+          metaDescription: body.metaDescription || '',
+        },
+      });
+      return res.json({ success: true, data: parseVehicleFields(newVehicle) });
     }
 
     const updateData = {};
