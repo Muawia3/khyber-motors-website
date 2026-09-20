@@ -1,7 +1,8 @@
 /**
  * API client service for communicating with Node Express REST API.
  */
-const API_BASE = '/api';
+const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = envApiUrl ? envApiUrl.replace(/\/$/, '') : '/api';
 
 export const getToken = () => localStorage.getItem('jac_admin_jwt_token');
 
