@@ -25,42 +25,14 @@ export const handleDownloadBrochure = async (brochureUrl, customName = 'brochure
   }
 
   const downloadUrl = getBrochureDownloadUrl(brochureUrl, customName);
+  const fileName = customName.endsWith('.pdf') ? customName : `${customName}.pdf`;
 
-  try {
-    const response = await fetch(downloadUrl);
-    if (!response.ok) {
-      let errText = `Server returned HTTP ${response.status} error.`;
-      try {
-        const json = await response.json();
-        if (json.error) errText = json.error;
-      } catch {
-        errText = `HTTP ${response.status}: Brochure file not found on server.`;
-      }
-      throw new Error(errText);
-    }
-
-    const blob = await response.blob();
-    const blobUrl = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = customName.endsWith('.pdf') ? customName : `${customName}.pdf`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(blobUrl);
-  } catch (error) {
-    console.error('Brochure download error:', error);
-    if (!brochureUrl.startsWith('blob:')) {
-      const fallbackUrl = getBrochurePreviewUrl(brochureUrl);
-      const a = document.createElement('a');
-      a.href = fallbackUrl;
-      a.target = '_blank';
-      a.download = customName.endsWith('.pdf') ? customName : `${customName}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      return;
-    }
-    throw error;
-  }
+  // Trigger immediate native browser download
+  const link = document.createElement('a');
+  link.href = downloadUrl;
+  link.setAttribute('download', fileName);
+  link.setAttribute('target', '_blank');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };

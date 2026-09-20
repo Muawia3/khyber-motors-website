@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import prisma from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,13 +10,14 @@ const __dirname = path.dirname(__filename);
 const router = express.Router();
 const publicDir = path.join(__dirname, '../../public');
 
-// Helper to locate a file across potential directories safely
-function findFileOnDisk(targetPath) {
+// Helper to locate a file across potential directories safely, with DB fallback
+async function findFileOnDiskOrDb(targetPath) {
   if (!targetPath) return null;
 
   // Clean path
   const decoded = decodeURIComponent(targetPath);
   const cleanRelative = decoded.replace(/^[/\\]+/, '').replace(/^(\.\.[/\\])+/, '');
+  const base = path.basename(cleanRelative);
   
   // 1. Direct path inside public/
   const directPath = path.join(publicDir, cleanRelative);
@@ -24,7 +26,6 @@ function findFileOnDisk(targetPath) {
   }
 
   // 2. Search by basename in common storage folders
-  const base = path.basename(cleanRelative);
   const searchLocations = [
     path.join(publicDir, 'uploads', 'images', base),
     path.join(publicDir, 'uploads', 'brochures', base),
@@ -40,6 +41,33 @@ function findFileOnDisk(targetPath) {
     if (fs.existsSync(loc) && fs.statSync(loc).isFile()) {
       return loc;
     }
+  }
+
+  // 3. Database Fallback for Vercel multi-instance lambda persistence
+  try {
+    const dbRecord = await prisma.uploadedFile.findFirst({
+      where: {
+        OR: [
+          { filename: base },
+          { filename: cleanRelative },
+          { url: { contains: base } },
+        ],
+      },
+    });
+
+    if (dbRecord && dbRecord.data) {
+      const isPdf = dbRecord.mimeType === 'application/pdf' || base.toLowerCase().endsWith('.pdf');
+      const cacheDir = path.join('/tmp', 'uploads', isPdf ? 'brochures' : 'images');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      const restoredPath = path.join(cacheDir, base);
+      const buffer = Buffer.from(dbRecord.data, 'base64');
+      fs.writeFileSync(restoredPath, buffer);
+      return restoredPath;
+    }
+  } catch (err) {
+    console.warn(`DB storage lookup warning for ${base}:`, err.message);
   }
 
   return null;
@@ -68,9 +96,9 @@ function getMimeType(filePath) {
 }
 
 // 1. GET /api/files/images/:filename
-router.get('/images/:filename', (req, res) => {
+router.get('/images/:filename', async (req, res) => {
   const filename = req.params.filename;
-  const filePath = findFileOnDisk(`uploads/images/${filename}`);
+  const filePath = await findFileOnDiskOrDb(`uploads/images/${filename}`);
 
   if (!filePath) {
     return res.status(404).json({
@@ -87,9 +115,9 @@ router.get('/images/:filename', (req, res) => {
 });
 
 // 2. GET /api/files/brochures/:filename
-router.get('/brochures/:filename', (req, res) => {
+router.get('/brochures/:filename', async (req, res) => {
   const filename = req.params.filename;
-  const filePath = findFileOnDisk(`uploads/brochures/${filename}`);
+  const filePath = await findFileOnDiskOrDb(`uploads/brochures/${filename}`);
 
   if (!filePath) {
     return res.status(404).json({
@@ -105,13 +133,13 @@ router.get('/brochures/:filename', (req, res) => {
 });
 
 // 3. GET /api/files/download/:filename or /api/files/download?file=...&name=...
-router.get(['/download/:filename', '/download'], (req, res) => {
+router.get(['/download/:filename', '/download'], async (req, res) => {
   const fileParam = req.params.filename || req.query.file;
   if (!fileParam) {
     return res.status(400).json({ success: false, error: 'File parameter is required.' });
   }
 
-  const filePath = findFileOnDisk(fileParam);
+  const filePath = await findFileOnDiskOrDb(fileParam);
   if (!filePath) {
     const base = path.basename(fileParam);
     return res.status(404).json({
@@ -131,9 +159,9 @@ router.get(['/download/:filename', '/download'], (req, res) => {
 });
 
 // 4. Fallback handler for any /uploads/* request
-export function handleUploadsStaticServing(req, res, next) {
+export async function handleUploadsStaticServing(req, res, next) {
   const cleanUrl = req.path;
-  const filePath = findFileOnDisk(cleanUrl);
+  const filePath = await findFileOnDiskOrDb(cleanUrl);
 
   if (!filePath) {
     return res.status(404).json({

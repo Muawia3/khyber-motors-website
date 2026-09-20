@@ -98,10 +98,11 @@ model PageContent {
 
 model UploadedFile {
   id        String   @id @default(uuid())
-  filename  String
+  filename  String   @unique
   url       String
   mimeType  String?
   size      Int?
+  data      String?  // Base64 buffer content for persistent serverless asset serving
   createdAt DateTime @default(now())
 }
 

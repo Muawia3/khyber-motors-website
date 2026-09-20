@@ -50,6 +50,7 @@ export const apiFetch = async (endpoint, options = {}) => {
   if (response.status === 401 && !endpoint.includes('/auth/login')) {
     setToken(null);
     localStorage.removeItem('jac_admin_user');
+    window.dispatchEvent(new CustomEvent('jac_admin_unauthorized'));
   }
 
   if (!response.ok) {

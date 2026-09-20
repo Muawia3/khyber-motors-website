@@ -37,6 +37,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
+
+    const handleUnauthorized = () => {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('jac_admin_user');
+    };
+
+    window.addEventListener('jac_admin_unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('jac_admin_unauthorized', handleUnauthorized);
   }, []);
 
   const login = async (email, password) => {

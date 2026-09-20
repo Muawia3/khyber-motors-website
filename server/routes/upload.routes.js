@@ -4,11 +4,41 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { upload } from '../middleware/upload.js';
 import { authMiddleware } from '../middleware/auth.js';
+import prisma from '../config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
+
+async function saveFileToDatabase(filename, url, mimeType, filePath) {
+  try {
+    if (fs.existsSync(filePath)) {
+      const buffer = fs.readFileSync(filePath);
+      const base64Data = buffer.toString('base64');
+      const stats = fs.statSync(filePath);
+
+      await prisma.uploadedFile.upsert({
+        where: { filename },
+        update: {
+          url,
+          mimeType: mimeType || 'application/octet-stream',
+          size: stats.size,
+          data: base64Data,
+        },
+        create: {
+          filename,
+          url,
+          mimeType: mimeType || 'application/octet-stream',
+          size: stats.size,
+          data: base64Data,
+        },
+      });
+    }
+  } catch (err) {
+    console.warn(`Failed to save ${filename} to database storage:`, err.message);
+  }
+}
 
 function handleUploadSingle(req, res, next) {
   upload.single('file')(req, res, (err) => {
@@ -39,13 +69,15 @@ function getUrlForFile(file) {
 }
 
 // POST /api/upload/single (Admin protected)
-router.post('/single', authMiddleware, handleUploadSingle, (req, res) => {
+router.post('/single', authMiddleware, handleUploadSingle, async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, error: 'No file uploaded.' });
     }
 
     const fileUrl = getUrlForFile(req.file);
+    await saveFileToDatabase(req.file.filename, fileUrl, req.file.mimetype, req.file.path);
+
     return res.json({
       success: true,
       url: fileUrl,
@@ -64,22 +96,24 @@ router.post('/single', authMiddleware, handleUploadSingle, (req, res) => {
 });
 
 // POST /api/upload/multiple (Admin protected)
-router.post('/multiple', authMiddleware, handleUploadMultiple, (req, res) => {
+router.post('/multiple', authMiddleware, handleUploadMultiple, async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, error: 'No files uploaded.' });
     }
 
-    const files = req.files.map((file) => {
+    const files = [];
+    for (const file of req.files) {
       const url = getUrlForFile(file);
-      return {
+      await saveFileToDatabase(file.filename, url, file.mimetype, file.path);
+      files.push({
         filename: file.filename,
         originalname: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
         url,
-      };
-    });
+      });
+    }
 
     return res.json({ success: true, count: files.length, data: files });
   } catch (error) {
@@ -108,7 +142,8 @@ router.post('/chunk', authMiddleware, async (req, res) => {
     }
 
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const finalFilePath = path.join(targetDir, `${uploadId}-${safeFilename}`);
+    const storedFilename = `${uploadId}-${safeFilename}`;
+    const finalFilePath = path.join(targetDir, storedFilename);
 
     // Decode base64 chunk buffer
     const base64Clean = chunkData.replace(/^data:.*?;base64,/, '');
@@ -125,14 +160,16 @@ router.post('/chunk', authMiddleware, async (req, res) => {
 
     if (isLastChunk) {
       const relativeUrl = isPdf
-        ? `/api/files/brochures/${uploadId}-${safeFilename}`
-        : `/api/files/images/${uploadId}-${safeFilename}`;
+        ? `/api/files/brochures/${storedFilename}`
+        : `/api/files/images/${storedFilename}`;
+
+      await saveFileToDatabase(storedFilename, relativeUrl, fileType || (isPdf ? 'application/pdf' : 'image/jpeg'), finalFilePath);
 
       return res.json({
         success: true,
         completed: true,
         url: relativeUrl,
-        filename: `${uploadId}-${safeFilename}`,
+        filename: storedFilename,
       });
     }
 
