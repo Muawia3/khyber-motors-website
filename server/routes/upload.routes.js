@@ -1,7 +1,12 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { upload } from '../middleware/upload.js';
 import { authMiddleware } from '../middleware/auth.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -79,6 +84,66 @@ router.post('/multiple', authMiddleware, handleUploadMultiple, (req, res) => {
     return res.json({ success: true, count: files.length, data: files });
   } catch (error) {
     console.error('Upload multiple route error:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/upload/chunk (Handles large files of ANY size by uploading in 2MB chunks)
+router.post('/chunk', authMiddleware, async (req, res) => {
+  try {
+    const { uploadId, chunkIndex, totalChunks, filename, chunkData, fileType } = req.body;
+
+    if (!uploadId || chunkIndex === undefined || !filename || !chunkData) {
+      return res.status(400).json({ success: false, error: 'Missing required chunk upload parameters.' });
+    }
+
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    const baseDir = isServerless ? path.join('/tmp', 'uploads') : path.join(__dirname, '../../public/uploads');
+    const isPdf = fileType === 'application/pdf' || filename.toLowerCase().endsWith('.pdf');
+    const subFolder = isPdf ? 'brochures' : 'images';
+    const targetDir = path.join(baseDir, subFolder);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const finalFilePath = path.join(targetDir, `${uploadId}-${safeFilename}`);
+
+    // Decode base64 chunk buffer
+    const base64Clean = chunkData.replace(/^data:.*?;base64,/, '');
+    const buffer = Buffer.from(base64Clean, 'base64');
+
+    // On first chunk, overwrite if exists; on subsequent chunks, append
+    if (Number(chunkIndex) === 0) {
+      fs.writeFileSync(finalFilePath, buffer);
+    } else {
+      fs.appendFileSync(finalFilePath, buffer);
+    }
+
+    const isLastChunk = Number(chunkIndex) === Number(totalChunks) - 1;
+
+    if (isLastChunk) {
+      const relativeUrl = isPdf
+        ? `/api/files/brochures/${uploadId}-${safeFilename}`
+        : `/api/files/images/${uploadId}-${safeFilename}`;
+
+      return res.json({
+        success: true,
+        completed: true,
+        url: relativeUrl,
+        filename: `${uploadId}-${safeFilename}`,
+      });
+    }
+
+    return res.json({
+      success: true,
+      completed: false,
+      chunkIndex: Number(chunkIndex),
+      totalChunks: Number(totalChunks),
+    });
+  } catch (error) {
+    console.error('Chunk upload error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });

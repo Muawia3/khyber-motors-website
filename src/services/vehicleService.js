@@ -169,4 +169,55 @@ export const vehicleService = {
     }
     throw new Error(res?.error || 'File upload failed.');
   },
+
+  uploadFileInChunks: async (file, onProgress) => {
+    const CHUNK_SIZE = 2 * 1024 * 1024; // 2 MB chunks bypass Vercel's 4.5 MB serverless limit
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uploadId = 'file-' + Date.now() + '-' + Math.round(Math.random() * 1e6);
+
+    let finalUrl = null;
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(file.size, start + CHUNK_SIZE);
+      const blobChunk = file.slice(start, end);
+
+      const chunkBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blobChunk);
+      });
+
+      const res = await apiFetch('/upload/chunk', {
+        method: 'POST',
+        body: JSON.stringify({
+          uploadId,
+          chunkIndex: i,
+          totalChunks,
+          filename: file.name,
+          fileType: file.type || 'application/pdf',
+          chunkData: chunkBase64,
+        }),
+      });
+
+      if (!res || !res.success) {
+        throw new Error(res?.error || `Chunk ${i + 1} of ${totalChunks} upload failed.`);
+      }
+
+      if (onProgress) {
+        onProgress(Math.round(((i + 1) / totalChunks) * 100));
+      }
+
+      if (res.completed && res.url) {
+        finalUrl = res.url;
+      }
+    }
+
+    if (!finalUrl) {
+      throw new Error('Chunked upload completed but server returned empty file URL.');
+    }
+
+    return finalUrl;
+  },
 };

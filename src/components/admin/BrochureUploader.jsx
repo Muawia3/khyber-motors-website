@@ -12,11 +12,12 @@ export const BrochureUploader = ({
 }) => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState('');
   const [downloading, setDownloading] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
 
-  // Handle PDF File Selection & Direct Backend Upload
+  // Handle PDF File Selection & Automatic Chunked Upload (Handles files of ANY size directly from laptop)
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -26,22 +27,22 @@ export const BrochureUploader = ({
       return;
     }
 
-    // Check Vercel 4.5 MB payload limit
-    const MAX_SIZE_MB = 4.5;
-    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-    if (file.size > MAX_SIZE_BYTES) {
-      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      setUploadError(
-        `File size (${fileSizeMB} MB) exceeds Vercel's 4.5 MB serverless limit. Please compress your PDF below 4.5 MB or paste a direct PDF URL link.`
-      );
-      setShowUrlInput(true);
-      return;
-    }
-
     try {
       setIsUploading(true);
+      setUploadProgress(0);
       setUploadError('');
-      const uploadedUrl = await vehicleService.uploadFile(file);
+
+      // Use chunked uploader (2MB per chunk) to bypass Vercel's 4.5MB serverless limit for files of ANY size
+      let uploadedUrl = null;
+      if (file.size > 2 * 1024 * 1024) {
+        uploadedUrl = await vehicleService.uploadFileInChunks(file, (percent) => {
+          setUploadProgress(percent);
+        });
+      } else {
+        uploadedUrl = await vehicleService.uploadFile(file);
+        setUploadProgress(100);
+      }
+
       if (uploadedUrl) {
         onBrochureChange(uploadedUrl, file.name);
       } else {
@@ -52,6 +53,7 @@ export const BrochureUploader = ({
       setUploadError(err.message || 'Failed to upload brochure file to server.');
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -102,7 +104,7 @@ export const BrochureUploader = ({
             Vehicle Brochure PDF
           </label>
           <p className="text-[11px] text-gray-500">
-            Upload PDF sales brochure (max 4.5 MB for serverless) or paste a direct PDF URL.
+            Upload PDF sales brochure directly from laptop (supports files of ANY size via chunked streaming).
           </p>
         </div>
 
@@ -125,10 +127,25 @@ export const BrochureUploader = ({
             onClick={() => fileInputRef.current?.click()}
             leftIcon={isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C8102E]" /> : <Upload className="w-3.5 h-3.5 text-[#C8102E]" />}
           >
-            {isUploading ? 'Uploading PDF...' : (brochureUrl ? 'Replace PDF' : 'Upload PDF')}
+            {isUploading ? `Uploading PDF (${uploadProgress}%)...` : (brochureUrl ? 'Replace PDF' : 'Upload PDF')}
           </Button>
         </div>
       </div>
+
+      {/* Upload Progress Bar */}
+      {isUploading && uploadProgress > 0 && (
+        <div className="space-y-1">
+          <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+            <div
+              className="bg-[#C8102E] h-2 transition-all duration-300 ease-out"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-right font-mono font-bold text-[#C8102E]">
+            {uploadProgress}% Uploaded
+          </p>
+        </div>
+      )}
 
       {uploadError && (
         <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-medium rounded-xs flex items-center gap-2">
@@ -154,7 +171,7 @@ export const BrochureUploader = ({
             className="bg-white text-xs"
           />
           <p className="text-[10px] text-gray-400">
-            Paste Google Drive, Dropbox, or any direct PDF URL if file size exceeds 4.5 MB.
+            Paste Google Drive, Dropbox, or any direct PDF URL if you prefer to link externally.
           </p>
         </div>
       )}
@@ -227,7 +244,7 @@ export const BrochureUploader = ({
         </div>
       ) : (
         <div className="p-4 bg-gray-50 border border-dashed border-gray-300 rounded-xs text-center text-xs text-gray-500">
-          No PDF brochure attached for this vehicle. Upload a PDF (max 4.5 MB) or click "Paste PDF Link" to add a brochure URL.
+          No PDF brochure attached for this vehicle. Click "Upload PDF" to select any PDF file from your laptop.
         </div>
       )}
     </div>
