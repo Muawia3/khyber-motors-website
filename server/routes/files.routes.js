@@ -30,6 +30,10 @@ function findFileOnDisk(targetPath) {
     path.join(publicDir, 'uploads', 'brochures', base),
     path.join(publicDir, 'uploads', base),
     path.join(publicDir, 'brochures', base),
+    path.join('/tmp', 'uploads', 'images', base),
+    path.join('/tmp', 'uploads', 'brochures', base),
+    path.join('/tmp', 'uploads', base),
+    path.join('/tmp', base),
   ];
 
   for (const loc of searchLocations) {
