@@ -1,6 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let prismaInstance = null;
 
@@ -19,16 +23,26 @@ function getDatabaseUrl() {
         path.join(cwd, 'dev.db'),
         path.resolve('prisma/dev.db'),
         path.resolve('dev.db'),
+        path.join(__dirname, '../../prisma/dev.db'),
+        path.join(__dirname, '../prisma/dev.db'),
+        '/var/task/prisma/dev.db',
+        '/var/task/dev.db',
       ];
 
-      const source = candidatePaths.find((p) => fs.existsSync(p));
+      const source = candidatePaths.find((p) => {
+        try {
+          return fs.existsSync(p) && fs.statSync(p).size > 0;
+        } catch {
+          return false;
+        }
+      });
 
-      if (source && !fs.existsSync(tmpDbPath)) {
+      if (source && (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0)) {
         fs.copyFileSync(source, tmpDbPath);
         console.log(`✅ Copied SQLite database from ${source} to ${tmpDbPath}`);
       }
 
-      if (fs.existsSync(tmpDbPath)) {
+      if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
         return `file:${tmpDbPath}`;
       } else if (source) {
         return `file:${source}`;
