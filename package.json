@@ -9,6 +9,8 @@
     "seed": "node server/seed/seed.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
+    "postinstall": "prisma generate",
+    "vercel-build": "prisma generate && vite build",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
