@@ -15,9 +15,7 @@ export const DEFAULT_CONTACT_CONTENT = {
   salesDirect: '+92 300 1234567',
   serviceDirect: '+92 300 7654321',
   whatsapp: '+92 300 0000000',
-  email: 'info@khybermotors.com.pk',
-  salesEmail: 'sales@khybermotors.com.pk',
-  serviceEmail: 'service@khybermotors.com.pk',
+  email: 'muawiakhan000@gmail.com',
 
   social: {
     facebook: 'https://facebook.com/khybermotors',

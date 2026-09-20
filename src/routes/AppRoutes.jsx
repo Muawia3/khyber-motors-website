@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { HomePage } from '../pages/Home';
 import { VehiclesPage } from '../pages/Vehicles';
@@ -62,6 +62,15 @@ const ProtectedRoute = ({ children }) => {
 };
 
 export const AppRoutes = () => {
+  const location = useLocation();
+  const { isAuthenticated, logout } = useAuth();
+
+  // Auto-logout when user leaves /admin routes to ensure sign-in is required every time
+  useEffect(() => {
+    if (isAuthenticated && !location.pathname.startsWith('/admin')) {
+      logout();
+    }
+  }, [location.pathname, isAuthenticated, logout]);
   return (
     <Routes>
       {/* Public Routes */}
