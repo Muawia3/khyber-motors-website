@@ -29,13 +29,11 @@ export const getFileUrl = (url, fallback = '') => {
     return `${cleanBase}${cleanPath}`;
   }
 
-  // In development browser environment, default to backend server port 5000
-  if (typeof window !== 'undefined') {
-    const hostname = window.location.hostname || 'localhost';
-    const port = '5000';
-    const protocol = window.location.protocol || 'http:';
-    return `${protocol}//${hostname}:${port}${cleanPath}`;
+  // Only in local development on localhost, route uploaded files (/uploads/) to local backend server (port 5000)
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost' && cleanPath.startsWith('/uploads')) {
+    return `http://localhost:5000${cleanPath}`;
   }
 
+  // For static public assets and Vercel static deployments, return clean relative path directly
   return cleanPath;
 };

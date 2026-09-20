@@ -1,4 +1,5 @@
 import { apiFetch } from './api';
+import { VEHICLES_DATA } from '../data/vehicles';
 
 /**
  * Normalizes vehicle category and subcategory to standard taxonomy.
@@ -72,11 +73,15 @@ function normalizeVehicle(v) {
 
 export const vehicleService = {
   getVehicles: async () => {
-    const res = await apiFetch('/vehicles');
-    if (res && res.success && Array.isArray(res.data)) {
-      return res.data.map(normalizeVehicle);
+    try {
+      const res = await apiFetch('/vehicles');
+      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+        return res.data.map(normalizeVehicle);
+      }
+    } catch (err) {
+      console.warn('API getVehicles warning:', err.message);
     }
-    return [];
+    return VEHICLES_DATA.map(normalizeVehicle);
   },
 
   getVehicleById: async (id) => {

@@ -431,3 +431,5 @@ export const VEHICLES = [
   },
 ];
 
+export const VEHICLES_DATA = VEHICLES;
+
