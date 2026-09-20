@@ -236,7 +236,7 @@ export const HomePage = () => {
   return (
     <div className="space-y-16 sm:space-y-24">
       {/* 1. HERO SECTION */}
-      <section className="relative bg-gray-950 text-white overflow-hidden border-b-4 border-[#C8102E] flex items-center min-h-[460px] sm:min-h-[520px] lg:min-h-[580px] py-16 sm:py-20 lg:py-24">
+      <section className="relative bg-gray-950 text-white overflow-hidden border-b-4 border-[#C8102E] flex items-center min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] py-10 sm:py-14 lg:py-16">
         {/* Subtle visual overlay pattern & dark gradient for text contrast */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950/90 via-gray-950/65 to-gray-950/30 z-10" />
         <div className="absolute inset-0 bg-[radial-gradient(#1f2937_1px,transparent_1px)] [background-size:24px_24px] opacity-20 z-10" />
@@ -260,7 +260,7 @@ export const HomePage = () => {
         </div>
 
         <Container size="xl" className="relative z-20 w-full">
-          <div className="max-w-3xl space-y-4 sm:space-y-6 animate-fadeInUp motion-reduce:animate-none">
+          <div className="max-w-3xl space-y-3.5 sm:space-y-5 animate-fadeInUp motion-reduce:animate-none">
             {/* Small Eyebrow */}
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#C8102E]/10 border border-[#C8102E]/30 rounded-xs">
               <Sparkles className="w-3.5 h-3.5 text-[#C8102E]" />
