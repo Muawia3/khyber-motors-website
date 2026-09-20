@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = getToken();
-      const savedUser = localStorage.getItem('jac_admin_user');
 
       if (!token) {
         setUser(null);
@@ -22,23 +21,16 @@ export const AuthProvider = ({ children }) => {
         if (res && res.success && res.data) {
           setUser(res.data);
           localStorage.setItem('jac_admin_user', JSON.stringify(res.data));
-        } else if (savedUser) {
-          setUser(JSON.parse(savedUser));
         } else {
           setToken(null);
           setUser(null);
+          localStorage.removeItem('jac_admin_user');
         }
       } catch (err) {
-        console.warn('Auth verification API warning:', err.message);
-        if (savedUser) {
-          try {
-            setUser(JSON.parse(savedUser));
-          } catch {
-            setUser(null);
-          }
-        } else {
-          setUser(null);
-        }
+        console.warn('Auth verification failed:', err.message);
+        setToken(null);
+        setUser(null);
+        localStorage.removeItem('jac_admin_user');
       } finally {
         setLoading(false);
       }
@@ -61,38 +53,17 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('jac_admin_user', JSON.stringify(userData));
         return { success: true, user: userData };
       }
+      return { success: false, error: res?.error || 'Invalid email or password.' };
     } catch (err) {
-      console.warn('API Login error, checking static fallback auth:', err.message);
+      return { success: false, error: err.message || 'Authentication failed.' };
     }
-
-    // Static / Vercel fallback authentication if backend API is offline
-    if (
-      email &&
-      password &&
-      (email.toLowerCase().includes('admin') || email.toLowerCase().includes('khyber') || email.toLowerCase().includes('jac')) &&
-      (password === 'Admin@123456' || password === 'admin' || password.length >= 6)
-    ) {
-      const fallbackUser = {
-        id: 'admin-fallback-id',
-        name: 'Super Admin',
-        email: email,
-        role: 'SUPER_ADMIN',
-      };
-      const fallbackToken = 'demo_admin_jwt_token_vercel_fallback';
-      setToken(fallbackToken);
-      setUser(fallbackUser);
-      localStorage.setItem('jac_admin_user', JSON.stringify(fallbackUser));
-      return { success: true, user: fallbackUser };
-    }
-
-    return { success: false, error: 'Invalid credentials. Please enter valid admin email and password.' };
   };
 
   const logout = async () => {
     try {
       await apiFetch('/auth/logout', { method: 'POST' });
     } catch (e) {
-      console.warn('Logout API warning:', e.message);
+      console.warn('Logout API notice:', e.message);
     }
     setToken(null);
     setUser(null);

@@ -8,12 +8,28 @@ datasource db {
 }
 
 model AdminUser {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         String   @default("ADMIN")
-  createdAt    DateTime @default(now())
+  id             String         @id @default(uuid())
+  email          String         @unique
+  passwordHash   String
+  name           String
+  role           String         @default("ADMIN")
+  isActive       Boolean        @default(true)
+  isPrimary      Boolean        @default(false)
+  lastLoginAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now()) @updatedAt
+  loginHistories LoginHistory[]
+}
+
+model LoginHistory {
+  id        String     @id @default(uuid())
+  adminId   String?
+  admin     AdminUser? @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  email     String
+  status    String     @default("SUCCESS")
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime   @default(now())
 }
 
 model Vehicle {

@@ -398,22 +398,28 @@ async function seed() {
   console.log('🌱 Starting database seeding...');
 
   try {
-    // 1. Seed Admin User
-    const adminEmail = 'admin@jacmotors.pk';
-    const defaultPassword = 'Admin@123456';
-    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    // 1. Seed Primary Admin User using environment variables ADMIN_EMAIL and ADMIN_PASSWORD
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@khybermotors.com.pk').toLowerCase().trim();
+    const rawPassword = process.env.ADMIN_PASSWORD || 'Admin@123456';
+    const passwordHash = await bcrypt.hash(rawPassword, 10);
 
     const admin = await prisma.adminUser.upsert({
       where: { email: adminEmail },
-      update: { passwordHash },
+      update: {
+        passwordHash,
+        isPrimary: true,
+        isActive: true,
+      },
       create: {
         email: adminEmail,
         passwordHash,
-        name: 'JAC Administrator',
-        role: 'ADMIN',
+        name: 'Primary Super Admin',
+        role: 'SUPER_ADMIN',
+        isPrimary: true,
+        isActive: true,
       },
     });
-    console.log(`✅ Admin user seeded: ${admin.email}`);
+    console.log(`✅ Primary Admin user seeded: ${admin.email}`);
 
     // 2. Seed Vehicles
     for (const v of defaultVehicles) {
