@@ -9,13 +9,10 @@ const __dirname = path.dirname(__filename);
 let prismaInstance = null;
 
 function getDatabaseUrl() {
-  if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith('file:')) {
-    return process.env.DATABASE_URL;
-  }
-
   const cwd = process.cwd();
   const tmpDbPath = '/tmp/dev.db';
 
+  // Check Vercel or AWS Lambda environment
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     try {
       const candidatePaths = [
@@ -52,6 +49,15 @@ function getDatabaseUrl() {
     }
   }
 
+  let envUrl = process.env.DATABASE_URL;
+  if (envUrl) {
+    if (envUrl.startsWith('file:')) {
+      return envUrl;
+    }
+    // Fix missing file: prefix
+    return `file:${envUrl}`;
+  }
+
   const defaultPath = path.join(cwd, 'prisma', 'dev.db');
   return `file:${defaultPath}`;
 }
@@ -59,7 +65,16 @@ function getDatabaseUrl() {
 export function getPrisma() {
   if (!prismaInstance) {
     try {
-      const dbUrl = getDatabaseUrl();
+      let dbUrl = getDatabaseUrl();
+
+      // Enforce file: prefix for SQLite compatibility
+      if (!dbUrl.startsWith('file:')) {
+        dbUrl = `file:${dbUrl}`;
+      }
+
+      // Overwrite process.env.DATABASE_URL so Prisma's internal schema validator never fails
+      process.env.DATABASE_URL = dbUrl;
+
       prismaInstance = new PrismaClient({
         datasources: {
           db: {
