@@ -4,48 +4,9 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
-const DEFAULT_HERO_IMAGES = [
-  {
-    url: '/Gemini_Generated_Image_9aiio29aiio29aii.jpeg',
-    title: 'Flagship JAC T9 4x4 Double Cabin Pickup',
-    altText: 'JAC T9 4x4 Pickup Truck in KP',
-    displayOrder: 0,
-    isActive: true,
-  },
-  {
-    url: '/JAC1.jpg',
-    title: 'Heavy-Duty Commercial Logistics Freight Truck',
-    altText: 'JAC Commercial Transport Truck',
-    displayOrder: 1,
-    isActive: true,
-  },
-  {
-    url: '/JAC.jpeg',
-    title: 'Authorized 3S Sales, Service & Spare Parts Dealership',
-    altText: 'Khyber Motors Facility',
-    displayOrder: 2,
-    isActive: true,
-  },
-];
-
-// Helper to seed initial hero images if DB table is empty
-async function seedDefaultHeroImagesIfEmpty() {
-  try {
-    const count = await prisma.heroImage.count();
-    if (count === 0) {
-      for (const img of DEFAULT_HERO_IMAGES) {
-        await prisma.heroImage.create({ data: img });
-      }
-    }
-  } catch (err) {
-    console.warn('HeroImage seed notice:', err.message);
-  }
-}
-
 // GET /api/hero-images (Public & Admin)
 router.get('/', async (req, res) => {
   try {
-    await seedDefaultHeroImagesIfEmpty();
 
     const { activeOnly, active } = req.query;
     const isOnlyActive = activeOnly === 'true' || active === 'true';

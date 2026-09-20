@@ -13,14 +13,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: true,
     isNew: true,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/4/48/JAC_Hunter_facelift_002.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/4/48/JAC_Hunter_facelift_002.jpg',
-    altText: 'JAC T9 Hunter Double Cabin Pickup',
-    gallery: JSON.stringify([
-      'https://upload.wikimedia.org/wikipedia/commons/4/48/JAC_Hunter_facelift_002.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/1/12/JAC_Hunter_facelift_003.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/4/43/JAC_T9_EV_Auto_Zuerich_2024_DSC_6279.jpg',
-    ]),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([
       { name: 'Titanium Metallic Gray', hex: '#374151' },
       { name: 'Crimson Red', hex: '#C8102E' },
@@ -99,13 +95,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/2018_JAC_Shuailing_T6%2C_front_8.7.18.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/2018_JAC_Shuailing_T6%2C_front_8.7.18.jpg',
-    altText: 'JAC T9 Frison Double Cabin Pickup',
-    gallery: JSON.stringify([
-      'https://upload.wikimedia.org/wikipedia/commons/4/4e/2018_JAC_Shuailing_T6%2C_front_8.7.18.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/0/03/2018_JAC_Shuailing_T6%2C_rear_8.7.18.jpg',
-    ]),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([
       { name: 'Commercial White', hex: '#FFFFFF' },
       { name: 'Granite Gray', hex: '#4B5563' },
@@ -155,13 +148,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/2017_JAC_X200_CRDi.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/e/ec/2017_JAC_X200_CRDi.jpg',
-    altText: 'JAC X200 Light Commercial Truck',
-    gallery: JSON.stringify([
-      'https://upload.wikimedia.org/wikipedia/commons/e/ec/2017_JAC_X200_CRDi.jpg',
-      'https://upload.wikimedia.org/wikipedia/commons/0/07/2018_JAC_X200.jpg',
-    ]),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([{ name: 'Commercial White', hex: '#FFFFFF' }]),
     overview: 'The JAC X200 is an agile 1.15-ton payload light commercial deck truck engineered for urban goods delivery, retail transport, and small business logistics.',
     specs: JSON.stringify({
@@ -207,10 +197,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/JAC_truck_2021052203.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/JAC_truck_2021052203.jpg',
-    altText: 'JAC 1020 Light Commercial Truck',
-    gallery: JSON.stringify(['https://upload.wikimedia.org/wikipedia/commons/b/ba/JAC_truck_2021052203.jpg']),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([{ name: 'Commercial White', hex: '#FFFFFF' }]),
     overview: 'The JAC 1020 light-duty commercial truck is built for medium-distance freight transport and urban distribution with a 3.5-ton load capacity.',
     specs: JSON.stringify({
@@ -256,10 +246,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/4/47/JAC_Truck_Philippines.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/4/47/JAC_Truck_Philippines.jpg',
-    altText: 'JAC 1042 Light Commercial Truck',
-    gallery: JSON.stringify(['https://upload.wikimedia.org/wikipedia/commons/4/47/JAC_Truck_Philippines.jpg']),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([{ name: 'Commercial White', hex: '#FFFFFF' }]),
     overview: 'The JAC 1042 is a high-capacity 14-foot deck commercial truck built for heavy freight distribution across intercity and local routes.',
     specs: JSON.stringify({
@@ -305,10 +295,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/4/40/JAC_truck_in_Nha_Trang_01.JPG',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/4/40/JAC_truck_in_Nha_Trang_01.JPG',
-    altText: 'JAC 1091 Commercial Truck',
-    gallery: JSON.stringify(['https://upload.wikimedia.org/wikipedia/commons/4/40/JAC_truck_in_Nha_Trang_01.JPG']),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([{ name: 'Commercial White', hex: '#FFFFFF' }]),
     overview: 'The JAC 1091 commercial truck features a 17-foot deck capacity designed for heavy logistics, agricultural freight, and building material transport.',
     specs: JSON.stringify({
@@ -354,10 +344,10 @@ const defaultVehicles = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: 'https://upload.wikimedia.org/wikipedia/commons/d/d4/JAC_pickup.jpg',
-    heroImage: 'https://upload.wikimedia.org/wikipedia/commons/d/d4/JAC_pickup.jpg',
-    altText: 'JAC 1120 Commercial Truck',
-    gallery: JSON.stringify(['https://upload.wikimedia.org/wikipedia/commons/d/d4/JAC_pickup.jpg']),
+    mainImage: '',
+    heroImage: '',
+    altText: 'JAC Vehicle',
+    gallery: JSON.stringify([]),
     colorOptions: JSON.stringify([{ name: 'Commercial White', hex: '#FFFFFF' }]),
     overview: 'The JAC 1120 commercial truck provides maximum deck space with its 20-foot platform length for bulk cargo and high-tonnage regional transport.',
     specs: JSON.stringify({
@@ -421,14 +411,13 @@ async function seed() {
     });
     console.log(`✅ Primary Admin user seeded: ${admin.email}`);
 
-    // 2. Seed Vehicles
+    // 2. Seed Vehicles (Do NOT overwrite existing vehicle data or images if already in DB)
     for (const v of defaultVehicles) {
-      const vehicle = await prisma.vehicle.upsert({
-        where: { slug: v.slug },
-        update: v,
-        create: v,
-      });
-      console.log(`✅ Vehicle seeded: ${vehicle.name} (${vehicle.slug})`);
+      const existing = await prisma.vehicle.findUnique({ where: { slug: v.slug } });
+      if (!existing) {
+        const vehicle = await prisma.vehicle.create({ data: v });
+        console.log(`✅ Vehicle seeded: ${vehicle.name} (${vehicle.slug})`);
+      }
     }
 
     // 3. Seed Page Content

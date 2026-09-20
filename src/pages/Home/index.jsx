@@ -89,13 +89,11 @@ export const HomePage = () => {
 
   const heroImages = heroImageRecords.length > 0
     ? heroImageRecords
-    : [
-        {
-          url: '/Gemini_Generated_Image_9aiio29aiio29aii.jpeg',
-          title: 'JAC T9 4x4 Double Cabin Pickup',
-          altText: 'JAC T9 4x4 Pickup Truck in KP',
-        },
-      ];
+    : (featuredPickup?.heroImage || featuredPickup?.mainImage)
+    ? [{ url: featuredPickup.heroImage || featuredPickup.mainImage, title: featuredPickup.name }]
+    : (vehicles.find((v) => v.mainImage || v.heroImage)
+        ? [{ url: vehicles.find((v) => v.mainImage || v.heroImage).mainImage || vehicles.find((v) => v.mainImage || v.heroImage).heroImage, title: 'JAC Vehicle' }]
+        : []);
 
   // Auto-rotate hero images every 5 seconds
   useEffect(() => {

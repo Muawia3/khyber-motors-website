@@ -1,28 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, Gauge, Fuel, Weight, ArrowRight } from 'lucide-react';
+import { Shield, Gauge, Fuel, Weight, ArrowRight, Car } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { Button } from '../ui/Button';
 
 import { getFileUrl } from '../../utils/urlHelper';
 
 export const VehicleCard = ({ vehicle }) => {
+  const imageSrc = vehicle.mainImage || vehicle.heroImage;
+
   return (
     <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none">
       {/* Top Banner & Image */}
       <div>
-        <div className="relative aspect-16/10 bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden">
+        <div className="relative aspect-16/10 bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden flex items-center justify-center">
           {/* Badge Overlays */}
           <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-2">
             <Badge variant="gray">{vehicle.categoryLabel}</Badge>
           </div>
 
-          <img
-            src={getFileUrl(vehicle.mainImage || vehicle.heroImage)}
-            alt={vehicle.altText || vehicle.name}
-            loading="lazy"
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"
-          />
+          {imageSrc ? (
+            <img
+              src={getFileUrl(imageSrc)}
+              alt={vehicle.altText || vehicle.name}
+              loading="lazy"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"
+            />
+          ) : (
+            <div className="text-center p-4 space-y-2 text-gray-400">
+              <Car className="w-10 h-10 mx-auto text-gray-500 stroke-[1.5]" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{vehicle.name}</p>
+            </div>
+          )}
         </div>
 
         {/* Content Body */}
