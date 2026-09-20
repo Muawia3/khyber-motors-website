@@ -107,11 +107,13 @@ model UploadedFile {
 }
 
 model HeroImage {
-  id        String   @id @default(uuid())
-  url       String
-  title     String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  url          String
+  title        String?
+  altText      String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 }
 
 model SocialLink {
