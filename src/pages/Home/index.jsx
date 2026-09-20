@@ -40,9 +40,9 @@ import { getFileUrl } from '../../utils/urlHelper';
 export const HomePage = () => {
   const { contactData } = useContact();
   const navigate = useNavigate();
-  const [homeContent, setHomeContent] = useState(DEFAULT_HOMEPAGE_CONTENT);
-  const [vehicles, setVehicles] = useState([]);
-  const [heroImageRecords, setHeroImageRecords] = useState([]);
+  const [homeContent, setHomeContent] = useState(() => contentService.getCachedHomepageContent() || DEFAULT_HOMEPAGE_CONTENT);
+  const [vehicles, setVehicles] = useState(() => vehicleService.getCachedVehicles() || []);
+  const [heroImageRecords, setHeroImageRecords] = useState(() => heroImageService.getCachedHeroImages() || []);
   const [reviews, setReviews] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
 

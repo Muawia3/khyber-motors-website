@@ -71,17 +71,22 @@ function normalizeVehicle(v) {
   return normalizedObj;
 }
 
+let vehiclesMemoryCache = null;
+
 export const vehicleService = {
+  getCachedVehicles: () => vehiclesMemoryCache,
+
   getVehicles: async () => {
     try {
       const res = await apiFetch('/vehicles');
       if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-        return res.data.map(normalizeVehicle);
+        vehiclesMemoryCache = res.data.map(normalizeVehicle);
+        return vehiclesMemoryCache;
       }
     } catch (err) {
       console.warn('API getVehicles warning:', err.message);
     }
-    return VEHICLES_DATA.map(normalizeVehicle);
+    return vehiclesMemoryCache || VEHICLES_DATA.map(normalizeVehicle);
   },
 
   getVehicleById: async (id) => {
@@ -111,6 +116,7 @@ export const vehicleService = {
   },
 
   saveVehicle: async (vehicleData) => {
+    vehiclesMemoryCache = null;
     const res = await apiFetch('/vehicles', {
       method: 'POST',
       body: JSON.stringify(vehicleData),
@@ -122,6 +128,7 @@ export const vehicleService = {
   },
 
   updateVehicle: async (id, updatedData) => {
+    vehiclesMemoryCache = null;
     const res = await apiFetch(`/vehicles/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updatedData),
@@ -133,6 +140,7 @@ export const vehicleService = {
   },
 
   deleteVehicle: async (id) => {
+    vehiclesMemoryCache = null;
     const res = await apiFetch(`/vehicles/${id}`, { method: 'DELETE' });
     if (res && res.success) {
       return true;

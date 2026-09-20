@@ -10,8 +10,8 @@ import { VehicleCardSkeleton } from '../../components/ui/Skeleton';
 export const VehiclesPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all'); // 'all' | 'passengers' | 'trucks'
   const [selectedTruckSubcategory, setSelectedTruckSubcategory] = useState('all-trucks'); // 'all-trucks' | 'heavy' | 'light'
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [vehicles, setVehicles] = useState(() => vehicleService.getCachedVehicles() || []);
+  const [loading, setLoading] = useState(() => !vehicleService.getCachedVehicles()?.length);
 
   useEffect(() => {
     document.title = 'Explore Our Vehicles | Khyber Motors';

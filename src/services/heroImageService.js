@@ -1,18 +1,23 @@
 import { apiFetch } from './api';
 
+let heroImagesCache = null;
+
 export const heroImageService = {
+  getCachedHeroImages: () => heroImagesCache,
+
   // GET hero images (activeOnly = true for public site, false for admin)
   getHeroImages: async (activeOnly = false) => {
     try {
       const endpoint = activeOnly ? '/hero-images?activeOnly=true' : '/hero-images';
       const res = await apiFetch(endpoint);
       if (res && res.success && Array.isArray(res.data)) {
+        if (activeOnly) heroImagesCache = res.data;
         return res.data;
       }
     } catch (err) {
       console.warn('apiFetch getHeroImages error:', err.message);
     }
-    return [];
+    return activeOnly ? (heroImagesCache || []) : [];
   },
 
   // Create hero image (Admin protected)

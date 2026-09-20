@@ -4,21 +4,27 @@ import { SERVICES_DATA } from '../data/services';
 import { DEFAULT_CONTACT_CONTENT } from '../data/dealership';
 import { apiFetch } from './api';
 
+let homeContentCache = null;
+
 export const contentService = {
+  getCachedHomepageContent: () => homeContentCache,
+
   // Homepage Content
   getHomepageContent: async () => {
     try {
       const res = await apiFetch('/content/home');
       if (res && res.success && res.data) {
+        homeContentCache = res.data;
         return res.data;
       }
     } catch (err) {
       console.warn('API getHomepageContent warning:', err.message);
     }
-    return DEFAULT_HOMEPAGE_CONTENT;
+    return homeContentCache || DEFAULT_HOMEPAGE_CONTENT;
   },
 
   saveHomepageContent: async (data) => {
+    homeContentCache = null;
     const res = await apiFetch('/content/home', {
       method: 'PUT',
       body: JSON.stringify({ data }),

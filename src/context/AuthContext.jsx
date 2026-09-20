@@ -68,12 +68,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
-    try {
-      await apiFetch('/auth/logout', { method: 'POST' });
-    } catch (e) {
-      console.warn('Logout API notice:', e.message);
-    }
+  const logout = () => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('jac_admin_user');
