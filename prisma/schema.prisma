@@ -48,6 +48,8 @@ model Vehicle {
   priceLabel        String?
   isPriceOnRequest  Boolean  @default(true)
   status            String   @default("Published") // 'Published' | 'Draft'
+  stockStatus       String   @default("in_stock")
+  stockQuantity     Int      @default(1)
   isFlagship        Boolean  @default(false)
   isNew             Boolean  @default(false)
   mainImage         String
@@ -57,7 +59,13 @@ model Vehicle {
   colorOptions      String   @default("[]") // JSON string array of {name, hex}
   overview          String
   specs             String   @default("{}") // JSON string object of key-value specs
+  features          String   @default("[]") // JSON string array of features
+  whyT9Benefits     String   @default("[]") // JSON string array of highlights
+  warranty          String?
+  brochureAvailable Boolean  @default(true)
   brochureUrl       String?
+  seoTitle          String?
+  metaDescription   String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   leads             Lead[]
