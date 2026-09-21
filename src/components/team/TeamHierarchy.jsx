@@ -3,7 +3,7 @@ import { User, ChevronDown, Layers, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Container } from '../common/Container';
 import { SectionHeading } from '../common/SectionHeading';
 
-import { getFileUrl } from '../../utils/urlHelper';
+import { SafeImage } from '../common/SafeImage';
 
 const LEVEL_STYLES = [
   // Level 0 (Top Executive / GM)
@@ -83,8 +83,8 @@ export const ProfileCard = ({
       {/* Header: Photo + Info */}
       <div className="flex items-start gap-3 sm:gap-4 pt-1">
         {member.imageUrl ? (
-          <img
-            src={getFileUrl(member.imageUrl)}
+          <SafeImage
+            src={member.imageUrl}
             alt={member.name}
             className={`${style.imgSize} rounded-full object-cover border-2 border-gray-200 group-hover:border-[#C8102E] shrink-0 shadow-xs transition-colors`}
           />

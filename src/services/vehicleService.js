@@ -75,8 +75,14 @@ let vehiclesMemoryCache = null;
 
 export const vehicleService = {
   getCachedVehicles: () => vehiclesMemoryCache,
+  clearCache: () => {
+    vehiclesMemoryCache = null;
+  },
 
-  getVehicles: async () => {
+  getVehicles: async (force = false) => {
+    if (force) {
+      vehiclesMemoryCache = null;
+    }
     try {
       const res = await apiFetch('/vehicles');
       if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {

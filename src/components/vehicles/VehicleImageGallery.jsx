@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Expand, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Modal } from '../ui/Modal';
-import { getFileUrl } from '../../utils/urlHelper';
+import { SafeImage } from '../common/SafeImage';
 
 export const VehicleImageGallery = ({
   images,
@@ -40,10 +40,11 @@ export const VehicleImageGallery = ({
     >
       {/* Main Image View */}
       <div className="relative aspect-16/10 bg-gray-900 border border-gray-200 rounded-sm overflow-hidden group shadow-md">
-        <img
+        <SafeImage
           key={activeImage}
-          src={getFileUrl(activeImage)}
+          src={activeImage}
           alt={`${vehicleName} View ${selectedIndex + 1} of ${images.length}`}
+          loading="eager"
           className="w-full h-full object-cover transition-all duration-300 animate-fadeIn motion-reduce:animate-none"
         />
 
@@ -104,8 +105,8 @@ export const VehicleImageGallery = ({
                   : 'border-gray-200 opacity-70 hover:opacity-100'
               }`}
             >
-              <img
-                src={getFileUrl(img)}
+              <SafeImage
+                src={img}
                 alt={`${vehicleName} Thumbnail ${idx + 1}`}
                 loading="lazy"
                 className="w-full h-full object-cover"
@@ -123,8 +124,8 @@ export const VehicleImageGallery = ({
         maxWidth="4xl"
       >
         <div className="aspect-16/10 bg-gray-950 rounded-sm overflow-hidden relative">
-          <img
-            src={getFileUrl(activeImage)}
+          <SafeImage
+            src={activeImage}
             alt={vehicleName}
             className="w-full h-full object-contain"
           />

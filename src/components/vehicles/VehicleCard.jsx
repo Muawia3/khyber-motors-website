@@ -4,7 +4,7 @@ import { Shield, Gauge, Fuel, Weight, ArrowRight, Car } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { Button } from '../ui/Button';
 
-import { getFileUrl } from '../../utils/urlHelper';
+import { SafeImage } from '../common/SafeImage';
 
 export const VehicleCard = ({ vehicle }) => {
   const imageSrc = vehicle.mainImage || vehicle.heroImage;
@@ -20,8 +20,8 @@ export const VehicleCard = ({ vehicle }) => {
           </div>
 
           {imageSrc ? (
-            <img
-              src={getFileUrl(imageSrc)}
+            <SafeImage
+              src={imageSrc}
               alt={vehicle.altText || vehicle.name}
               loading="lazy"
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"

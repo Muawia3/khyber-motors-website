@@ -1,22 +1,34 @@
 import { apiFetch } from './api';
 
+let teamCache = null;
+
 export const teamService = {
+  getCachedTeamMembers: () => teamCache,
+  clearCache: () => {
+    teamCache = null;
+  },
+
   // GET team members (activeOnly = true for public site, false/all=true for admin)
-  getTeamMembers: async (activeOnly = false) => {
+  getTeamMembers: async (activeOnly = false, force = false) => {
+    if (force) {
+      teamCache = null;
+    }
     try {
       const endpoint = activeOnly ? '/team?activeOnly=true' : '/team?all=true';
       const res = await apiFetch(endpoint);
       if (res && res.success && Array.isArray(res.data)) {
+        if (activeOnly) teamCache = res.data;
         return res.data;
       }
     } catch (err) {
       console.warn('apiFetch getTeamMembers error:', err.message);
     }
-    return [];
+    return activeOnly ? (teamCache || []) : [];
   },
 
   // Create team member profile (Admin protected)
   createTeamMember: async (data) => {
+    teamCache = null;
     const res = await apiFetch('/team', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -29,6 +41,7 @@ export const teamService = {
 
   // Update team member profile (Admin protected)
   updateTeamMember: async (id, data) => {
+    teamCache = null;
     const res = await apiFetch(`/team/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -41,6 +54,7 @@ export const teamService = {
 
   // Toggle active status (Admin protected)
   toggleTeamMember: async (id) => {
+    teamCache = null;
     const res = await apiFetch(`/team/${id}/toggle`, {
       method: 'PUT',
     });
@@ -52,6 +66,7 @@ export const teamService = {
 
   // Delete team member profile (Admin protected)
   deleteTeamMember: async (id) => {
+    teamCache = null;
     const res = await apiFetch(`/team/${id}`, {
       method: 'DELETE',
     });
@@ -63,6 +78,7 @@ export const teamService = {
 
   // Upload profile image file to server (Admin protected)
   uploadImageFile: async (file) => {
+    teamCache = null;
     const formData = new FormData();
     formData.append('file', file);
 
@@ -78,5 +94,5 @@ export const teamService = {
   },
 };
 
-
 export default teamService;
+

@@ -8,9 +8,15 @@ let homeContentCache = null;
 
 export const contentService = {
   getCachedHomepageContent: () => homeContentCache,
+  clearCache: () => {
+    homeContentCache = null;
+  },
 
   // Homepage Content
-  getHomepageContent: async () => {
+  getHomepageContent: async (force = false) => {
+    if (force) {
+      homeContentCache = null;
+    }
     try {
       const res = await apiFetch('/content/home');
       if (res && res.success && res.data) {
@@ -49,6 +55,7 @@ export const contentService = {
   },
 
   saveAboutContent: async (data) => {
+    homeContentCache = null;
     const res = await apiFetch('/content/about', {
       method: 'PUT',
       body: JSON.stringify({ data }),
@@ -73,6 +80,7 @@ export const contentService = {
   },
 
   saveServicesContent: async (data) => {
+    homeContentCache = null;
     const res = await apiFetch('/content/services', {
       method: 'PUT',
       body: JSON.stringify({ data }),
@@ -97,6 +105,7 @@ export const contentService = {
   },
 
   saveContactContent: async (data) => {
+    homeContentCache = null;
     const res = await apiFetch('/content/contact', {
       method: 'PUT',
       body: JSON.stringify({ data }),
@@ -107,3 +116,4 @@ export const contentService = {
     throw new Error(res?.error || 'Failed to save contact/footer content.');
   },
 };
+

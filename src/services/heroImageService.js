@@ -4,9 +4,15 @@ let heroImagesCache = null;
 
 export const heroImageService = {
   getCachedHeroImages: () => heroImagesCache,
+  clearCache: () => {
+    heroImagesCache = null;
+  },
 
   // GET hero images (activeOnly = true for public site, false for admin)
-  getHeroImages: async (activeOnly = false) => {
+  getHeroImages: async (activeOnly = false, force = false) => {
+    if (force) {
+      heroImagesCache = null;
+    }
     try {
       const endpoint = activeOnly ? '/hero-images?activeOnly=true' : '/hero-images';
       const res = await apiFetch(endpoint);
@@ -22,6 +28,7 @@ export const heroImageService = {
 
   // Create hero image (Admin protected)
   createHeroImage: async (data) => {
+    heroImagesCache = null;
     const res = await apiFetch('/hero-images', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -34,6 +41,7 @@ export const heroImageService = {
 
   // Update hero image (Admin protected)
   updateHeroImage: async (id, data) => {
+    heroImagesCache = null;
     const res = await apiFetch(`/hero-images/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -46,6 +54,7 @@ export const heroImageService = {
 
   // Reorder hero images (Admin protected)
   reorderHeroImages: async (items) => {
+    heroImagesCache = null;
     const res = await apiFetch('/hero-images/reorder', {
       method: 'PUT',
       body: JSON.stringify({ items }),
@@ -58,6 +67,7 @@ export const heroImageService = {
 
   // Delete hero image (Admin protected)
   deleteHeroImage: async (id) => {
+    heroImagesCache = null;
     const res = await apiFetch(`/hero-images/${id}`, {
       method: 'DELETE',
     });
@@ -69,6 +79,7 @@ export const heroImageService = {
 
   // Upload image file to server (Admin protected)
   uploadImageFile: async (file) => {
+    heroImagesCache = null;
     const formData = new FormData();
     formData.append('file', file);
 
@@ -85,3 +96,4 @@ export const heroImageService = {
 };
 
 export default heroImageService;
+

@@ -35,6 +35,7 @@ import { useContact } from '../../context/useContact';
 import { AnimatedSection } from '../../components/common/AnimatedSection';
 import { VehicleCardSkeleton } from '../../components/ui/Skeleton';
 
+import { SafeImage } from '../../components/common/SafeImage';
 import { getFileUrl } from '../../utils/urlHelper';
 
 export const HomePage = () => {
@@ -61,13 +62,11 @@ export const HomePage = () => {
         if (isMounted) {
           if (list) setVehicles(list);
           if (content) setHomeContent(content);
-          if (activeHeroImgs && activeHeroImgs.length > 0) {
+          if (activeHeroImgs) {
             setHeroImageRecords(activeHeroImgs);
           }
           if (activeReviews) setReviews(activeReviews);
         }
-
-
       } catch (err) {
         console.error('Home data load error:', err);
       }
@@ -247,10 +246,11 @@ export const HomePage = () => {
             const imgSrc = typeof imgObj === 'string' ? imgObj : imgObj.url;
             const imgAlt = typeof imgObj === 'object' && imgObj.altText ? imgObj.altText : (imgObj.title || `JAC Commercial Vehicle Slide ${index + 1}`);
             return (
-              <img
+              <SafeImage
                 key={`${imgSrc}-${index}`}
-                src={getFileUrl(imgSrc)}
+                src={imgSrc}
                 alt={imgAlt}
+                loading={index === 0 ? 'eager' : 'lazy'}
                 className={`absolute inset-0 w-full h-full object-cover object-center sm:object-right transition-opacity duration-1000 ease-in-out ${
                   index === activeSlide ? 'opacity-85 scale-105' : 'opacity-0 scale-100'
                 }`}

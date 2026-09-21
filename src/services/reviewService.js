@@ -1,22 +1,34 @@
 import { apiFetch } from './api';
 
+let reviewsCache = null;
+
 export const reviewService = {
+  getCachedReviews: () => reviewsCache,
+  clearCache: () => {
+    reviewsCache = null;
+  },
+
   // GET reviews (activeOnly = true for public site, false for admin)
-  getReviews: async (activeOnly = false) => {
+  getReviews: async (activeOnly = false, force = false) => {
+    if (force) {
+      reviewsCache = null;
+    }
     try {
       const endpoint = activeOnly ? '/reviews?activeOnly=true' : '/reviews?all=true';
       const res = await apiFetch(endpoint);
       if (res && res.success && Array.isArray(res.data)) {
+        if (activeOnly) reviewsCache = res.data;
         return res.data;
       }
     } catch (err) {
       console.warn('apiFetch getReviews error:', err.message);
     }
-    return [];
+    return activeOnly ? (reviewsCache || []) : [];
   },
 
   // Create review (Admin protected)
   createReview: async (data) => {
+    reviewsCache = null;
     const res = await apiFetch('/reviews', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -29,6 +41,7 @@ export const reviewService = {
 
   // Update review (Admin protected)
   updateReview: async (id, data) => {
+    reviewsCache = null;
     const res = await apiFetch(`/reviews/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
@@ -41,6 +54,7 @@ export const reviewService = {
 
   // Delete review (Admin protected)
   deleteReview: async (id) => {
+    reviewsCache = null;
     const res = await apiFetch(`/reviews/${id}`, {
       method: 'DELETE',
     });
@@ -52,6 +66,7 @@ export const reviewService = {
 
   // Upload avatar file to server
   uploadAvatarFile: async (file) => {
+    reviewsCache = null;
     const formData = new FormData();
     formData.append('file', file);
 
@@ -68,3 +83,4 @@ export const reviewService = {
 };
 
 export default reviewService;
+
