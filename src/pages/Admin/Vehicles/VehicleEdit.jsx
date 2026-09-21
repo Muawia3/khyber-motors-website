@@ -43,7 +43,7 @@ export const VehicleEdit = () => {
     status: 'Published',
     shortDescription: '',
     fullDescription: '',
-    heroImage: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80',
+    heroImage: '',
     galleryImages: [],
     brochureUrl: '',
     specsArray: [
