@@ -54,7 +54,7 @@ export const HomePage = () => {
     const load = async () => {
       try {
         const [list, content, activeHeroImgs, activeReviews] = await Promise.all([
-          vehicleService.getVehicles(),
+          vehicleService.getVehicleCards(),
           contentService.getHomepageContent(),
           heroImageService.getHeroImages(true),
           reviewService.getReviews(true),

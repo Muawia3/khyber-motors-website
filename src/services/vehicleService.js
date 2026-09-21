@@ -79,12 +79,13 @@ export const vehicleService = {
     vehiclesMemoryCache = null;
   },
 
-  getVehicles: async (force = false) => {
+  getVehicles: async (force = false, view = 'cards') => {
     if (force) {
       vehiclesMemoryCache = null;
     }
     try {
-      const res = await apiFetch('/vehicles');
+      const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
+      const res = await apiFetch(endpoint);
       if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
         vehiclesMemoryCache = res.data.map(normalizeVehicle);
         return vehiclesMemoryCache;
@@ -93,6 +94,10 @@ export const vehicleService = {
       console.warn('API getVehicles warning:', err.message);
     }
     return vehiclesMemoryCache || VEHICLES_DATA.map(normalizeVehicle);
+  },
+
+  getVehicleCards: async (force = false) => {
+    return vehicleService.getVehicles(force, 'cards');
   },
 
   getVehicleById: async (id) => {

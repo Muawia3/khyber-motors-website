@@ -4,15 +4,49 @@ import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
-const parseVehicleFields = (vehicle) => {
+const sanitizeUrl = (url) => {
+  if (!url || typeof url !== 'string') return null;
+  // If an inline Base64 data URI (>500 chars) was mistakenly saved, strip it to prevent payload bloat
+  if (url.startsWith('data:') && url.length > 500) {
+    return null;
+  }
+  return url;
+};
+
+const parseVehicleFields = (vehicle, isCardsView = false) => {
   if (!vehicle) return null;
   const stockQty = vehicle.stockQuantity ?? 0;
   const stockStat = vehicle.stockStatus || (stockQty > 0 ? 'in_stock' : 'out_of_stock');
+
+  if (isCardsView) {
+    return {
+      id: vehicle.id,
+      name: vehicle.name,
+      fullTitle: vehicle.fullTitle,
+      slug: vehicle.slug,
+      tagline: vehicle.tagline,
+      category: vehicle.category,
+      subcategory: vehicle.subcategory,
+      categoryLabel: vehicle.categoryLabel,
+      status: vehicle.status,
+      stockStatus: stockStat,
+      stockQuantity: stockQty,
+      mainImage: sanitizeUrl(vehicle.mainImage),
+      heroImage: sanitizeUrl(vehicle.heroImage),
+      overview: vehicle.overview,
+      specs: typeof vehicle.specs === 'string' ? JSON.parse(vehicle.specs || '{}') : (vehicle.specs || {}),
+      createdAt: vehicle.createdAt,
+      updatedAt: vehicle.updatedAt,
+    };
+  }
 
   return {
     ...vehicle,
     stockQuantity: stockQty,
     stockStatus: stockStat,
+    mainImage: sanitizeUrl(vehicle.mainImage),
+    heroImage: sanitizeUrl(vehicle.heroImage),
+    brochureUrl: sanitizeUrl(vehicle.brochureUrl),
     gallery: typeof vehicle.gallery === 'string' ? JSON.parse(vehicle.gallery || '[]') : vehicle.gallery,
     specs: typeof vehicle.specs === 'string' ? JSON.parse(vehicle.specs || '{}') : vehicle.specs,
     features: typeof vehicle.features === 'string' ? JSON.parse(vehicle.features || '[]') : vehicle.features,
@@ -30,7 +64,8 @@ const stringifyIfNeeded = (val, fallback = '[]') => {
 // GET /api/vehicles
 router.get('/', async (req, res) => {
   try {
-    const { category, subcategory, search, status } = req.query;
+    const { category, subcategory, search, status, view } = req.query;
+    const isCardsView = view === 'cards';
 
     const where = {};
     if (category && category.toUpperCase() !== 'ALL') {
@@ -51,12 +86,35 @@ router.get('/', async (req, res) => {
       ];
     }
 
+    const select = isCardsView
+      ? {
+          id: true,
+          name: true,
+          fullTitle: true,
+          slug: true,
+          tagline: true,
+          category: true,
+          subcategory: true,
+          categoryLabel: true,
+          status: true,
+          stockStatus: true,
+          stockQuantity: true,
+          mainImage: true,
+          heroImage: true,
+          overview: true,
+          specs: true,
+          createdAt: true,
+          updatedAt: true,
+        }
+      : undefined;
+
     const vehicles = await prisma.vehicle.findMany({
       where,
+      select,
       orderBy: { createdAt: 'asc' },
     });
 
-    const formatted = vehicles.map(parseVehicleFields);
+    const formatted = vehicles.map((v) => parseVehicleFields(v, isCardsView));
     return res.json({ success: true, count: formatted.length, data: formatted });
   } catch (error) {
     console.error('Fetch vehicles error:', error);

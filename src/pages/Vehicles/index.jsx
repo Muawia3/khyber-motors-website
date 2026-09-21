@@ -30,7 +30,7 @@ export const VehiclesPage = () => {
     const fetchVehicles = async () => {
       setLoading(true);
       try {
-        const list = await vehicleService.getVehicles();
+        const list = await vehicleService.getVehicleCards();
         setVehicles(list || []);
       } catch (err) {
         console.error('Failed to load vehicles from API:', err);
