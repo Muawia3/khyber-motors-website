@@ -35,15 +35,18 @@ async function processFileAndGetUrl(file) {
       : `/api/files/images/${file.filename}`;
   }
 
-  // 2. Persist metadata & fallback buffer into database
+  // 2. Persist metadata into database (avoid storing large base64 strings when Cloudinary is hosting)
   try {
     let base64Data = null;
     let size = file.size || 0;
     if (fs.existsSync(file.path)) {
-      const buffer = fs.readFileSync(file.path);
-      base64Data = buffer.toString('base64');
       const stats = fs.statSync(file.path);
       size = stats.size;
+      // Only keep base64 fallback for small non-Cloudinary local files (< 500KB)
+      if (!finalUrl.startsWith('http') && size < 500 * 1024) {
+        const buffer = fs.readFileSync(file.path);
+        base64Data = buffer.toString('base64');
+      }
     }
 
     await prisma.uploadedFile.upsert({
