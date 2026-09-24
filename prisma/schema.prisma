@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -133,6 +133,7 @@ model Notification {
   type      String   @default("info") // 'info' | 'lead' | 'system' | 'alert'
   isRead    Boolean  @default(false)
   link      String?
+  relatedId String?
   createdAt DateTime @default(now())
 }
 

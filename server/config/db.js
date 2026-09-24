@@ -15,10 +15,15 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let prismaInstance = null;
 
 function getDatabaseUrl() {
+  const envPgUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
+  if (envPgUrl && (envPgUrl.startsWith('postgres://') || envPgUrl.startsWith('postgresql://'))) {
+    return envPgUrl.trim();
+  }
+
   const cwd = process.cwd();
   const tmpDbPath = '/tmp/dev.db';
 
-  // 1. Check Vercel or AWS Lambda serverless environment
+  // 1. Check Vercel or AWS Lambda serverless environment (for SQLite fallback)
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_BUILDER) {
     try {
       const candidatePaths = [
@@ -85,8 +90,8 @@ export function getPrisma() {
     try {
       let dbUrl = getDatabaseUrl();
 
-      // Enforce file: prefix for SQLite compatibility
-      if (!dbUrl.startsWith('file:')) {
+      // Enforce file: prefix ONLY for SQLite paths if not a PostgreSQL URL
+      if (!dbUrl.startsWith('postgres://') && !dbUrl.startsWith('postgresql://') && !dbUrl.startsWith('file:')) {
         dbUrl = `file:${dbUrl}`;
       }
 
