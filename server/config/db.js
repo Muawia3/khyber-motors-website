@@ -16,8 +16,52 @@ let prismaInstance = null;
 
 function getDatabaseUrl() {
   const cwd = process.cwd();
+  const tmpDbPath = '/tmp/dev.db';
 
-  // Find project root directory containing prisma/dev.db
+  // 1. Check Vercel or AWS Lambda serverless environment
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_BUILDER) {
+    try {
+      const candidatePaths = [
+        path.join(cwd, 'prisma', 'dev.db'),
+        path.join(cwd, 'dev.db'),
+        path.resolve('prisma/dev.db'),
+        path.resolve('dev.db'),
+        path.join(__dirname, '../../prisma/dev.db'),
+        path.join(__dirname, '../prisma/dev.db'),
+        '/var/task/prisma/dev.db',
+        '/var/task/dev.db',
+      ];
+
+      const source = candidatePaths.find((p) => {
+        try {
+          return fs.existsSync(p) && fs.statSync(p).size > 0;
+        } catch {
+          return false;
+        }
+      });
+
+      if (source) {
+        if (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0) {
+          try {
+            fs.copyFileSync(source, tmpDbPath);
+            console.log(`✅ Copied SQLite database from ${source} to ${tmpDbPath}`);
+          } catch (copyErr) {
+            console.warn('Failed to copy SQLite DB to /tmp:', copyErr.message);
+          }
+        }
+      }
+
+      if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
+        return `file:${tmpDbPath}`;
+      } else if (source) {
+        return `file:${source}`;
+      }
+    } catch (err) {
+      console.warn('Vercel SQLite resolution warning:', err.message);
+    }
+  }
+
+  // 2. Local / Standard Server environment
   let rootDir = cwd;
   if (!fs.existsSync(path.join(rootDir, 'prisma')) && fs.existsSync(path.resolve(__dirname, '../../prisma'))) {
     rootDir = path.resolve(__dirname, '../../');
