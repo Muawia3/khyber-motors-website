@@ -25,7 +25,7 @@ function getDatabaseUrl() {
     rootDir = path.resolve(__dirname, '../');
   }
 
-  const dbPath = path.resolve(rootDir, 'prisma', 'dev.db');
+  const dbPath = path.resolve(rootDir, 'prisma', 'dev.db').replace(/\\/g, '/');
   return `file:${dbPath}`;
 }
 
