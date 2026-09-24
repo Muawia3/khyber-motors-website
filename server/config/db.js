@@ -51,14 +51,25 @@ function getDatabaseUrl() {
 
   let envUrl = process.env.DATABASE_URL;
   if (envUrl) {
-    if (envUrl.startsWith('file:')) {
-      return envUrl;
+    const rawPath = envUrl.replace(/^file:/, '').trim();
+    let absolutePath = path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd, rawPath);
+
+    // If target path does not exist, check if prisma/dev.db exists
+    try {
+      if (!fs.existsSync(absolutePath) || fs.statSync(absolutePath).size === 0) {
+        const fallbackPrismaPath = path.resolve(cwd, 'prisma', 'dev.db');
+        if (fs.existsSync(fallbackPrismaPath) && fs.statSync(fallbackPrismaPath).size > 0) {
+          absolutePath = fallbackPrismaPath;
+        }
+      }
+    } catch {
+      // Ignore stat error and fallback
     }
-    // Fix missing file: prefix
-    return `file:${envUrl}`;
+
+    return `file:${absolutePath}`;
   }
 
-  const defaultPath = path.join(cwd, 'prisma', 'dev.db');
+  const defaultPath = path.resolve(cwd, 'prisma', 'dev.db');
   return `file:${defaultPath}`;
 }
 
