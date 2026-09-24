@@ -112,15 +112,8 @@ export const HomePage = () => {
       });
     }
 
-    if (list.length === 0 && homeContent?.hero?.heroImage) {
+    if (list.length === 0 && homeContent?.hero?.heroImage && homeContent.hero.heroImage.trim()) {
       list.push({ url: homeContent.hero.heroImage.trim(), title: 'JAC Hero Image' });
-    }
-
-    if (list.length === 0) {
-      list.push({
-        url: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/Gemini_Generated_Image_9aiio29aiio29aii.jpg',
-        title: 'JAC Motors Hero Banner',
-      });
     }
 
     return list;

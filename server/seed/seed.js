@@ -434,11 +434,8 @@ async function seed() {
         primaryCtaLink: '/vehicles',
         secondaryCtaText: 'Contact Us',
         secondaryCtaLink: '/contact',
-        heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/Gemini_Generated_Image_9aiio29aiio29aii.jpg',
-        heroImages: [
-          'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/Gemini_Generated_Image_9aiio29aiio29aii.jpg',
-          'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056667/jac_motors/JAC1.jpg',
-        ],
+        heroImage: '',
+        heroImages: [],
       },
     };
 
