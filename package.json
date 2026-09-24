@@ -11,8 +11,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "postinstall": "prisma generate",
-    "vercel-build": "prisma generate && vite build",
-    "build": "prisma generate && vite build",
+    "vercel-build": "node scripts/build.js",
+    "build": "node scripts/build.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
