@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Database & SQLite files
+*.db
+*.db-journal
+prisma/*.db
+prisma/*.db-journal
+
