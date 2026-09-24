@@ -98,6 +98,21 @@ function getMimeType(filePath) {
 // 1. GET /api/files/images/:filename
 router.get('/images/:filename', async (req, res) => {
   const filename = req.params.filename;
+
+  try {
+    const dbRecord = await prisma.uploadedFile.findFirst({
+      where: {
+        OR: [{ filename }, { url: { contains: filename } }],
+      },
+      select: { url: true },
+    });
+    if (dbRecord && dbRecord.url && (dbRecord.url.startsWith('http://') || dbRecord.url.startsWith('https://'))) {
+      return res.redirect(302, dbRecord.url);
+    }
+  } catch (err) {
+    // Continue fallback to disk/db buffer
+  }
+
   const filePath = await findFileOnDiskOrDb(`uploads/images/${filename}`);
 
   if (!filePath) {
@@ -117,6 +132,21 @@ router.get('/images/:filename', async (req, res) => {
 // 2. GET /api/files/brochures/:filename
 router.get('/brochures/:filename', async (req, res) => {
   const filename = req.params.filename;
+
+  try {
+    const dbRecord = await prisma.uploadedFile.findFirst({
+      where: {
+        OR: [{ filename }, { url: { contains: filename } }],
+      },
+      select: { url: true },
+    });
+    if (dbRecord && dbRecord.url && (dbRecord.url.startsWith('http://') || dbRecord.url.startsWith('https://'))) {
+      return res.redirect(302, dbRecord.url);
+    }
+  } catch (err) {
+    // Continue fallback to disk/db buffer
+  }
+
   const filePath = await findFileOnDiskOrDb(`uploads/brochures/${filename}`);
 
   if (!filePath) {

@@ -4,7 +4,7 @@ import { getFileUrl } from '../../utils/urlHelper';
 
 export const SafeImage = ({
   src,
-  alt = 'Image',
+  alt = 'JAC Vehicle',
   className = '',
   loading = 'lazy',
   fallback,
@@ -18,7 +18,7 @@ export const SafeImage = ({
 
   useEffect(() => {
     setHasError(false);
-  }, [src]);
+  }, [src, resolvedUrl]);
 
   const handleError = (e) => {
     if (import.meta.env.DEV) {

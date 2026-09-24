@@ -31,7 +31,9 @@ export const VehiclesPage = () => {
       setLoading(true);
       try {
         const list = await vehicleService.getVehicleCards();
-        setVehicles(list || []);
+        if (list && list.length > 0) {
+          setVehicles(list);
+        }
       } catch (err) {
         console.error('Failed to load vehicles from API:', err);
       } finally {
@@ -40,6 +42,20 @@ export const VehiclesPage = () => {
     };
     fetchVehicles();
   }, []);
+
+  // Requirement 7 Debug Logging: Trace data flow page -> API response -> vehicle name -> image URL
+  useEffect(() => {
+    if (import.meta.env.DEV && vehicles && vehicles.length > 0) {
+      const t9Hunter = vehicles.find((v) => v.slug === 't9-hunter');
+      const t9Frison = vehicles.find((v) => v.slug === 't9-frison');
+      console.log('--- [VehiclesPage Debug Log] ---');
+      console.log('page → API response → vehicle name → image URL');
+      console.log(`Vehicles → API Vehicles Count: ${vehicles.length}`);
+      console.log(`Vehicles → T9 Hunter mainImage: "${t9Hunter?.mainImage}"`);
+      console.log(`Vehicles → T9 Frison mainImage: "${t9Frison?.mainImage}"`);
+      console.log('--------------------------------');
+    }
+  }, [vehicles]);
 
   // Filtered vehicles based on category and truck subcategory
   const filteredVehicles = useMemo(() => {

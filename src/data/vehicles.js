@@ -11,10 +11,14 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: true,
     isNew: true,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Vehicle',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-hunter_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-hunter_hero.jpg',
+    altText: 'JAC T9 Hunter 4x4 Pickup',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-hunter_main.jpg',
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-hunter_gal_2.jpg',
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-hunter_gal_3.jpg',
+    ],
     colorOptions: [
       { name: 'Titanium Metallic Gray', hex: '#374151' },
       { name: 'Crimson Red', hex: '#C8102E' },
@@ -109,10 +113,13 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Vehicle',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-frison_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-frison_hero.jpg',
+    altText: 'JAC T9 Frison Pickup',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-frison_main.jpg',
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_t9-frison_gal_2.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
       { name: 'Granite Gray', hex: '#4B5563' },
@@ -163,10 +170,13 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: '',
-    heroImage: '',
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-x200_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-x200_hero.jpg',
     altText: 'JAC X200 Light Commercial Truck',
-    gallery: [],
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-x200_main.jpg',
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-x200_gal_2.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
     ],
@@ -215,10 +225,12 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Truck',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1020_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1020_hero.jpg',
+    altText: 'JAC 1020 Commercial Truck',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1020_main.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
     ],
@@ -267,10 +279,12 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Truck',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1042_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1042_hero.jpg',
+    altText: 'JAC 1042 Cargo Deck Truck',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1042_main.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
     ],
@@ -319,10 +333,12 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: false,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Truck',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1091_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1091_hero.jpg',
+    altText: 'JAC 1091 Extended Deck Truck',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1091_main.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
     ],
@@ -371,10 +387,12 @@ export const VEHICLES = [
     status: 'Published',
     isFlagship: false,
     isNew: true,
-    mainImage: '',
-    heroImage: '',
-    altText: 'JAC Truck',
-    gallery: [],
+    mainImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1120_main.jpg',
+    heroImage: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1120_hero.jpg',
+    altText: 'JAC 1120 Heavy Duty Deck Truck',
+    gallery: [
+      'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/vehicle_jac-1120_main.jpg',
+    ],
     colorOptions: [
       { name: 'Commercial White', hex: '#FFFFFF' },
     ],
@@ -414,4 +432,3 @@ export const VEHICLES = [
 ];
 
 export const VEHICLES_DATA = VEHICLES;
-

@@ -60,9 +60,9 @@ export const HomePage = () => {
           reviewService.getReviews(true),
         ]);
         if (isMounted) {
-          if (list) setVehicles(list);
+          if (list && list.length > 0) setVehicles(list);
           if (content) setHomeContent(content);
-          if (activeHeroImgs) {
+          if (activeHeroImgs && activeHeroImgs.length > 0) {
             setHeroImageRecords(activeHeroImgs);
           }
           if (activeReviews) setReviews(activeReviews);
@@ -77,22 +77,61 @@ export const HomePage = () => {
     };
   }, []);
 
-  const featuredPickup = homeContent?.featuredPickupId
-    ? vehicles.find(
+  const featuredPickup = React.useMemo(() => {
+    if (!vehicles || vehicles.length === 0) return null;
+    return (
+      vehicles.find(
         (v) =>
-          String(v.id) === String(homeContent.featuredPickupId) ||
-          v.slug === homeContent.featuredPickupId
-      )
-    : null;
+          v.slug === 't9-hunter' ||
+          String(v.id) === String(homeContent?.featuredPickupId) ||
+          v.slug === homeContent?.featuredPickupId
+      ) ||
+      vehicles.find((v) => v.category === 'passengers') ||
+      vehicles[0]
+    );
+  }, [vehicles, homeContent]);
 
+  // Unified, stable hero images array from persistent backend sources
+  const heroImages = React.useMemo(() => {
+    const list = [];
 
-  const heroImages = heroImageRecords.length > 0
-    ? heroImageRecords
-    : (featuredPickup?.heroImage || featuredPickup?.mainImage)
-    ? [{ url: featuredPickup.heroImage || featuredPickup.mainImage, title: featuredPickup.name }]
-    : (vehicles.find((v) => v.mainImage || v.heroImage)
-        ? [{ url: vehicles.find((v) => v.mainImage || v.heroImage).mainImage || vehicles.find((v) => v.mainImage || v.heroImage).heroImage, title: 'JAC Vehicle' }]
-        : []);
+    if (heroImageRecords && heroImageRecords.length > 0) {
+      heroImageRecords.forEach((rec) => {
+        const u = rec.url || rec.heroImage || rec.mainImage;
+        if (u && typeof u === 'string' && u.trim()) {
+          list.push({ url: u.trim(), title: rec.title || rec.altText || 'JAC Hero Image' });
+        }
+      });
+    }
+
+    if (list.length === 0 && homeContent?.hero?.heroImages && Array.isArray(homeContent.hero.heroImages)) {
+      homeContent.hero.heroImages.forEach((imgUrl) => {
+        if (imgUrl && typeof imgUrl === 'string' && imgUrl.trim()) {
+          list.push({ url: imgUrl.trim(), title: 'JAC Hero Image' });
+        }
+      });
+    }
+
+    if (list.length === 0 && homeContent?.hero?.heroImage) {
+      list.push({ url: homeContent.hero.heroImage.trim(), title: 'JAC Hero Image' });
+    }
+
+    if (list.length === 0) {
+      list.push({
+        url: 'https://res.cloudinary.com/lg7mgh99/image/upload/v1790056540/jac_motors/Gemini_Generated_Image_9aiio29aiio29aii.jpg',
+        title: 'JAC Motors Hero Banner',
+      });
+    }
+
+    return list;
+  }, [heroImageRecords, homeContent]);
+
+  // Keep activeSlide safely within bounds whenever heroImages length changes
+  useEffect(() => {
+    if (activeSlide >= heroImages.length) {
+      setActiveSlide(0);
+    }
+  }, [heroImages.length, activeSlide]);
 
   // Auto-rotate hero images every 5 seconds
   useEffect(() => {
@@ -102,6 +141,21 @@ export const HomePage = () => {
     }, 5000);
     return () => clearInterval(timer);
   }, [heroImages.length]);
+
+  // Requirement 7 Debug Logging: Trace data flow page -> API response -> vehicle name -> image URL
+  useEffect(() => {
+    if (import.meta.env.DEV && vehicles && vehicles.length > 0) {
+      const t9Hunter = vehicles.find((v) => v.slug === 't9-hunter');
+      const t9Frison = vehicles.find((v) => v.slug === 't9-frison');
+      console.log('--- [HomePage Debug Log] ---');
+      console.log('page → API response → vehicle name → image URL');
+      console.log(`Home → API Vehicles Count: ${vehicles.length}`);
+      console.log(`Home → T9 Hunter mainImage: "${t9Hunter?.mainImage}"`);
+      console.log(`Home → T9 Frison mainImage: "${t9Frison?.mainImage}"`);
+      console.log(`Home → Hero images count: ${heroImages.length}, URLs:`, heroImages.map((h) => h.url));
+      console.log('-----------------------------');
+    }
+  }, [vehicles, heroImages]);
 
   // Dynamic SEO Page Title & Meta Description update
   useEffect(() => {
@@ -245,14 +299,15 @@ export const HomePage = () => {
           {heroImages.map((imgObj, index) => {
             const imgSrc = typeof imgObj === 'string' ? imgObj : imgObj.url;
             const imgAlt = typeof imgObj === 'object' && imgObj.altText ? imgObj.altText : (imgObj.title || `JAC Commercial Vehicle Slide ${index + 1}`);
+            const isActive = index === Math.min(activeSlide, heroImages.length - 1);
             return (
               <SafeImage
-                key={`${imgSrc}-${index}`}
+                key={`hero-slide-${imgSrc}-${index}`}
                 src={imgSrc}
                 alt={imgAlt}
                 loading={index === 0 ? 'eager' : 'lazy'}
                 className={`absolute inset-0 w-full h-full object-cover object-center sm:object-right transition-opacity duration-1000 ease-in-out ${
-                  index === activeSlide ? 'opacity-85 scale-105' : 'opacity-0 scale-100'
+                  isActive ? 'opacity-85 scale-105' : 'opacity-0 scale-100'
                 }`}
               />
             );

@@ -5,39 +5,68 @@ import { fileURLToPath } from 'url';
 import { upload } from '../middleware/upload.js';
 import { authMiddleware } from '../middleware/auth.js';
 import prisma from '../config/db.js';
+import { uploadToCloudinary } from '../config/cloudinary.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-async function saveFileToDatabase(filename, url, mimeType, filePath) {
-  try {
-    if (fs.existsSync(filePath)) {
-      const buffer = fs.readFileSync(filePath);
-      const base64Data = buffer.toString('base64');
-      const stats = fs.statSync(filePath);
+async function processFileAndGetUrl(file) {
+  let finalUrl = null;
+  const isPdf = file.mimetype === 'application/pdf' || file.filename.toLowerCase().endsWith('.pdf');
 
-      await prisma.uploadedFile.upsert({
-        where: { filename },
-        update: {
-          url,
-          mimeType: mimeType || 'application/octet-stream',
-          size: stats.size,
-          data: base64Data,
-        },
-        create: {
-          filename,
-          url,
-          mimeType: mimeType || 'application/octet-stream',
-          size: stats.size,
-          data: base64Data,
-        },
-      });
+  // 1. Primary: Upload to Cloudinary for instant global CDN hosting
+  try {
+    const cloudRes = await uploadToCloudinary(file.path, {
+      filename: file.originalname || file.filename,
+    });
+    if (cloudRes && cloudRes.url) {
+      finalUrl = cloudRes.url;
     }
   } catch (err) {
-    console.warn(`Failed to save ${filename} to database storage:`, err.message);
+    console.warn(`Cloudinary upload notice for ${file.filename}: ${err.message}. Falling back to local server URL.`);
   }
+
+  // Fallback relative server URL if Cloudinary is offline or unconfigured
+  if (!finalUrl) {
+    finalUrl = isPdf
+      ? `/api/files/brochures/${file.filename}`
+      : `/api/files/images/${file.filename}`;
+  }
+
+  // 2. Persist metadata & fallback buffer into database
+  try {
+    let base64Data = null;
+    let size = file.size || 0;
+    if (fs.existsSync(file.path)) {
+      const buffer = fs.readFileSync(file.path);
+      base64Data = buffer.toString('base64');
+      const stats = fs.statSync(file.path);
+      size = stats.size;
+    }
+
+    await prisma.uploadedFile.upsert({
+      where: { filename: file.filename },
+      update: {
+        url: finalUrl,
+        mimeType: file.mimetype || 'application/octet-stream',
+        size,
+        data: base64Data,
+      },
+      create: {
+        filename: file.filename,
+        url: finalUrl,
+        mimeType: file.mimetype || 'application/octet-stream',
+        size,
+        data: base64Data,
+      },
+    });
+  } catch (dbErr) {
+    console.warn(`Failed to save ${file.filename} DB record:`, dbErr.message);
+  }
+
+  return finalUrl;
 }
 
 function handleUploadSingle(req, res, next) {
@@ -60,14 +89,6 @@ function handleUploadMultiple(req, res, next) {
   });
 }
 
-function getUrlForFile(file) {
-  const isPdf = file.mimetype === 'application/pdf' || file.filename.toLowerCase().endsWith('.pdf');
-  if (isPdf) {
-    return `/api/files/brochures/${file.filename}`;
-  }
-  return `/api/files/images/${file.filename}`;
-}
-
 // POST /api/upload/single (Admin protected)
 router.post('/single', authMiddleware, handleUploadSingle, async (req, res) => {
   try {
@@ -75,8 +96,7 @@ router.post('/single', authMiddleware, handleUploadSingle, async (req, res) => {
       return res.status(400).json({ success: false, error: 'No file uploaded.' });
     }
 
-    const fileUrl = getUrlForFile(req.file);
-    await saveFileToDatabase(req.file.filename, fileUrl, req.file.mimetype, req.file.path);
+    const fileUrl = await processFileAndGetUrl(req.file);
 
     return res.json({
       success: true,
@@ -104,8 +124,7 @@ router.post('/multiple', authMiddleware, handleUploadMultiple, async (req, res) 
 
     const files = [];
     for (const file of req.files) {
-      const url = getUrlForFile(file);
-      await saveFileToDatabase(file.filename, url, file.mimetype, file.path);
+      const url = await processFileAndGetUrl(file);
       files.push({
         filename: file.filename,
         originalname: file.originalname,
@@ -159,16 +178,20 @@ router.post('/chunk', authMiddleware, async (req, res) => {
     const isLastChunk = Number(chunkIndex) === Number(totalChunks) - 1;
 
     if (isLastChunk) {
-      const relativeUrl = isPdf
-        ? `/api/files/brochures/${storedFilename}`
-        : `/api/files/images/${storedFilename}`;
+      const mockFile = {
+        filename: storedFilename,
+        originalname: filename,
+        mimetype: fileType || (isPdf ? 'application/pdf' : 'image/jpeg'),
+        path: finalFilePath,
+        size: fs.existsSync(finalFilePath) ? fs.statSync(finalFilePath).size : 0,
+      };
 
-      await saveFileToDatabase(storedFilename, relativeUrl, fileType || (isPdf ? 'application/pdf' : 'image/jpeg'), finalFilePath);
+      const finalUrl = await processFileAndGetUrl(mockFile);
 
       return res.json({
         success: true,
         completed: true,
-        url: relativeUrl,
+        url: finalUrl,
         filename: storedFilename,
       });
     }
@@ -186,3 +209,4 @@ router.post('/chunk', authMiddleware, async (req, res) => {
 });
 
 export default router;
+

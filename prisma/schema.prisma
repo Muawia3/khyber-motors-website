@@ -117,12 +117,13 @@ model HeroImage {
 }
 
 model SocialLink {
-  id        String   @id @default(uuid())
-  platform  String   // 'Facebook' | 'Instagram' | 'LinkedIn' | 'YouTube' | 'Twitter' | 'TikTok' | etc.
-  url       String
-  iconName  String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  platform     String   // 'TikTok' | 'Instagram' | 'Facebook' | 'WhatsApp'
+  url          String
+  icon         String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 }
 
 model Notification {

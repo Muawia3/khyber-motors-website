@@ -2,10 +2,14 @@ import { apiFetch } from './api';
 import { VEHICLES_DATA } from '../data/vehicles';
 
 /**
- * Normalizes vehicle category and subcategory to standard taxonomy.
+ * Normalizes vehicle category, subcategory, specs, and image fields to standard taxonomy.
  */
 function normalizeVehicle(v) {
   if (!v) return null;
+  const defaultMatch = VEHICLES_DATA.find(
+    (d) => d.slug === v.slug || String(d.id) === String(v.id) || d.id === v.id
+  );
+
   let category = v.category ? v.category.toLowerCase() : 'passengers';
   if (category === 'pickups' || category === 'pickup' || category === 'passenger' || category === 'passengers') {
     category = 'passengers';
@@ -43,25 +47,37 @@ function normalizeVehicle(v) {
         }
       });
     }
+  } else if (defaultMatch?.specs) {
+    specsObj = defaultMatch.specs;
   }
+
+  // Guaranteed persistent Cloudinary image fallback hierarchy
+  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || defaultMatch?.mainImage || defaultMatch?.heroImage || '';
+  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || defaultMatch?.heroImage || defaultMatch?.mainImage || '';
+
+  let gallery = Array.isArray(v.gallery) && v.gallery.length > 0
+    ? v.gallery
+    : Array.isArray(v.galleryImages) && v.galleryImages.length > 0
+    ? v.galleryImages
+    : (defaultMatch?.gallery || [mainImage].filter(Boolean));
 
   const normalizedObj = {
     ...v,
     category,
     subcategory,
     categoryLabel,
-    shortDescription: v.tagline || v.shortDescription || v.overview || '',
-    tagline: v.tagline || v.shortDescription || v.overview || '',
-    fullDescription: v.overview || v.fullDescription || v.description || '',
-    overview: v.overview || v.fullDescription || v.description || '',
-    heroImage: v.heroImage || v.mainImage || '',
-    mainImage: v.mainImage || v.heroImage || '',
-    galleryImages: Array.isArray(v.gallery) ? v.gallery : Array.isArray(v.galleryImages) ? v.galleryImages : [],
-    gallery: Array.isArray(v.gallery) ? v.gallery : Array.isArray(v.galleryImages) ? v.galleryImages : [],
+    shortDescription: v.tagline || v.shortDescription || v.overview || defaultMatch?.tagline || '',
+    tagline: v.tagline || v.shortDescription || v.overview || defaultMatch?.tagline || '',
+    fullDescription: v.overview || v.fullDescription || v.description || defaultMatch?.overview || '',
+    overview: v.overview || v.fullDescription || v.description || defaultMatch?.overview || '',
+    heroImage,
+    mainImage,
+    galleryImages: gallery,
+    gallery: gallery,
     specs: specsObj,
     specsArray: Array.isArray(v.specs) ? v.specs : Object.entries(specsObj).map(([name, value]) => ({ name, value })),
-    featuresArray: Array.isArray(v.features) ? v.features : Array.isArray(v.featuresArray) ? v.featuresArray : [],
-    highlightsArray: Array.isArray(v.whyT9Benefits) ? v.whyT9Benefits : Array.isArray(v.highlightsArray) ? v.highlightsArray : [],
+    featuresArray: Array.isArray(v.features) ? v.features : Array.isArray(v.featuresArray) ? v.featuresArray : defaultMatch?.features || [],
+    highlightsArray: Array.isArray(v.whyT9Benefits) ? v.whyT9Benefits : Array.isArray(v.highlightsArray) ? v.highlightsArray : defaultMatch?.whyT9Benefits || [],
   };
 
   delete normalizedObj.price;
@@ -74,7 +90,13 @@ function normalizeVehicle(v) {
 let vehiclesMemoryCache = null;
 
 export const vehicleService = {
-  getCachedVehicles: () => vehiclesMemoryCache,
+  getCachedVehicles: () => {
+    if (!vehiclesMemoryCache) {
+      vehiclesMemoryCache = VEHICLES_DATA.map(normalizeVehicle);
+    }
+    return vehiclesMemoryCache;
+  },
+
   clearCache: () => {
     vehiclesMemoryCache = null;
   },
@@ -87,13 +109,27 @@ export const vehicleService = {
       const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
       const res = await apiFetch(endpoint);
       if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-        vehiclesMemoryCache = res.data.map(normalizeVehicle);
+        const normalized = res.data.map(normalizeVehicle);
+        vehiclesMemoryCache = normalized;
+
+        if (import.meta.env.DEV) {
+          console.log(`[vehicleService] API response (${endpoint}) -> count: ${normalized.length}`);
+          const t9Hunter = normalized.find((v) => v.slug === 't9-hunter');
+          const t9Frison = normalized.find((v) => v.slug === 't9-frison');
+          console.log(`[vehicleService] T9 Hunter mainImage: "${t9Hunter?.mainImage}"`);
+          console.log(`[vehicleService] T9 Frison mainImage: "${t9Frison?.mainImage}"`);
+        }
+
         return vehiclesMemoryCache;
       }
     } catch (err) {
-      console.warn('API getVehicles warning:', err.message);
+      console.warn('[vehicleService] API getVehicles warning:', err.message);
     }
-    return vehiclesMemoryCache || VEHICLES_DATA.map(normalizeVehicle);
+
+    if (!vehiclesMemoryCache) {
+      vehiclesMemoryCache = VEHICLES_DATA.map(normalizeVehicle);
+    }
+    return vehiclesMemoryCache;
   },
 
   getVehicleCards: async (force = false) => {
@@ -107,7 +143,7 @@ export const vehicleService = {
         return normalizeVehicle(res.data);
       }
     } catch (err) {
-      console.warn(`API getVehicleById(${id}) warning:`, err.message);
+      console.warn(`[vehicleService] getVehicleById(${id}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
     return all.find((v) => String(v.id) === String(id) || v.slug === String(id)) || null;
@@ -120,7 +156,7 @@ export const vehicleService = {
         return normalizeVehicle(res.data);
       }
     } catch (err) {
-      console.warn(`API getVehicleBySlug(${slug}) warning:`, err.message);
+      console.warn(`[vehicleService] getVehicleBySlug(${slug}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
     return all.find((v) => v.slug === slug || String(v.id) === String(slug)) || null;
@@ -190,7 +226,7 @@ export const vehicleService = {
   },
 
   uploadFileInChunks: async (file, onProgress) => {
-    const CHUNK_SIZE = 2 * 1024 * 1024; // 2 MB chunks bypass Vercel's 4.5 MB serverless limit
+    const CHUNK_SIZE = 2 * 1024 * 1024;
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
     const uploadId = 'file-' + Date.now() + '-' + Math.round(Math.random() * 1e6);
 
