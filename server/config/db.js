@@ -16,80 +16,17 @@ let prismaInstance = null;
 
 function getDatabaseUrl() {
   const cwd = process.cwd();
-  const tmpDbPath = '/tmp/dev.db';
 
-  // Check Vercel or AWS Lambda environment
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
-    try {
-      const candidatePaths = [
-        path.join(cwd, 'prisma', 'dev.db'),
-        path.join(cwd, 'dev.db'),
-        path.resolve('prisma/dev.db'),
-        path.resolve('dev.db'),
-        path.join(__dirname, '../../prisma/dev.db'),
-        path.join(__dirname, '../prisma/dev.db'),
-        '/var/task/prisma/dev.db',
-        '/var/task/dev.db',
-      ];
-
-      const source = candidatePaths.find((p) => {
-        try {
-          return fs.existsSync(p) && fs.statSync(p).size > 0;
-        } catch {
-          return false;
-        }
-      });
-
-      if (source && (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0)) {
-        fs.copyFileSync(source, tmpDbPath);
-        console.log(`✅ Copied SQLite database from ${source} to ${tmpDbPath}`);
-      }
-
-      if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
-        return `file:${tmpDbPath}`;
-      } else if (source) {
-        return `file:${source}`;
-      }
-    } catch (err) {
-      console.warn('Vercel SQLite copy warning:', err.message);
-    }
+  // Find project root directory containing prisma/dev.db
+  let rootDir = cwd;
+  if (!fs.existsSync(path.join(rootDir, 'prisma')) && fs.existsSync(path.resolve(__dirname, '../../prisma'))) {
+    rootDir = path.resolve(__dirname, '../../');
+  } else if (!fs.existsSync(path.join(rootDir, 'prisma')) && fs.existsSync(path.resolve(__dirname, '../prisma'))) {
+    rootDir = path.resolve(__dirname, '../');
   }
 
-  // Resolve database URL from process.env or locate dev.db
-  let envUrl = process.env.DATABASE_URL;
-  if (envUrl) {
-    const rawPath = envUrl.replace(/^file:/, '').trim();
-    let absolutePath = path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd, rawPath);
-
-    try {
-      if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).size > 0) {
-        return `file:${absolutePath}`;
-      }
-    } catch {
-      // Ignore stat error
-    }
-  }
-
-  // Fallback candidates for dev.db
-  const candidates = [
-    path.resolve(cwd, 'prisma', 'dev.db'),
-    path.resolve(__dirname, '../../prisma/dev.db'),
-    path.resolve(__dirname, '../prisma/dev.db'),
-    path.resolve(cwd, 'dev.db'),
-  ];
-
-  for (const candidate of candidates) {
-    try {
-      if (fs.existsSync(candidate) && fs.statSync(candidate).size > 0) {
-        return `file:${candidate}`;
-      }
-    } catch {
-      // Ignore stat error
-    }
-  }
-
-  const defaultPath = path.resolve(cwd, 'prisma', 'dev.db');
-  return `file:${defaultPath}`;
+  const dbPath = path.resolve(rootDir, 'prisma', 'dev.db');
+  return `file:${dbPath}`;
 }
 
 export function getPrisma() {

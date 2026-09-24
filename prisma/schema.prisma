@@ -137,36 +137,41 @@ model Notification {
 }
 
 model Review {
-  id        String   @id @default(uuid())
-  name      String
-  role      String?  @default("Customer")
-  rating    Int      @default(5)
-  comment   String
-  avatarUrl String?
-  status    String   @default("APPROVED") // 'PENDING' | 'APPROVED' | 'REJECTED'
-  createdAt DateTime @default(now())
+  id           String   @id @default(uuid())
+  customerName String
+  avatarUrl    String?
+  rating       Int      @default(5)
+  reviewText   String
+  reviewDate   String?
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 }
 
-model Department {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  members   TeamMember[]
+model DepartmentContact {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  contactPerson String?
+  phone         String
+  whatsapp      String?
+  email         String?
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
 }
 
 model TeamMember {
-  id           String      @id @default(uuid())
-  name         String
-  role         String
-  bio          String?
-  email        String?
-  phone        String?
-  imageUrl     String?
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  order        Int         @default(0)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               String       @id @default(uuid())
+  name             String
+  designation      String
+  department       String
+  shortDescription String?
+  imageUrl         String?
+  parentId         String?
+  parent           TeamMember?  @relation("TeamHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children         TeamMember[] @relation("TeamHierarchy")
+  displayOrder     Int          @default(0)
+  isActive         Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }

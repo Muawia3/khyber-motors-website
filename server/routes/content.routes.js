@@ -40,6 +40,51 @@ const DEFAULT_DEFAULTS = {
       { name: 'Fleet & Corporate Sales', contact: '+92 (091) 5840904', timing: '9:00 AM – 6:00 PM' },
     ],
   },
+  about: {
+    hero: {
+      title: 'About Our Dealership',
+      subtitle: 'Authorized 3S Dealership (Sales, Service & Spare Parts) providing professional automotive solutions, double cabin pickups, and commercial transport support.',
+    },
+    whoWeAre: {
+      heading: 'Authorized Automotive & Commercial Vehicle Representative',
+      description: 'Khyber Motors operates as an authorized 3S dealership facility offering comprehensive vehicle sales, maintenance servicing, and factory genuine spare parts distribution.',
+      notice: 'Specific company milestones and corporate details.',
+    },
+    commitment: {
+      heading: 'Our Commitment to Quality & Transparency',
+      description: 'We utilize only 100% genuine factory OEM parts, transparent operations without hidden fees, and certified technical training.',
+    },
+    mission: 'To deliver reliable, high-performance pickup trucks and commercial transport vehicles backed by dedicated after-sales support.',
+  },
+  services: [
+    {
+      id: 'vehicle-sales',
+      slug: 'vehicle-sales',
+      title: 'Vehicle Sales',
+      iconName: 'Car',
+      badge: 'Showroom & Fleet',
+      description: 'Explore the full lineup of JAC pickups and commercial vehicles.',
+      details: 'From rugged double-cabin pickup trucks to heavy-duty commercial transport.',
+      features: [
+        'Double cabin pickup trucks and commercial utility lineup',
+        'Corporate fleet procurement & tailored business packages',
+      ],
+      ctaText: 'Explore Vehicles',
+      ctaLink: '/vehicles',
+    },
+    {
+      id: 'after-sales-service',
+      slug: 'after-sales-service',
+      title: 'After-Sales Service',
+      iconName: 'ShieldCheck',
+      badge: '3S Service Desk',
+      description: 'Comprehensive warranty support and routine vehicle health inspections.',
+      details: 'Our dedicated after-sales team ensures long-term vehicle reliability.',
+      features: ['Official factory warranty claims processing', 'Multi-point vehicle digital health diagnostics'],
+      ctaText: 'Contact After-Sales',
+      ctaLink: '/contact',
+    },
+  ],
 };
 
 // GET /api/content/:key
