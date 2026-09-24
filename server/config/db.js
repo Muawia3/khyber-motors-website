@@ -44,6 +44,7 @@ function getDatabaseUrl() {
         if (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0) {
           try {
             fs.copyFileSync(source, tmpDbPath);
+            fs.chmodSync(tmpDbPath, 0o666);
             console.log(`✅ Copied SQLite database from ${source} to ${tmpDbPath}`);
           } catch (copyErr) {
             console.warn('Failed to copy SQLite DB to /tmp:', copyErr.message);
@@ -51,7 +52,8 @@ function getDatabaseUrl() {
         }
       }
 
-      if (fs.existsSync(tmpDbPath) && fs.statSync(tmpDbPath).size > 0) {
+      if (fs.existsSync(tmpDbPath)) {
+        try { fs.chmodSync(tmpDbPath, 0o666); } catch {}
         return `file:${tmpDbPath}`;
       } else if (source) {
         return `file:${source}`;
@@ -69,7 +71,12 @@ function getDatabaseUrl() {
     rootDir = path.resolve(__dirname, '../');
   }
 
-  const dbPath = path.resolve(rootDir, 'prisma', 'dev.db').replace(/\\/g, '/');
+  const prismaDir = path.resolve(rootDir, 'prisma');
+  if (!fs.existsSync(prismaDir)) {
+    fs.mkdirSync(prismaDir, { recursive: true });
+  }
+
+  const dbPath = path.resolve(prismaDir, 'dev.db').replace(/\\/g, '/');
   return `file:${dbPath}`;
 }
 
@@ -106,14 +113,47 @@ const prisma = new Proxy({}, {
   get(_target, prop) {
     const client = getPrisma();
     const value = client[prop];
+
+    // Intercept model delegates (e.g. prisma.heroImage, prisma.vehicle, etc.)
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      return new Proxy(value, {
+        get(modelTarget, modelProp) {
+          const modelMethod = modelTarget[modelProp];
+          if (typeof modelMethod === 'function') {
+            return async function (...args) {
+              try {
+                return await modelMethod.apply(modelTarget, args);
+              } catch (err) {
+                if (err && err.message && (err.message.includes('Error code 14') || err.message.includes('Unable to open the database file'))) {
+                  console.warn(`⚠️ SQLite Error 14 caught in model.${String(modelProp)}, refreshing PrismaClient instance and retrying...`);
+                  prismaInstance = null;
+                  const freshClient = getPrisma();
+                  const freshModel = freshClient[prop];
+                  if (freshModel && typeof freshModel[modelProp] === 'function') {
+                    return await freshModel[modelProp].apply(freshModel, args);
+                  }
+                }
+                throw err;
+              }
+            };
+          }
+          return modelMethod;
+        },
+      });
+    }
+
     if (typeof value === 'function') {
-      return function (...args) {
+      return async function (...args) {
         try {
-          return value.apply(client, args);
+          return await value.apply(client, args);
         } catch (err) {
-          if (err.message && err.message.includes('Error code 14')) {
-            console.warn('SQLite Error 14 encountered, resetting Prisma Client instance...');
+          if (err && err.message && (err.message.includes('Error code 14') || err.message.includes('Unable to open the database file'))) {
+            console.warn(`⚠️ SQLite Error 14 caught in client.${String(prop)}, refreshing PrismaClient instance and retrying...`);
             prismaInstance = null;
+            const freshClient = getPrisma();
+            if (typeof freshClient[prop] === 'function') {
+              return await freshClient[prop].apply(freshClient, args);
+            }
           }
           throw err;
         }
