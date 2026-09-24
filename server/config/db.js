@@ -2,9 +2,15 @@ import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Ensure .env is loaded immediately before resolving database URL
+dotenv.config();
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 let prismaInstance = null;
 
@@ -49,24 +55,37 @@ function getDatabaseUrl() {
     }
   }
 
+  // Resolve database URL from process.env or locate dev.db
   let envUrl = process.env.DATABASE_URL;
   if (envUrl) {
     const rawPath = envUrl.replace(/^file:/, '').trim();
     let absolutePath = path.isAbsolute(rawPath) ? rawPath : path.resolve(cwd, rawPath);
 
-    // If target path does not exist, check if prisma/dev.db exists
     try {
-      if (!fs.existsSync(absolutePath) || fs.statSync(absolutePath).size === 0) {
-        const fallbackPrismaPath = path.resolve(cwd, 'prisma', 'dev.db');
-        if (fs.existsSync(fallbackPrismaPath) && fs.statSync(fallbackPrismaPath).size > 0) {
-          absolutePath = fallbackPrismaPath;
-        }
+      if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).size > 0) {
+        return `file:${absolutePath}`;
       }
     } catch {
-      // Ignore stat error and fallback
+      // Ignore stat error
     }
+  }
 
-    return `file:${absolutePath}`;
+  // Fallback candidates for dev.db
+  const candidates = [
+    path.resolve(cwd, 'prisma', 'dev.db'),
+    path.resolve(__dirname, '../../prisma/dev.db'),
+    path.resolve(__dirname, '../prisma/dev.db'),
+    path.resolve(cwd, 'dev.db'),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      if (fs.existsSync(candidate) && fs.statSync(candidate).size > 0) {
+        return `file:${candidate}`;
+      }
+    } catch {
+      // Ignore stat error
+    }
   }
 
   const defaultPath = path.resolve(cwd, 'prisma', 'dev.db');
@@ -95,6 +114,7 @@ export function getPrisma() {
       });
     } catch (err) {
       console.error('Failed to initialize PrismaClient:', err);
+      prismaInstance = null;
       throw err;
     }
   }
@@ -106,7 +126,17 @@ const prisma = new Proxy({}, {
     const client = getPrisma();
     const value = client[prop];
     if (typeof value === 'function') {
-      return value.bind(client);
+      return function (...args) {
+        try {
+          return value.apply(client, args);
+        } catch (err) {
+          if (err.message && err.message.includes('Error code 14')) {
+            console.warn('SQLite Error 14 encountered, resetting Prisma Client instance...');
+            prismaInstance = null;
+          }
+          throw err;
+        }
+      };
     }
     return value;
   },
