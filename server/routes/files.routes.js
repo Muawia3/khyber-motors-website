@@ -169,6 +169,15 @@ router.get(['/download/:filename', '/download'], async (req, res) => {
     return res.status(400).json({ success: false, error: 'File parameter is required.' });
   }
 
+  // Handle external HTTP / HTTPS URLs (e.g. Google Drive links, Cloudinary links)
+  if (fileParam.startsWith('http://') || fileParam.startsWith('https://')) {
+    const driveMatch = fileParam.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || fileParam.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (driveMatch && driveMatch[1]) {
+      return res.redirect(302, `https://drive.google.com/uc?export=download&id=${driveMatch[1]}`);
+    }
+    return res.redirect(302, fileParam);
+  }
+
   const filePath = await findFileOnDiskOrDb(fileParam);
   if (!filePath) {
     const base = path.basename(fileParam);

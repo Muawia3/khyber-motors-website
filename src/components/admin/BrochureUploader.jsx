@@ -3,7 +3,7 @@ import { Upload, FileText, ExternalLink, Download, Trash2, CheckCircle2, Loader2
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { vehicleService } from '../../services/vehicleService';
-import { getBrochurePreviewUrl, handleDownloadBrochure } from '../../utils/brochureHelper';
+import { getBrochurePreviewUrl, handleDownloadBrochure, getGoogleDriveFileId } from '../../utils/brochureHelper';
 
 export const BrochureUploader = ({
   brochureUrl = '',
@@ -65,6 +65,19 @@ export const BrochureUploader = ({
     if (!brochureUrl) return 'brochure.pdf';
     if (brochureUrl.startsWith('blob:')) {
       return `${vehicleName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-brochure.pdf`;
+    }
+    const driveId = getGoogleDriveFileId(brochureUrl);
+    if (driveId) {
+      return `${vehicleName} Brochure (Google Drive PDF)`;
+    }
+    if (brochureUrl.startsWith('http://') || brochureUrl.startsWith('https://')) {
+      const urlClean = brochureUrl.split('?')[0];
+      const parts = urlClean.split('/');
+      const lastPart = parts[parts.length - 1];
+      if (lastPart && (lastPart.endsWith('.pdf') || lastPart.includes('.'))) {
+        return lastPart;
+      }
+      return `${vehicleName} Brochure (External PDF)`;
     }
     const parts = brochureUrl.split('/');
     const lastPart = parts[parts.length - 1];
@@ -166,7 +179,7 @@ export const BrochureUploader = ({
             value={brochureUrl || ''}
             onChange={(e) => {
               setUploadError('');
-              onBrochureChange(e.target.value, 'custom-brochure.pdf');
+              onBrochureChange(e.target.value);
             }}
             className="bg-white text-xs"
           />
