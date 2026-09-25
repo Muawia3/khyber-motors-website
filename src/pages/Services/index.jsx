@@ -155,6 +155,16 @@ export const ServicesPage = () => {
     }
   };
 
+  const rawServiceList = Array.isArray(servicesContent)
+    ? servicesContent
+    : Array.isArray(servicesContent?.services)
+    ? servicesContent.services
+    : SERVICES_DATA;
+
+  const activeServices = rawServiceList
+    .filter((s) => s.isActive !== false)
+    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+
   return (
     <div className="space-y-6 pt-3 pb-6 bg-gray-50/50 min-h-screen">
       <Container size="xl">
@@ -179,11 +189,17 @@ export const ServicesPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(servicesContent?.services || SERVICES_DATA).map((service) => {
+            {activeServices.map((service) => {
               const ServiceIcon = ICON_MAP[service.iconName] || Wrench;
+              const features = Array.isArray(service.features)
+                ? service.features
+                : typeof service.features === 'string'
+                ? service.features.split('\n').filter(Boolean)
+                : [];
+
               return (
                 <Card
-                  key={service.id}
+                  key={service.id || service.slug}
                   className="p-6 flex flex-col justify-between border border-gray-200/80 bg-white hover:border-[#C8102E] hover:shadow-md transition-all duration-200 group"
                 >
                   <div className="space-y-4">
@@ -206,7 +222,7 @@ export const ServicesPage = () => {
                     </div>
 
                     <ul className="space-y-1.5 pt-2 border-t border-gray-100 text-xs text-gray-600">
-                      {service.features.slice(0, 2).map((feat, idx) => (
+                      {features.slice(0, 2).map((feat, idx) => (
                         <li key={idx} className="flex items-start gap-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-[#C8102E] shrink-0 mt-0.5" />
                           <span>{feat}</span>
@@ -219,8 +235,8 @@ export const ServicesPage = () => {
                   <div className="pt-6 mt-4 border-t border-gray-100 flex items-center justify-between gap-3">
                     <button
                       type="button"
-                      onClick={() => setSelectedServiceForModal(service)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#C8102E] focus:outline-none transition-colors"
+                      onClick={() => setSelectedServiceForModal({ ...service, features })}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-700 hover:text-[#C8102E] focus:outline-none transition-colors cursor-pointer"
                     >
                       <Info className="w-4 h-4" /> Learn More
                     </button>
@@ -235,12 +251,12 @@ export const ServicesPage = () => {
                           if (elem) elem.scrollIntoView({ behavior: 'smooth' });
                         }}
                       >
-                        {service.ctaText}
+                        {service.ctaText || 'Schedule Service'}
                       </Button>
                     ) : (
                       <Link to={service.ctaLink || '/contact'}>
                         <Button variant="secondary" size="xs" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-                          {service.ctaText}
+                          {service.ctaText || 'Inquire'}
                         </Button>
                       </Link>
                     )}

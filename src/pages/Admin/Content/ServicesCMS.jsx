@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
 import { Card } from '../../../components/ui/Card';
 import { Input } from '../../../components/ui/Input';
+import { Select } from '../../../components/ui/Select';
 import { Textarea } from '../../../components/ui/Textarea';
 import { Button } from '../../../components/ui/Button';
 import { contentService } from '../../../services/contentService';
 import { SERVICES_DATA } from '../../../data/services';
 
 export const ServicesCMS = () => {
+  const [hero, setHero] = useState({
+    title: 'Professional Support Beyond the Sale',
+    subtitle: 'From double cabin vehicle sales to certified after-sales service, genuine spare parts, and vehicle maintenance, our team ensures complete operational reliability.',
+  });
   const [servicesList, setServicesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,8 +27,15 @@ export const ServicesCMS = () => {
       setErrorMsg('');
       try {
         const data = await contentService.getServicesContent();
-        if (isMounted) {
-          setServicesList(Array.isArray(data) && data.length > 0 ? data : SERVICES_DATA);
+        if (isMounted && data) {
+          if (Array.isArray(data)) {
+            setServicesList(data.length > 0 ? data : SERVICES_DATA);
+          } else if (data.services && Array.isArray(data.services)) {
+            if (data.hero) setHero(data.hero);
+            setServicesList(data.services.length > 0 ? data.services : SERVICES_DATA);
+          } else {
+            setServicesList(SERVICES_DATA);
+          }
         }
       } catch (err) {
         console.error('Error loading Services CMS content:', err);
@@ -48,9 +60,23 @@ export const ServicesCMS = () => {
     setSaving(true);
     setSaveSuccessMsg('');
     setErrorMsg('');
+
     try {
-      await contentService.saveServicesContent(servicesList);
-      setSaveSuccessMsg('Services content saved successfully.');
+      const payload = {
+        hero,
+        services: servicesList.map((srv, idx) => ({
+          ...srv,
+          displayOrder: idx + 1,
+          features: Array.isArray(srv.features)
+            ? srv.features
+            : typeof srv.features === 'string'
+            ? srv.features.split('\n').map((f) => f.trim()).filter(Boolean)
+            : [],
+        })),
+      };
+
+      await contentService.saveServicesContent(payload);
+      setSaveSuccessMsg('Services page content saved successfully to database.');
       setTimeout(() => setSaveSuccessMsg(''), 4000);
     } catch (err) {
       console.error('Save Services CMS error:', err);
@@ -64,20 +90,32 @@ export const ServicesCMS = () => {
     const newService = {
       id: `srv-${Date.now()}`,
       slug: `service-${Date.now()}`,
-      title: 'New Service',
-      badge: '3S Desk',
-      description: 'Authorized 3S dealership service description.',
-      details: 'Full service specifications and maintenance details.',
-      features: ['Feature 1', 'Feature 2'],
-      ctaText: 'Learn More',
+      title: 'New Dealership Service',
+      badge: '3S Service Desk',
+      description: 'Comprehensive dealership service description for vehicle owners and fleet operators.',
+      details: 'Full service specifications, factory maintenance protocols, and diagnostic details.',
+      features: ['Factory OEM certified diagnostic scan', 'Comprehensive health report & warranty check'],
+      ctaText: 'Inquire Now',
       ctaLink: '/contact',
       iconName: 'Wrench',
+      isActive: true,
+      displayOrder: servicesList.length + 1,
     };
     setServicesList([...servicesList, newService]);
   };
 
   const handleRemoveService = (index) => {
     const updated = servicesList.filter((_, idx) => idx !== index);
+    setServicesList(updated);
+  };
+
+  const handleMoveService = (index, direction) => {
+    const targetIdx = index + direction;
+    if (targetIdx < 0 || targetIdx >= servicesList.length) return;
+    const updated = [...servicesList];
+    const temp = updated[index];
+    updated[index] = updated[targetIdx];
+    updated[targetIdx] = temp;
     setServicesList(updated);
   };
 
@@ -102,13 +140,13 @@ export const ServicesCMS = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div>
           <h2 className="text-lg font-extrabold uppercase text-gray-900 tracking-tight">
             Services Content Manager
           </h2>
           <p className="text-xs text-gray-500">
-            Add, edit, or delete dealership service offerings displayed on the website.
+            Edit, reorder, add, or unpublish core dealership service offerings.
           </p>
         </div>
 
@@ -119,7 +157,7 @@ export const ServicesCMS = () => {
           onClick={handleAddService}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          + Add Service
+          + Add New Service
         </Button>
       </div>
 
@@ -138,54 +176,159 @@ export const ServicesCMS = () => {
       )}
 
       <form onSubmit={handleSave} className="space-y-6">
-        {servicesList.map((service, idx) => (
-          <Card key={service.id || idx} className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Wrench className="w-4 h-4 text-[#C8102E]" />
-                <h3 className="text-sm font-extrabold uppercase text-gray-900">
-                  Service #{idx + 1}: {service.title}
-                </h3>
-              </div>
+        {/* Services Page Hero Header */}
+        <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
+            1. Services Page Hero Header
+          </h3>
 
-              <button
-                type="button"
-                onClick={() => handleRemoveService(idx)}
-                className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" /> Remove
-              </button>
-            </div>
+          <Input
+            label="Page Hero Title"
+            value={hero.title || ''}
+            onChange={(e) => setHero({ ...hero, title: e.target.value })}
+          />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Service Title"
-                value={service.title || ''}
-                onChange={(e) => handleServiceChange(idx, 'title', e.target.value)}
-              />
+          <Textarea
+            label="Page Hero Subtitle"
+            rows={2}
+            value={hero.subtitle || ''}
+            onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
+          />
+        </Card>
 
-              <Input
-                label="Badge Tag"
-                value={service.badge || ''}
-                onChange={(e) => handleServiceChange(idx, 'badge', e.target.value)}
-              />
-            </div>
+        {/* Individual Services Cards */}
+        <div className="space-y-4">
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900">
+            2. Dealership Services List ({servicesList.length} Items)
+          </h3>
 
-            <Textarea
-              label="Short Description"
-              rows={2}
-              value={service.description || ''}
-              onChange={(e) => handleServiceChange(idx, 'description', e.target.value)}
-            />
+          {servicesList.map((service, idx) => {
+            const featuresText = Array.isArray(service.features)
+              ? service.features.join('\n')
+              : service.features || '';
 
-            <Textarea
-              label="Expanded Modal Details"
-              rows={3}
-              value={service.details || ''}
-              onChange={(e) => handleServiceChange(idx, 'details', e.target.value)}
-            />
-          </Card>
-        ))}
+            return (
+              <Card key={service.id || idx} className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Wrench className="w-4 h-4 text-[#C8102E]" />
+                    <h4 className="text-sm font-extrabold uppercase text-gray-900">
+                      Service #{idx + 1}: {service.title}
+                    </h4>
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-xs uppercase tracking-wider ${
+                        service.isActive !== false
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-gray-100 text-gray-500 border border-gray-200'
+                      }`}
+                    >
+                      {service.isActive !== false ? 'Published' : 'Unpublished (Hidden)'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => handleMoveService(idx, -1)}
+                      className="p-1 text-gray-500 hover:text-gray-900 disabled:opacity-30 cursor-pointer"
+                      title="Move Up"
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={idx === servicesList.length - 1}
+                      onClick={() => handleMoveService(idx, 1)}
+                      className="p-1 text-gray-500 hover:text-gray-900 disabled:opacity-30 cursor-pointer"
+                      title="Move Down"
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleServiceChange(idx, 'isActive', !(service.isActive !== false))}
+                      className="text-xs font-semibold text-gray-600 hover:text-gray-900 flex items-center gap-1 cursor-pointer ml-2"
+                    >
+                      {service.isActive !== false ? <EyeOff className="w-3.5 h-3.5 text-gray-500" /> : <Eye className="w-3.5 h-3.5 text-emerald-600" />}
+                      {service.isActive !== false ? 'Unpublish' : 'Publish'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveService(idx)}
+                      className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer ml-2"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Remove
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <Input
+                    label="Service Title"
+                    value={service.title || ''}
+                    onChange={(e) => handleServiceChange(idx, 'title', e.target.value)}
+                  />
+
+                  <Input
+                    label="Badge Tag / Category"
+                    value={service.badge || ''}
+                    onChange={(e) => handleServiceChange(idx, 'badge', e.target.value)}
+                  />
+
+                  <Select
+                    label="Icon"
+                    value={service.iconName || 'Wrench'}
+                    onChange={(e) => handleServiceChange(idx, 'iconName', e.target.value)}
+                    options={[
+                      { value: 'Car', label: 'Car (Sales)' },
+                      { value: 'ShieldCheck', label: 'ShieldCheck (After-Sales)' },
+                      { value: 'PackageCheck', label: 'PackageCheck (Parts)' },
+                      { value: 'Wrench', label: 'Wrench (Maintenance)' },
+                      { value: 'Headphones', label: 'Headphones (Support)' },
+                    ]}
+                  />
+                </div>
+
+                <Textarea
+                  label="Short Card Description"
+                  rows={2}
+                  value={service.description || ''}
+                  onChange={(e) => handleServiceChange(idx, 'description', e.target.value)}
+                />
+
+                <Textarea
+                  label="Expanded Learn More Modal Details"
+                  rows={3}
+                  value={service.details || ''}
+                  onChange={(e) => handleServiceChange(idx, 'details', e.target.value)}
+                />
+
+                <Textarea
+                  label="Key Features (One feature per line)"
+                  rows={3}
+                  value={featuresText}
+                  onChange={(e) => handleServiceChange(idx, 'features', e.target.value.split('\n'))}
+                  helperText="Enter each feature on a separate new line."
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Button CTA Text"
+                    value={service.ctaText || ''}
+                    onChange={(e) => handleServiceChange(idx, 'ctaText', e.target.value)}
+                  />
+
+                  <Input
+                    label="Button CTA Link"
+                    value={service.ctaLink || ''}
+                    onChange={(e) => handleServiceChange(idx, 'ctaLink', e.target.value)}
+                  />
+                </div>
+              </Card>
+            );
+          })}
+        </div>
 
         <div className="flex justify-end pt-2">
           <Button

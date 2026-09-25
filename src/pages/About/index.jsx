@@ -23,6 +23,15 @@ import { AnimatedSection } from '../../components/common/AnimatedSection';
 
 import { DEFAULT_ABOUT_CONTENT } from '../../data/about';
 
+const ICON_MAP = {
+  ShieldCheck: ShieldCheck,
+  Building2: Building2,
+  Wrench: Wrench,
+  Users: Users,
+  Phone: Phone,
+  Sparkles: Sparkles,
+};
+
 export const AboutPage = () => {
   const { contactData } = useContact();
   const [aboutContent, setAboutContent] = useState(DEFAULT_ABOUT_CONTENT);
@@ -46,6 +55,32 @@ export const AboutPage = () => {
     };
   }, []);
 
+  const facilityOverviewItems = aboutContent?.facilityOverview || [
+    { title: '3S Integrated Facility', description: 'Sales showroom, aftersales service workshop, and genuine parts counter under one roof.' },
+    { title: 'Diagnostic & Service Machinery', description: 'Computerized diagnostic bay tools, hydraulic vehicle lifts, and alignment stations.' },
+    { title: 'Customer Hospitality Lounge', description: 'Air-conditioned executive waiting lounge with transparent workshop view and refreshments.' }
+  ];
+
+  const commitmentCards = aboutContent?.commitment?.cards || [
+    { title: 'Authentic Manufacturer Parts', description: 'We utilize only 100% genuine factory OEM parts and approved lubricants, ensuring safety, durability, and factory warranty compliance.', iconName: 'ShieldCheck' },
+    { title: 'Transparent Operations', description: 'Every vehicle consultation, cost estimate, and maintenance recommendation is communicated clearly without hidden charges or unverified fees.', iconName: 'Building2' },
+    { title: 'Professional Standards', description: 'Our technicians and sales advisors undergo continuous technical training according to standard JAC Motors operational guidelines.', iconName: 'Wrench' }
+  ];
+
+  const advantageItems = aboutContent?.whyUs?.advantages || [
+    { title: 'Full 3S Facility Integration', description: 'Consolidated showroom sales, after-sales service, and spare parts under a single facility for simplified customer management.' },
+    { title: 'Commercial Fleet Expertise', description: 'Specialized fleet consultation for logistics businesses, commercial haulers, and corporate organizations.' },
+    { title: 'Warranty Claim Support', description: 'Official factory warranty handling, diagnostic reporting, and replacement part processing for covered components.' },
+    { title: 'Direct Helpline & Support Desk', description: 'Dedicated telephone and digital help channels for prompt customer assistance and service appointment scheduling.' }
+  ];
+
+  const departmentCards = aboutContent?.teamStructure?.departments || [
+    { title: 'Dealership Management', role: 'Executive Direction', description: 'Oversees facility operations, manufacturer compliance, and customer satisfaction standards.', iconName: 'Users' },
+    { title: 'Sales & Fleet Advisory', role: 'Commercial Consultants', description: 'Guides individual buyers and corporate clients through vehicle selection, options, and test drives.', iconName: 'Building2' },
+    { title: 'Service & Workshop Engineers', role: 'Technical Operations', description: 'Certified mechanics executing computerized diagnostics, maintenance, and major overhauls.', iconName: 'Wrench' },
+    { title: 'Customer Support Desk', role: 'Client Relations', description: 'Handles appointments, phone inquiries, warranty documentation, and customer feedback.', iconName: 'Phone' }
+  ];
+
   return (
     <div className="space-y-8 pt-3 pb-6 bg-gray-50/50 min-h-screen">
       <Container size="xl">
@@ -61,27 +96,28 @@ export const AboutPage = () => {
 
         {/* Section 1: Who We Are */}
         <div className="my-6 sm:my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-
           <div className="lg:col-span-7 space-y-4 bg-white p-6 sm:p-8 rounded-xs border border-gray-200/80 shadow-sm">
             <div className="flex items-center gap-2 text-xs font-bold text-[#C8102E] uppercase tracking-wider">
               <Building2 className="w-4 h-4" /> Section 1 — Who We Are
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-tight">
-              {aboutContent?.whoWeAre?.title || "Authorized Automotive & Commercial Vehicle Representative"}
+              {aboutContent?.whoWeAre?.heading || aboutContent?.whoWeAre?.title || "Authorized Automotive & Commercial Vehicle Representative"}
             </h2>
             <p className="text-sm text-gray-700 leading-relaxed">
-              {aboutContent?.whoWeAre?.content1 || "Khyber Motors operates as an authorized 3S dealership facility offering comprehensive vehicle sales, maintenance servicing, and factory genuine spare parts distribution."}
+              {aboutContent?.whoWeAre?.description || aboutContent?.whoWeAre?.content1 || "Khyber Motors operates as an authorized 3S dealership facility offering comprehensive vehicle sales, maintenance servicing, and factory genuine spare parts distribution."}
             </p>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {aboutContent?.whoWeAre?.content2 || "Our dealership facility on Main Ring Road Bypass is structured to serve individual vehicle buyers, enterprise fleet operators, and commercial transport businesses with standardized manufacturer protocols and transparent consultation."}
-            </p>
-
-            <div className="p-4 bg-gray-50 border-l-4 border-[#C8102E] text-xs text-gray-600 space-y-1">
-              <strong className="text-gray-900 block font-semibold">Placeholder Information Notice:</strong>
-              <p>
-                Specific company milestones, historical figures, and corporate governance details can be customized here upon management review and official approval.
+            {(aboutContent?.whoWeAre?.paragraph2 || aboutContent?.whoWeAre?.content2) && (
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {aboutContent?.whoWeAre?.paragraph2 || aboutContent?.whoWeAre?.content2}
               </p>
-            </div>
+            )}
+
+            {aboutContent?.whoWeAre?.notice && (
+              <div className="p-4 bg-gray-50 border-l-4 border-[#C8102E] text-xs text-gray-600 space-y-1">
+                <strong className="text-gray-900 block font-semibold">Official Notice:</strong>
+                <p>{aboutContent?.whoWeAre?.notice}</p>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-5 bg-[#111827] text-white p-6 sm:p-8 rounded-xs space-y-6 shadow-sm border border-gray-800">
@@ -93,29 +129,15 @@ export const AboutPage = () => {
             </div>
 
             <div className="space-y-4 text-xs text-gray-300">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block font-semibold">3S Integrated Facility</strong>
-                  <span className="text-gray-400">Sales showroom, aftersales service workshop, and genuine parts counter under one roof.</span>
+              {facilityOverviewItems.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-white block font-semibold">{item.title}</strong>
+                    <span className="text-gray-400">{item.description}</span>
+                  </div>
                 </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block font-semibold">Diagnostic & Service Machinery</strong>
-                  <span className="text-gray-400">Computerized diagnostic bay tools, hydraulic vehicle lifts, and alignment stations.</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block font-semibold">Customer Hospitality Lounge</strong>
-                  <span className="text-gray-400">Air-conditioned executive waiting lounge with transparent workshop view and refreshments.</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -127,40 +149,25 @@ export const AboutPage = () => {
               Section 2 — Core Principles
             </span>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mt-1">
-              Our Commitment to Quality & Transparency
+              {aboutContent?.commitment?.heading || "Our Commitment to Quality & Transparency"}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="p-6 space-y-3 border-t-4 border-[#C8102E] bg-white">
-              <div className="w-10 h-10 bg-red-50 text-[#C8102E] rounded-xs flex items-center justify-center font-bold">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-gray-900 uppercase">Authentic Manufacturer Parts</h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                We utilize only 100% genuine factory OEM parts and approved lubricants, ensuring safety, durability, and factory warranty compliance.
-              </p>
-            </Card>
-
-            <Card className="p-6 space-y-3 border-t-4 border-gray-900 bg-white">
-              <div className="w-10 h-10 bg-gray-100 text-gray-900 rounded-xs flex items-center justify-center font-bold">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-gray-900 uppercase">Transparent Operations</h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Every vehicle consultation, cost estimate, and maintenance recommendation is communicated clearly without hidden charges or unverified fees.
-              </p>
-            </Card>
-
-            <Card className="p-6 space-y-3 border-t-4 border-[#C8102E] bg-white">
-              <div className="w-10 h-10 bg-red-50 text-[#C8102E] rounded-xs flex items-center justify-center font-bold">
-                <Wrench className="w-5 h-5" />
-              </div>
-              <h3 className="text-base font-bold text-gray-900 uppercase">Professional Standards</h3>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Our technicians and sales advisors undergo continuous technical training according to standard JAC Motors operational guidelines.
-              </p>
-            </Card>
+            {commitmentCards.map((card, idx) => {
+              const CardIcon = ICON_MAP[card.iconName] || (idx % 2 === 0 ? ShieldCheck : Building2);
+              return (
+                <Card key={idx} className={`p-6 space-y-3 border-t-4 ${idx === 1 ? 'border-gray-900' : 'border-[#C8102E]'} bg-white`}>
+                  <div className={`w-10 h-10 ${idx === 1 ? 'bg-gray-100 text-gray-900' : 'bg-red-50 text-[#C8102E]'} rounded-xs flex items-center justify-center font-bold`}>
+                    <CardIcon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 uppercase">{card.title}</h3>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    {card.description}
+                  </p>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
@@ -171,58 +178,24 @@ export const AboutPage = () => {
               Section 3 — Advantages
             </span>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mt-1">
-              Why Customers Choose Us
+              {aboutContent?.whyUs?.heading || "Why Customers Choose Us"}
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xs border border-gray-100">
-              <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-bold shrink-0 text-xs">
-                1
+            {advantageItems.map((adv, idx) => (
+              <div key={idx} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xs border border-gray-100">
+                <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-bold shrink-0 text-xs">
+                  {idx + 1}
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-gray-900 uppercase">{adv.title}</h4>
+                  <p className="text-xs text-gray-600 mt-1 leading-relaxed">
+                    {adv.description}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase">Full 3S Facility Integration</h4>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Consolidated showroom sales, after-sales service, and spare parts under a single facility for simplified customer management.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xs border border-gray-100">
-              <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-bold shrink-0 text-xs">
-                2
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase">Commercial Fleet Expertise</h4>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Specialized fleet consultation for logistics businesses, commercial haulers, and corporate organizations.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xs border border-gray-100">
-              <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-bold shrink-0 text-xs">
-                3
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase">Warranty Claim Support</h4>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Official factory warranty handling, diagnostic reporting, and replacement part processing for covered components.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xs border border-gray-100">
-              <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-bold shrink-0 text-xs">
-                4
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-gray-900 uppercase">Direct Helpline & Support Desk</h4>
-                <p className="text-xs text-gray-600 mt-1 leading-relaxed">
-                  Dedicated telephone and digital help channels for prompt customer assistance and service appointment scheduling.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -233,57 +206,29 @@ export const AboutPage = () => {
               Section 4 — Organizational Departments
             </span>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mt-1">
-              Our Professional Team Structure
+              {aboutContent?.teamStructure?.heading || "Our Professional Team Structure"}
             </h2>
             <p className="text-xs text-gray-500 max-w-xl mx-auto mt-1">
-              Departmental overview with placeholder management roles ready for verified staff designations.
+              {aboutContent?.teamStructure?.subtitle || "Departmental overview with placeholder management roles ready for verified staff designations."}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="p-5 text-center bg-white border border-gray-200/80">
-              <div className="w-12 h-12 bg-gray-100 text-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 uppercase">Dealership Management</h4>
-              <p className="text-[11px] text-[#C8102E] font-semibold uppercase mt-0.5">Executive Direction</p>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Oversees facility operations, manufacturer compliance, and customer satisfaction standards.
-              </p>
-            </Card>
-
-            <Card className="p-5 text-center bg-white border border-gray-200/80">
-              <div className="w-12 h-12 bg-gray-100 text-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Building2 className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 uppercase">Sales & Fleet Advisory</h4>
-              <p className="text-[11px] text-[#C8102E] font-semibold uppercase mt-0.5">Commercial Consultants</p>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Guides individual buyers and corporate clients through vehicle selection, options, and test drives.
-              </p>
-            </Card>
-
-            <Card className="p-5 text-center bg-white border border-gray-200/80">
-              <div className="w-12 h-12 bg-gray-100 text-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Wrench className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 uppercase">Service & Workshop Engineers</h4>
-              <p className="text-[11px] text-[#C8102E] font-semibold uppercase mt-0.5">Technical Operations</p>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Certified mechanics executing computerized diagnostics, maintenance, and major overhauls.
-              </p>
-            </Card>
-
-            <Card className="p-5 text-center bg-white border border-gray-200/80">
-              <div className="w-12 h-12 bg-gray-100 text-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Phone className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-bold text-gray-900 uppercase">Customer Support Desk</h4>
-              <p className="text-[11px] text-[#C8102E] font-semibold uppercase mt-0.5">Client Relations</p>
-              <p className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Handles appointments, phone inquiries, warranty documentation, and customer feedback.
-              </p>
-            </Card>
+            {departmentCards.map((dept, idx) => {
+              const DeptIcon = ICON_MAP[dept.iconName] || [Users, Building2, Wrench, Phone][idx % 4];
+              return (
+                <Card key={idx} className="p-5 text-center bg-white border border-gray-200/80">
+                  <div className="w-12 h-12 bg-gray-100 text-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <DeptIcon className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-900 uppercase">{dept.title}</h4>
+                  <p className="text-[11px] text-[#C8102E] font-semibold uppercase mt-0.5">{dept.role}</p>
+                  <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                    {dept.description}
+                  </p>
+                </Card>
+              );
+            })}
           </div>
         </div>
 
@@ -296,7 +241,7 @@ export const AboutPage = () => {
                   Section 5 — Facility Location
                 </span>
                 <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">
-                  Dealership Address & Operating Schedule
+                  {aboutContent?.location?.heading || "Dealership Address & Operating Schedule"}
                 </h3>
                 <div className="space-y-2 text-xs text-gray-300 pt-2">
                   <div className="flex items-start gap-2.5">
@@ -305,7 +250,7 @@ export const AboutPage = () => {
                   </div>
                   <div className="flex items-center gap-2.5">
                     <Clock className="w-4 h-4 text-[#C8102E] shrink-0" />
-                    <span>Showroom Hours: Mon – Sat (9:00 AM – 7:00 PM)</span>
+                    <span>{aboutContent?.location?.schedule || "Showroom Hours: Mon – Sat (9:00 AM – 7:00 PM)"}</span>
                   </div>
                 </div>
               </div>
@@ -328,10 +273,10 @@ export const AboutPage = () => {
               Section 6 — Get Started
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
-              Ready to Experience JAC Performance?
+              {aboutContent?.cta?.heading || "Ready to Experience JAC Performance?"}
             </h2>
             <p className="text-sm text-gray-300 leading-relaxed">
-              Visit our showroom to inspect our commercial vehicle lineup or speak with a representative today.
+              {aboutContent?.cta?.subtitle || "Visit our showroom to inspect our commercial vehicle lineup or speak with a representative today."}
             </p>
           </div>
 
