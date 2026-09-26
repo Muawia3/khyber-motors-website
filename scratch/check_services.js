@@ -1,37 +1,27 @@
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../server/config/db.js';
 
-async function run() {
-  const serviceLeads = await prisma.lead.findMany({
-    where: {
-      OR: [
-        { department: { contains: 'service' } },
-        { subject: { contains: 'service' } },
-        { message: { contains: 'service' } },
-      ]
-    }
-  });
+async function testServicesAndAboutContent() {
+  console.log('🔍 Testing Services and About DB integration...');
 
-  const serviceNotifs = await prisma.notification.findMany({
-    where: {
-      OR: [
-        { type: 'SERVICE_REQUEST' },
-        { title: { contains: 'Service' } },
-        { message: { contains: 'service' } }
-      ]
-    }
-  });
+  try {
+    // 1. Fetch Services content
+    let services = await prisma.pageContent.findUnique({
+      where: { key: 'services' },
+    });
+    console.log('✅ Services DB record found:', Boolean(services));
 
-  const allLeads = await prisma.lead.findMany();
-  const allNotifs = await prisma.notification.findMany();
+    // 2. Fetch About content
+    let about = await prisma.pageContent.findUnique({
+      where: { key: 'about' },
+    });
+    console.log('✅ About DB record found:', Boolean(about));
 
-  console.log('--- DB INSPECTION ---');
-  console.log('Total Leads in DB:', allLeads.length);
-  console.log('Service Leads in DB:', serviceLeads.length, serviceLeads);
-  console.log('Total Notifications in DB:', allNotifs.length);
-  console.log('Service Notifications in DB:', serviceNotifs.length, serviceNotifs);
-
-  await prisma.$disconnect();
+    console.log('🎉 DB verification complete!');
+  } catch (err) {
+    console.error('❌ DB test error:', err.message);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-run();
+testServicesAndAboutContent();

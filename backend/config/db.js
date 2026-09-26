@@ -27,12 +27,16 @@ function getDatabaseUrl() {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_BUILDER) {
     try {
       const candidatePaths = [
+        path.join(cwd, 'database', 'prisma', 'dev.db'),
         path.join(cwd, 'prisma', 'dev.db'),
         path.join(cwd, 'dev.db'),
+        path.resolve('database/prisma/dev.db'),
         path.resolve('prisma/dev.db'),
         path.resolve('dev.db'),
+        path.join(__dirname, '../../database/prisma/dev.db'),
+        path.join(__dirname, '../database/prisma/dev.db'),
         path.join(__dirname, '../../prisma/dev.db'),
-        path.join(__dirname, '../prisma/dev.db'),
+        '/var/task/database/prisma/dev.db',
         '/var/task/prisma/dev.db',
         '/var/task/dev.db',
       ];
@@ -70,13 +74,11 @@ function getDatabaseUrl() {
 
   // 2. Local / Standard Server environment
   let rootDir = cwd;
-  if (!fs.existsSync(path.join(rootDir, 'prisma')) && fs.existsSync(path.resolve(__dirname, '../../prisma'))) {
-    rootDir = path.resolve(__dirname, '../../');
-  } else if (!fs.existsSync(path.join(rootDir, 'prisma')) && fs.existsSync(path.resolve(__dirname, '../prisma'))) {
-    rootDir = path.resolve(__dirname, '../');
+  let prismaDir = path.resolve(rootDir, 'database/prisma');
+  if (!fs.existsSync(prismaDir)) {
+    prismaDir = path.resolve(rootDir, 'prisma');
   }
 
-  const prismaDir = path.resolve(rootDir, 'prisma');
   if (!fs.existsSync(prismaDir)) {
     fs.mkdirSync(prismaDir, { recursive: true });
   }

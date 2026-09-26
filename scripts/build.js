@@ -8,7 +8,7 @@ const dbUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || pro
 if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
   console.log('🚀 Synchronizing PostgreSQL database schema with Prisma db push...');
   try {
-    execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+    execSync('npx prisma db push --schema=database/prisma/schema.prisma --accept-data-loss', { stdio: 'inherit' });
   } catch (err) {
     console.warn('⚠️ db push warning:', err.message);
   }
@@ -17,7 +17,7 @@ if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
 }
 
 console.log('⚡ Generating Prisma Client...');
-execSync('npx prisma generate', { stdio: 'inherit' });
+execSync('npx prisma generate --schema=database/prisma/schema.prisma', { stdio: 'inherit' });
 
 console.log('📦 Building Vite production bundle...');
 execSync('npx vite build', { stdio: 'inherit' });

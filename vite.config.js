@@ -8,11 +8,16 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 export default defineConfig({
+  root: './frontend',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './frontend/src'),
     },
+  },
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
   },
   server: {
     proxy: {

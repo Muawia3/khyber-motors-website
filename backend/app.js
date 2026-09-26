@@ -33,7 +33,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Dedicated file routes & static asset serving
 app.use('/api/files', filesRoutes);
 app.use('/uploads', handleUploadsStaticServing);
+app.use('/uploads', express.static(path.join(__dirname, '../frontend/public/uploads')));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+app.use('/brochures', express.static(path.join(__dirname, '../frontend/public/brochures')));
 app.use('/brochures', express.static(path.join(__dirname, '../public/brochures')));
 
 // Health check endpoint
