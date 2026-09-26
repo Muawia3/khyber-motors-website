@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2, ArrowUp, ArrowDown, Eye, EyeOff, Phone, Clock } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
 import { Card } from '../../../components/ui/Card';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -12,12 +12,6 @@ export const ServicesCMS = () => {
   const [hero, setHero] = useState({
     title: 'Professional Support Beyond the Sale',
     subtitle: 'From double cabin vehicle sales to certified after-sales service, genuine spare parts, and vehicle maintenance, our team ensures complete operational reliability.',
-  });
-  const [workshopInfo, setWorkshopInfo] = useState({
-    title: '3S Workshop Hours',
-    hours: 'Monday – Saturday: 8:30 AM – 5:30 PM\nSunday: Emergency Service Only',
-    phoneLabel: 'Service Direct',
-    emergencyPhone: '+92 300 7654321',
   });
   const [servicesList, setServicesList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +32,6 @@ export const ServicesCMS = () => {
             setServicesList(data.length > 0 ? data : SERVICES_DATA);
           } else if (data.services && Array.isArray(data.services)) {
             if (data.hero) setHero(data.hero);
-            if (data.workshopInfo) setWorkshopInfo(data.workshopInfo);
             setServicesList(data.services.length > 0 ? data.services : SERVICES_DATA);
           } else {
             setServicesList(SERVICES_DATA);
@@ -71,7 +64,6 @@ export const ServicesCMS = () => {
     try {
       const payload = {
         hero,
-        workshopInfo,
         services: servicesList.map((srv, idx) => ({
           ...srv,
           displayOrder: idx + 1,
