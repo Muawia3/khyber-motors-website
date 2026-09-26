@@ -400,15 +400,6 @@ export const ServicesPage = () => {
               <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
                 {servicesContent?.workshopInfo?.hours || "Monday – Saturday: 8:30 AM – 5:30 PM\nSunday: Emergency Service Only"}
               </p>
-              <div className="pt-2 border-t border-gray-800">
-                <a
-                  href={`tel:${servicesContent?.workshopInfo?.emergencyPhone || contactData.serviceDirect || contactData.phone}`}
-                  className="flex items-center justify-center gap-2 bg-[#C8102E] text-white py-2.5 px-3 rounded-xs text-xs font-bold uppercase hover:bg-red-700 transition-colors"
-                >
-                  <Phone className="w-4 h-4" />
-                  {servicesContent?.workshopInfo?.phoneLabel || 'Service Direct'}: {servicesContent?.workshopInfo?.emergencyPhone || contactData.serviceDirect || contactData.phone}
-                </a>
-              </div>
             </Card>
           </div>
         </div>
