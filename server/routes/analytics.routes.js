@@ -164,4 +164,68 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// 3. Reset / Zero-out analytics records by period or date range (DELETE or POST)
+const handleAnalyticsReset = async (req, res) => {
+  try {
+    const period = req.query.period || req.body?.period;
+    const startDate = req.query.startDate || req.body?.startDate;
+    const endDate = req.query.endDate || req.body?.endDate;
+
+    const now = new Date();
+    let whereClause = {};
+
+    if (period === 'today') {
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      whereClause = { createdAt: { gte: startOfToday } };
+    } else if (period === 'week') {
+      const sevenDaysAgo = new Date(now);
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      whereClause = { createdAt: { gte: sevenDaysAgo } };
+    } else if (period === 'month') {
+      const thirtyDaysAgo = new Date(now);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      whereClause = { createdAt: { gte: thirtyDaysAgo } };
+    } else if (period === 'all') {
+      whereClause = {};
+    } else if (startDate || endDate) {
+      let rStart = startDate ? new Date(startDate) : new Date(0);
+      let rEnd = endDate ? new Date(endDate) : new Date();
+
+      if (isNaN(rStart.getTime())) rStart = new Date(0);
+      if (isNaN(rEnd.getTime())) rEnd = new Date();
+
+      rStart.setHours(0, 0, 0, 0);
+      rEnd.setHours(23, 59, 59, 999);
+
+      whereClause = {
+        createdAt: {
+          gte: rStart,
+          lte: rEnd,
+        },
+      };
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: 'Specify period (today, week, month, all) or startDate and endDate',
+      });
+    }
+
+    const result = await prisma.pageView.deleteMany({
+      where: whereClause,
+    });
+
+    res.json({
+      success: true,
+      count: result.count,
+      message: `Successfully reset ${result.count} visitor logs`,
+    });
+  } catch (err) {
+    console.error('Analytics reset error:', err);
+    res.status(500).json({ success: false, error: err.message || 'Failed to reset analytics' });
+  }
+};
+
+router.delete('/reset', handleAnalyticsReset);
+router.post('/reset', handleAnalyticsReset);
+
 export default router;

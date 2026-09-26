@@ -53,4 +53,22 @@ export const analyticsService = {
       return null;
     }
   },
+
+  resetAnalytics: async (period, startDate, endDate) => {
+    try {
+      const params = new URLSearchParams();
+      if (period) params.append('period', period);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+
+      const res = await apiFetch(`/analytics/reset${queryString}`, {
+        method: 'DELETE',
+      });
+      return res;
+    } catch (err) {
+      console.error('Failed to reset analytics:', err);
+      throw err;
+    }
+  },
 };

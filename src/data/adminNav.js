@@ -15,13 +15,17 @@ import {
   Clock,
   TrendingUp,
   BarChart3,
+  Globe,
   Settings,
 } from 'lucide-react';
 
 export const ADMIN_NAV_GROUPS = [
   {
     groupLabel: null,
-    items: [{ label: 'Dashboard', path: '/admin', icon: LayoutDashboard }],
+    items: [
+      { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+      { label: 'Website Visitors', path: '/admin/visitors', icon: Globe },
+    ],
   },
   {
     groupLabel: 'Content',
@@ -58,6 +62,7 @@ export const ADMIN_NAV_GROUPS = [
   {
     groupLabel: 'System',
     items: [
+      { label: 'Website Visitors', path: '/admin/visitors', icon: Globe },
       { label: 'Reports', path: '/admin/reports', icon: BarChart3 },
       { label: 'Settings', path: '/admin/settings', icon: Settings },
     ],

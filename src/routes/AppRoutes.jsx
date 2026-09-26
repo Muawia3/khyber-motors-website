@@ -20,6 +20,7 @@ import { AdminServices } from '../pages/Admin/AdminServices';
 import { AdminSales } from '../pages/Admin/AdminSales';
 import { AdminReports } from '../pages/Admin/AdminReports';
 import { AdminSettings } from '../pages/Admin/AdminSettings';
+import { AdminVisitors } from '../pages/Admin/AdminVisitors';
 
 // Vehicle CMS suite
 import { VehicleList } from '../pages/Admin/Vehicles/VehicleList';
@@ -125,6 +126,7 @@ export const AppRoutes = () => {
       <Route path="/admin/sales" element={<ProtectedRoute><AdminLayout><AdminSales /></AdminLayout></ProtectedRoute>} />
       
       {/* Analytics & System */}
+      <Route path="/admin/visitors" element={<ProtectedRoute><AdminLayout><AdminVisitors /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/reports" element={<ProtectedRoute><AdminLayout><AdminReports /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute><AdminLayout><AdminSettings /></AdminLayout></ProtectedRoute>} />
 
