@@ -10,8 +10,8 @@ export const AdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('muawiakhan000@gmail.com');
-  const [password, setPassword] = useState('Ameer100$');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -103,11 +103,6 @@ export const AdminLogin = () => {
               </Button>
             </div>
           </form>
-
-          <div className="pt-4 border-t border-gray-800 text-center text-[11px] text-gray-500 space-y-1">
-            <p>Default Super Admin: <code className="text-gray-300">muawiakhan000@gmail.com</code></p>
-            <p>Password: <code className="text-gray-300">Ameer100$</code></p>
-          </div>
         </Card>
       </div>
     </div>
