@@ -16,6 +16,7 @@ import notificationsRoutes from './routes/notifications.routes.js';
 import reviewsRoutes from './routes/reviews.routes.js';
 import departmentsRoutes from './routes/departments.routes.js';
 import teamRoutes from './routes/team.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 dotenv.config();
 
@@ -56,6 +57,7 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/departments', departmentsRoutes);
 app.use('/api/team', teamRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Global Error Handler
 app.use((err, _req, res, _next) => {

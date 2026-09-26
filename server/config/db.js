@@ -90,12 +90,17 @@ export function getPrisma() {
     try {
       let dbUrl = getDatabaseUrl();
 
-      // Enforce file: prefix ONLY for SQLite paths if not a PostgreSQL URL
-      if (!dbUrl.startsWith('postgres://') && !dbUrl.startsWith('postgresql://') && !dbUrl.startsWith('file:')) {
-        dbUrl = `file:${dbUrl}`;
+      // Enforce postgresql:// prefix if not already specified, so Prisma's schema validator succeeds
+      if (!dbUrl.startsWith('postgres://') && !dbUrl.startsWith('postgresql://')) {
+        const pgFallback = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
+        if (pgFallback && (pgFallback.startsWith('postgres://') || pgFallback.startsWith('postgresql://'))) {
+          dbUrl = pgFallback.trim();
+        } else {
+          // Fallback connection string for local development with PostgreSQL provider
+          dbUrl = 'postgresql://postgres:postgres@localhost:5432/jac_motors?schema=public';
+        }
       }
 
-      // Overwrite process.env.DATABASE_URL so Prisma's internal schema validator never fails
       process.env.DATABASE_URL = dbUrl;
 
       prismaInstance = new PrismaClient({

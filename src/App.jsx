@@ -5,12 +5,22 @@ import { ContactProvider } from './context/ContactContext';
 import { Navbar } from './components/navigation/Navbar';
 import { Footer } from './components/layout/Footer';
 import { AppRoutes } from './routes/AppRoutes';
+import { analyticsService } from './services/analyticsService';
 
 // Scroll to top component on route changes
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
+// Analytics tracker component (Tracks public website views only)
+const AnalyticsTracker = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    analyticsService.trackPageView(pathname);
   }, [pathname]);
   return null;
 };
@@ -23,6 +33,7 @@ export const AppContent = () => {
     return (
       <div className="min-h-screen bg-gray-100 text-gray-900 selection:bg-[#C8102E] selection:text-white font-sans">
         <ScrollToTop />
+        <AnalyticsTracker />
         <AppRoutes />
       </div>
     );
@@ -31,6 +42,7 @@ export const AppContent = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 selection:bg-[#C8102E] selection:text-white">
       <ScrollToTop />
+      <AnalyticsTracker />
 
       {/* Header Navigation */}
       <Navbar />

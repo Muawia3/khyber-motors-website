@@ -4,6 +4,7 @@ import { Users, Calendar, UserCheck, Car, ArrowRight, TrendingUp, Bell } from 'l
 import { KPICard } from '../../components/admin/KPICard';
 import { StatusBadge } from '../../components/admin/StatusBadge';
 import { AdminLineChart } from '../../components/admin/AdminChart';
+import { WebsiteAnalyticsSection } from '../../components/admin/WebsiteAnalyticsSection';
 import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { apiFetch } from '../../services/api';
@@ -71,6 +72,9 @@ export const AdminDashboard = () => {
           icon={Car}
         />
       </div>
+
+      {/* Real Website Analytics Section */}
+      <WebsiteAnalyticsSection />
 
       {/* Main Grid Row: Monthly Lead Trajectory Chart */}
       <div className="grid grid-cols-1 gap-6 items-start">
