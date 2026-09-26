@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, Phone, Lock } from 'lucide-react';
+import { Menu, Phone } from 'lucide-react';
 import { Container } from '../common/Container';
 import { Button } from '../ui/Button';
 import { MobileMenu } from './MobileMenu';
@@ -25,19 +25,12 @@ export const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-xs">
-      {/* Top Announcement Bar - Admin Portal Link */}
+      {/* Top Announcement Bar */}
       <div className="bg-[#0f172a] text-white text-xs py-2 border-b border-gray-800/80">
         <Container size="xl" className="flex items-center justify-between">
-          <div className="text-[11px] text-gray-400 font-medium hidden sm:block">
+          <div className="text-[11px] text-gray-400 font-medium">
             Khyber Motors Peshawar — Official 3S Dealership Portal
           </div>
-          <Link
-            to="/admin"
-            className="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-500/80 px-3.5 py-1 rounded-full transition-all duration-200 shadow-xs group cursor-pointer ml-auto"
-          >
-            <Lock className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
-            <span>Admin Login Portal</span>
-          </Link>
         </Container>
       </div>
 

@@ -185,7 +185,6 @@ export const Footer = () => {
                 { name: '3S Service & Maintenance', path: '/services' },
                 { name: 'About Dealership', path: '/about' },
                 { name: 'Contact & Location', path: '/contact' },
-                { name: 'Admin CRM Portal', path: '/admin' },
               ].map((item, idx) => (
                 <li key={idx}>
                   <Link

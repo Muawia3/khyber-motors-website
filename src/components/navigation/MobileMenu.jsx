@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Phone, MessageSquare, MapPin, Calendar, ChevronRight, Lock } from 'lucide-react';
+import { X, Phone, MessageSquare, MapPin, Calendar, ChevronRight } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useContact } from '../../context/useContact';
 
@@ -88,18 +88,6 @@ export const MobileMenu = ({
                 </Link>
               );
             })}
-
-            <Link
-              to="/admin"
-              onClick={onClose}
-              className="mt-2 flex items-center justify-between px-4 py-3 text-sm font-bold uppercase tracking-wider rounded-sm bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-amber-400" />
-                <span>Admin Login Portal</span>
-              </span>
-              <ChevronRight className="w-4 h-4 text-amber-400" />
-            </Link>
           </nav>
         </div>
 
