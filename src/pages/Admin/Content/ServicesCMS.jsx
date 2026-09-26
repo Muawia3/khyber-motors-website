@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2, ArrowUp, ArrowDown, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Save, CheckCircle2, AlertCircle, Wrench, Loader2, ArrowUp, ArrowDown, Eye, EyeOff, Phone } from 'lucide-react';
 import { Card } from '../../../components/ui/Card';
 import { Input } from '../../../components/ui/Input';
 import { Select } from '../../../components/ui/Select';
@@ -12,6 +12,12 @@ export const ServicesCMS = () => {
   const [hero, setHero] = useState({
     title: 'Professional Support Beyond the Sale',
     subtitle: 'From double cabin vehicle sales to certified after-sales service, genuine spare parts, and vehicle maintenance, our team ensures complete operational reliability.',
+  });
+  const [workshopInfo, setWorkshopInfo] = useState({
+    title: '3S Workshop Hours',
+    hours: 'Monday – Saturday: 8:30 AM – 5:30 PM\nSunday: Emergency Service Only',
+    phoneLabel: 'Service Direct',
+    emergencyPhone: '+92 300 7654321',
   });
   const [servicesList, setServicesList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +38,7 @@ export const ServicesCMS = () => {
             setServicesList(data.length > 0 ? data : SERVICES_DATA);
           } else if (data.services && Array.isArray(data.services)) {
             if (data.hero) setHero(data.hero);
+            if (data.workshopInfo) setWorkshopInfo(data.workshopInfo);
             setServicesList(data.services.length > 0 ? data.services : SERVICES_DATA);
           } else {
             setServicesList(SERVICES_DATA);
@@ -64,6 +71,7 @@ export const ServicesCMS = () => {
     try {
       const payload = {
         hero,
+        workshopInfo,
         services: servicesList.map((srv, idx) => ({
           ...srv,
           displayOrder: idx + 1,
@@ -196,10 +204,49 @@ export const ServicesCMS = () => {
           />
         </Card>
 
+        {/* Workshop Operating Hours & Emergency Phone */}
+        <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
+            <Phone className="w-4 h-4 text-[#C8102E]" /> 2. 3S Workshop Operating Hours & Emergency Contact Number
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Section Heading Title"
+              value={workshopInfo.title || ''}
+              onChange={(e) => setWorkshopInfo({ ...workshopInfo, title: e.target.value })}
+              placeholder="3S Workshop Hours"
+            />
+
+            <Input
+              label="Phone Button Label"
+              value={workshopInfo.phoneLabel || ''}
+              onChange={(e) => setWorkshopInfo({ ...workshopInfo, phoneLabel: e.target.value })}
+              placeholder="Service Direct"
+            />
+          </div>
+
+          <Textarea
+            label="Operating Hours & Days (Multiline Text)"
+            rows={3}
+            value={workshopInfo.hours || ''}
+            onChange={(e) => setWorkshopInfo({ ...workshopInfo, hours: e.target.value })}
+            placeholder="Monday – Saturday: 8:30 AM – 5:30 PM&#10;Sunday: Emergency Service Only"
+            helperText="Specify workshop operating days and timing line by line."
+          />
+
+          <Input
+            label="Emergency / Service Direct Phone Number"
+            value={workshopInfo.emergencyPhone || ''}
+            onChange={(e) => setWorkshopInfo({ ...workshopInfo, emergencyPhone: e.target.value })}
+            placeholder="+92 300 7654321"
+          />
+        </Card>
+
         {/* Individual Services Cards */}
         <div className="space-y-4">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900">
-            2. Dealership Services List ({servicesList.length} Items)
+            3. Dealership Services List ({servicesList.length} Items)
           </h3>
 
           {servicesList.map((service, idx) => {

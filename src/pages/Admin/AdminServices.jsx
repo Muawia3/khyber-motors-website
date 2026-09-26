@@ -34,7 +34,7 @@ export const AdminServices = () => {
             phone: ld.phone,
             email: ld.email || 'N/A',
             department: ld.department || 'Authorized 3S Workshop',
-            assignedTo: 'Sikandar Hayat Jan (3S Service Desk)',
+            assignedTo: '3S Service Desk',
             vehicle: ld.vehicleInterest || ld.department || 'JAC Workshop Inquiry',
             serviceType: ld.subject || 'Routine Periodic Maintenance',
             message: ld.message || 'No additional notes',
@@ -179,7 +179,7 @@ export const AdminServices = () => {
             <Wrench className="w-5 h-5 text-[#C8102E]" /> 3S Workshop Service Requests ({serviceRequests.length})
           </h2>
           <p className="text-xs text-gray-500">
-            Track periodic maintenance bookings, diagnostic appointments, and workshop job status. Assigned to <strong>Sikandar Hayat Jan (3S Service Desk)</strong>.
+            Track periodic maintenance bookings, diagnostic appointments, and workshop job status.
           </p>
         </div>
       </div>

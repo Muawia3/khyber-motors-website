@@ -395,19 +395,18 @@ export const ServicesPage = () => {
           <div className="lg:col-span-4 space-y-6">
             <Card className="p-6 bg-[#111827] text-white space-y-4 border border-gray-800">
               <h4 className="text-sm font-extrabold uppercase text-white border-b border-gray-800 pb-2">
-                3S Workshop Hours
+                {servicesContent?.workshopInfo?.title || "3S Workshop Hours"}
               </h4>
-              <p className="text-xs text-gray-300 leading-relaxed">
-                Monday – Saturday: 8:30 AM – 5:30 PM <br />
-                Sunday: Emergency Service Only
+              <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
+                {servicesContent?.workshopInfo?.hours || "Monday – Saturday: 8:30 AM – 5:30 PM\nSunday: Emergency Service Only"}
               </p>
               <div className="pt-2 border-t border-gray-800">
                 <a
-                  href={`tel:${contactData.serviceDirect || contactData.phone}`}
+                  href={`tel:${servicesContent?.workshopInfo?.emergencyPhone || contactData.serviceDirect || contactData.phone}`}
                   className="flex items-center justify-center gap-2 bg-[#C8102E] text-white py-2.5 px-3 rounded-xs text-xs font-bold uppercase hover:bg-red-700 transition-colors"
                 >
                   <Phone className="w-4 h-4" />
-                  Service Direct: {contactData.serviceDirect || contactData.phone}
+                  {servicesContent?.workshopInfo?.phoneLabel || 'Service Direct'}: {servicesContent?.workshopInfo?.emergencyPhone || contactData.serviceDirect || contactData.phone}
                 </a>
               </div>
             </Card>
