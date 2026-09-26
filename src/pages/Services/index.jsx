@@ -268,10 +268,9 @@ export const ServicesPage = () => {
         </div>
 
         {/* Maintenance Appointment Booking Form Section */}
-        <div id="book-service" className="pt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-8">
-            <Card className="p-6 sm:p-8 border border-gray-200/80 bg-white shadow-sm">
-              {!isSubmitted ? (
+        <div id="book-service" className="pt-8 max-w-4xl mx-auto">
+          <Card className="p-6 sm:p-8 border border-gray-200/80 bg-white shadow-sm">
+            {!isSubmitted ? (
                 <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                   <div className="border-b border-gray-100 pb-3">
                     <h3 className="text-xl font-bold uppercase text-gray-900 tracking-tight">
@@ -389,19 +388,6 @@ export const ServicesPage = () => {
                 </div>
               )}
             </Card>
-          </div>
-
-          {/* Workshop Info Sidebar */}
-          <div className="lg:col-span-4 space-y-6">
-            <Card className="p-6 bg-[#111827] text-white space-y-4 border border-gray-800">
-              <h4 className="text-sm font-extrabold uppercase text-white border-b border-gray-800 pb-2">
-                {servicesContent?.workshopInfo?.title || "3S Workshop Hours"}
-              </h4>
-              <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">
-                {servicesContent?.workshopInfo?.hours || "Monday – Saturday: 8:30 AM – 5:30 PM\nSunday: Emergency Service Only"}
-              </p>
-            </Card>
-          </div>
         </div>
       </Container>
 

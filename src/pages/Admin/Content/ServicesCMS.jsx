@@ -204,33 +204,10 @@ export const ServicesCMS = () => {
           />
         </Card>
 
-        {/* Workshop Operating Hours & Days */}
-        <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#C8102E]" /> 2. 3S Workshop Operating Hours & Schedule
-          </h3>
-
-          <Input
-            label="Section Heading Title"
-            value={workshopInfo.title || ''}
-            onChange={(e) => setWorkshopInfo({ ...workshopInfo, title: e.target.value })}
-            placeholder="3S Workshop Hours"
-          />
-
-          <Textarea
-            label="Operating Hours & Days (Multiline Text)"
-            rows={3}
-            value={workshopInfo.hours || ''}
-            onChange={(e) => setWorkshopInfo({ ...workshopInfo, hours: e.target.value })}
-            placeholder="Monday – Saturday: 8:30 AM – 5:30 PM&#10;Sunday: Emergency Service Only"
-            helperText="Specify workshop operating days and timing line by line."
-          />
-        </Card>
-
         {/* Individual Services Cards */}
         <div className="space-y-4">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900">
-            3. Dealership Services List ({servicesList.length} Items)
+            2. Dealership Services List ({servicesList.length} Items)
           </h3>
 
           {servicesList.map((service, idx) => {
