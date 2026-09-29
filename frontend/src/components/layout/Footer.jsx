@@ -73,13 +73,13 @@ export const Footer = () => {
           {/* Column 1: Dealership Branding */}
           <div className="space-y-4">
             <div>
-              <BrandLogo size="md" variant="dark" to="/" />
+              <BrandLogo size="md" layout="stacked" variant="dark" to="/" />
               <span className="text-[10px] font-semibold tracking-widest text-[#C8102E] uppercase block mt-2">
                 {contactData.status || 'Authorized 3S Facility'}
               </span>
             </div>
 
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-gray-400 leading-relaxed break-words">
               {contactData.footerText || contactData.tagline}
             </p>
 
