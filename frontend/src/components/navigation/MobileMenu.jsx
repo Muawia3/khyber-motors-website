@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { X, Phone, MessageSquare, MapPin, Calendar, ChevronRight } from 'lucide-react';
+import { X, Phone, MessageSquare, MapPin, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useContact } from '../../context/useContact';
 
@@ -11,6 +11,7 @@ export const MobileMenu = ({
 }) => {
   const { contactData } = useContact();
   const location = useLocation();
+  const [isProductsExpanded, setIsProductsExpanded] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -31,6 +32,13 @@ export const MobileMenu = ({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  // Reset accordion when closed
+  useEffect(() => {
+    if (!isOpen) {
+      setIsProductsExpanded(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -72,6 +80,160 @@ export const MobileMenu = ({
                 link.path === '/'
                   ? location.pathname === '/'
                   : location.pathname.startsWith(link.path);
+
+              if (link.hasDropdown) {
+                return (
+                  <div key={link.path} className="flex flex-col">
+                    <div
+                      className={`flex items-center justify-between px-4 py-3 text-sm font-semibold uppercase tracking-wider rounded-sm transition-colors ${
+                        active || isProductsExpanded
+                          ? 'bg-[#C8102E] text-white'
+                          : 'text-gray-300 hover:bg-gray-800 hover:text-[#C8102E]'
+                      }`}
+                    >
+                      <Link
+                        to={link.path}
+                        onClick={onClose}
+                        className="grow hover:underline"
+                      >
+                        {link.name}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => setIsProductsExpanded((prev) => !prev)}
+                        className="p-1 -mr-1 text-white/80 hover:text-white cursor-pointer focus:outline-none"
+                        aria-label="Toggle Products hierarchy"
+                      >
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            isProductsExpanded ? 'rotate-180' : ''
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Expandable Hierarchy */}
+                    {isProductsExpanded && (
+                      <div className="mt-1 ml-2 pl-3 border-l-2 border-red-800/60 py-2 space-y-4 text-xs bg-gray-900/60 rounded-xs px-2">
+                        {/* 1. JAC T9 */}
+                        <div className="space-y-1">
+                          <Link
+                            to="/products?category=jac-t9"
+                            onClick={onClose}
+                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
+                          >
+                            1. JAC T9
+                          </Link>
+                          <div className="pl-2 space-y-1">
+                            <Link
+                              to="/products/t9-hunter"
+                              onClick={onClose}
+                              className="block py-1 text-gray-300 hover:text-white"
+                            >
+                              • Hunter
+                            </Link>
+                            <Link
+                              to="/products/t9-frison"
+                              onClick={onClose}
+                              className="block py-1 text-gray-300 hover:text-white"
+                            >
+                              • Frison
+                            </Link>
+                          </div>
+                        </div>
+
+                        {/* 2. JAC Commercial */}
+                        <div className="space-y-1">
+                          <Link
+                            to="/products?category=jac-commercial"
+                            onClick={onClose}
+                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
+                          >
+                            2. JAC Commercial
+                          </Link>
+                          <div className="pl-2 space-y-1">
+                            {[
+                              { name: 'X200', slug: 'jac-x200' },
+                              { name: '1020', slug: 'jac-1020' },
+                              { name: '1042', slug: 'jac-1042' },
+                              { name: '1091', slug: 'jac-1091' },
+                              { name: '1120', slug: 'jac-1120' },
+                            ].map((m) => (
+                              <Link
+                                key={m.slug}
+                                to={`/products/${m.slug}`}
+                                onClick={onClose}
+                                className="block py-1 text-gray-300 hover:text-white"
+                              >
+                                • {m.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* 3. Dongfeng */}
+                        <div className="space-y-1">
+                          <Link
+                            to="/products?category=dongfeng"
+                            onClick={onClose}
+                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
+                          >
+                            3. Dongfeng
+                          </Link>
+                          <div className="pl-2 space-y-2">
+                            <div>
+                              <Link
+                                to="/products?category=dongfeng&subcategory=heavy"
+                                onClick={onClose}
+                                className="text-[11px] font-semibold text-gray-400 uppercase block"
+                              >
+                                Heavy:
+                              </Link>
+                              <div className="pl-2 space-y-1 mt-0.5">
+                                <Link
+                                  to="/products/dongfeng-prime-mover"
+                                  onClick={onClose}
+                                  className="block py-0.5 text-gray-300 hover:text-white"
+                                >
+                                  - Prime Movers
+                                </Link>
+                                <Link
+                                  to="/products/dongfeng-rigid"
+                                  onClick={onClose}
+                                  className="block py-0.5 text-gray-300 hover:text-white"
+                                >
+                                  - Rigid
+                                </Link>
+                              </div>
+                            </div>
+                            <div>
+                              <Link
+                                to="/products/dongfeng-light"
+                                onClick={onClose}
+                                className="block py-1 text-gray-300 hover:text-white font-semibold"
+                              >
+                                • Light
+                              </Link>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* View All */}
+                        <div className="pt-2 border-t border-gray-800">
+                          <Link
+                            to="/products"
+                            onClick={onClose}
+                            className="text-[#C8102E] font-bold uppercase tracking-wider block hover:text-red-400"
+                          >
+                            View All Products →
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={link.path}
