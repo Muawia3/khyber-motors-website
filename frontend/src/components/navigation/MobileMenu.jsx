@@ -112,118 +112,45 @@ export const MobileMenu = ({
                       </button>
                     </div>
 
-                    {/* Expandable Hierarchy */}
+                    {/* Expandable Hierarchy - ONLY 3 Parent Categories */}
                     {isProductsExpanded && (
-                      <div className="mt-1 ml-2 pl-3 border-l-2 border-red-800/60 py-2 space-y-4 text-xs bg-gray-900/60 rounded-xs px-2">
+                      <div className="mt-1 ml-2 pl-3 border-l-2 border-red-800/60 py-2 space-y-2 text-xs bg-gray-900/60 rounded-xs px-2">
                         {/* 1. JAC T9 */}
-                        <div className="space-y-1">
-                          <Link
-                            to="/products?category=jac-t9"
-                            onClick={onClose}
-                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
-                          >
-                            1. JAC T9
-                          </Link>
-                          <div className="pl-2 space-y-1">
-                            <Link
-                              to="/products/t9-hunter"
-                              onClick={onClose}
-                              className="block py-1 text-gray-300 hover:text-white"
-                            >
-                              • Hunter
-                            </Link>
-                            <Link
-                              to="/products/t9-frison"
-                              onClick={onClose}
-                              className="block py-1 text-gray-300 hover:text-white"
-                            >
-                              • Frison
-                            </Link>
-                          </div>
-                        </div>
+                        <Link
+                          to="/products?category=jac-t9"
+                          onClick={onClose}
+                          className="flex items-center justify-between py-2 px-2 text-gray-200 hover:text-[#C8102E] hover:bg-gray-800/50 rounded-xs font-bold uppercase tracking-wide"
+                        >
+                          <span>1. JAC T9</span>
+                          <span className="text-[10px] text-gray-400 font-normal">Pickups</span>
+                        </Link>
 
                         {/* 2. JAC Commercial */}
-                        <div className="space-y-1">
-                          <Link
-                            to="/products?category=jac-commercial"
-                            onClick={onClose}
-                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
-                          >
-                            2. JAC Commercial
-                          </Link>
-                          <div className="pl-2 space-y-1">
-                            {[
-                              { name: 'X200', slug: 'jac-x200' },
-                              { name: '1020', slug: 'jac-1020' },
-                              { name: '1042', slug: 'jac-1042' },
-                              { name: '1091', slug: 'jac-1091' },
-                              { name: '1120', slug: 'jac-1120' },
-                            ].map((m) => (
-                              <Link
-                                key={m.slug}
-                                to={`/products/${m.slug}`}
-                                onClick={onClose}
-                                className="block py-1 text-gray-300 hover:text-white"
-                              >
-                                • {m.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
+                        <Link
+                          to="/products?category=jac-commercial"
+                          onClick={onClose}
+                          className="flex items-center justify-between py-2 px-2 text-gray-200 hover:text-[#C8102E] hover:bg-gray-800/50 rounded-xs font-bold uppercase tracking-wide"
+                        >
+                          <span>2. JAC Commercial</span>
+                          <span className="text-[10px] text-gray-400 font-normal">Trucks</span>
+                        </Link>
 
                         {/* 3. Dongfeng */}
-                        <div className="space-y-1">
-                          <Link
-                            to="/products?category=dongfeng"
-                            onClick={onClose}
-                            className="font-bold text-red-400 uppercase tracking-wide block hover:text-white"
-                          >
-                            3. Dongfeng
-                          </Link>
-                          <div className="pl-2 space-y-2">
-                            <div>
-                              <Link
-                                to="/products?category=dongfeng&subcategory=heavy"
-                                onClick={onClose}
-                                className="text-[11px] font-semibold text-gray-400 uppercase block"
-                              >
-                                Heavy:
-                              </Link>
-                              <div className="pl-2 space-y-1 mt-0.5">
-                                <Link
-                                  to="/products/dongfeng-prime-mover"
-                                  onClick={onClose}
-                                  className="block py-0.5 text-gray-300 hover:text-white"
-                                >
-                                  - Prime Movers
-                                </Link>
-                                <Link
-                                  to="/products/dongfeng-rigid"
-                                  onClick={onClose}
-                                  className="block py-0.5 text-gray-300 hover:text-white"
-                                >
-                                  - Rigid
-                                </Link>
-                              </div>
-                            </div>
-                            <div>
-                              <Link
-                                to="/products/dongfeng-light"
-                                onClick={onClose}
-                                className="block py-1 text-gray-300 hover:text-white font-semibold"
-                              >
-                                • Light
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
+                        <Link
+                          to="/products?category=dongfeng"
+                          onClick={onClose}
+                          className="flex items-center justify-between py-2 px-2 text-gray-200 hover:text-[#C8102E] hover:bg-gray-800/50 rounded-xs font-bold uppercase tracking-wide"
+                        >
+                          <span>3. Dongfeng</span>
+                          <span className="text-[10px] text-gray-400 font-normal">Heavy & Light</span>
+                        </Link>
 
                         {/* View All */}
                         <div className="pt-2 border-t border-gray-800">
                           <Link
                             to="/products"
                             onClick={onClose}
-                            className="text-[#C8102E] font-bold uppercase tracking-wider block hover:text-red-400"
+                            className="text-[#C8102E] font-bold uppercase tracking-wider block py-1 hover:text-red-400"
                           >
                             View All Products →
                           </Link>

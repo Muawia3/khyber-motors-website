@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Shield, ChevronRight, Layers, ArrowRight, Check } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Shield, ChevronRight, Layers, ArrowRight, Truck, Check, ArrowLeft } from 'lucide-react';
 import { Container } from '../../components/common/Container';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { VehicleCard } from '../../components/vehicles/VehicleCard';
@@ -13,19 +13,54 @@ export const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialCategory = searchParams.get('category') || 'all'; // 'all' | 'jac-t9' | 'jac-commercial' | 'dongfeng'
   const initialSubcategory = searchParams.get('subcategory') || 'all';
-  const initialSubSubcategory = searchParams.get('subSubcategory') || 'all';
 
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [selectedSubcategory, setSelectedSubcategory] = useState(initialSubcategory);
-  const [selectedSubSubcategory, setSelectedSubSubcategory] = useState(initialSubSubcategory);
+  const [selectedDongfengTab, setSelectedDongfengTab] = useState(
+    initialCategory === 'dongfeng' && (initialSubcategory === 'heavy' || initialSubcategory === 'light')
+      ? initialSubcategory
+      : 'all'
+  );
+  const [selectedT9Tab, setSelectedT9Tab] = useState(
+    initialCategory === 'jac-t9' && (initialSubcategory === 'hunter' || initialSubcategory === 'frison')
+      ? initialSubcategory
+      : 'all'
+  );
+  const [selectedCommercialTab, setSelectedCommercialTab] = useState(
+    initialCategory === 'jac-commercial' && initialSubcategory !== 'all' ? initialSubcategory : 'all'
+  );
 
   const [products, setProducts] = useState(() => vehicleService.getCachedVehicles() || []);
   const [loading, setLoading] = useState(() => !vehicleService.getCachedVehicles()?.length);
 
-  const productGridRef = useRef(null);
+  const contentRef = useRef(null);
+
+  // Sync category & subcategory from URL parameters whenever searchParams changes
+  useEffect(() => {
+    const cat = searchParams.get('category') || 'all';
+    const sub = searchParams.get('subcategory') || 'all';
+
+    setSelectedCategory(cat);
+
+    if (cat === 'dongfeng') {
+      setSelectedDongfengTab(sub === 'heavy' || sub === 'light' ? sub : 'all');
+    } else if (cat === 'jac-t9') {
+      setSelectedT9Tab(sub === 'hunter' || sub === 'frison' ? sub : 'all');
+    } else if (cat === 'jac-commercial') {
+      setSelectedCommercialTab(sub !== 'all' ? sub : 'all');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
-    document.title = 'Products Catalog | Khyber Motors Peshawar';
+    let pageTitle = 'Products Catalog | Khyber Motors Peshawar';
+    if (selectedCategory === 'jac-t9') {
+      pageTitle = 'JAC T9 Series | Khyber Motors Peshawar';
+    } else if (selectedCategory === 'jac-commercial') {
+      pageTitle = 'JAC Commercial Trucks | Khyber Motors Peshawar';
+    } else if (selectedCategory === 'dongfeng') {
+      pageTitle = 'Dongfeng Trucks (Heavy & Light) | Khyber Motors Peshawar';
+    }
+    document.title = pageTitle;
+
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
       metaDescription = document.createElement('meta');
@@ -51,590 +86,676 @@ export const ProductsPage = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [selectedCategory]);
 
-  const hierarchy = useMemo(() => vehicleService.getHierarchy(), []);
+  // Specific vehicles mapped for fast, reliable lookup
+  const t9Hunter = useMemo(
+    () => products.find((p) => p.slug === 't9-hunter' || p.id === 'jac-t9-hunter'),
+    [products]
+  );
+  const t9Frison = useMemo(
+    () => products.find((p) => p.slug === 't9-frison' || p.id === 'jac-t9-frison'),
+    [products]
+  );
 
-  // Filtered products based on hierarchy
-  const filteredProducts = useMemo(() => {
-    const visible = products.filter(
-      (p) => p.status !== 'Draft' && p.status !== 'Hidden'
-    );
-
-    if (selectedCategory === 'all') {
-      return visible;
-    }
-
-    return visible.filter((p) => {
-      // 1. JAC T9 category filter
-      if (selectedCategory === 'jac-t9') {
-        const matchesCategory =
-          p.category === 'jac-t9' ||
-          p.category === 'passengers' ||
-          p.slug === 't9-hunter' ||
-          p.slug === 't9-frison';
-
-        if (!matchesCategory) return false;
-
-        if (selectedSubcategory !== 'all') {
-          return (
-            (p.subcategory || '').toLowerCase() === selectedSubcategory.toLowerCase() ||
-            p.slug.includes(selectedSubcategory.toLowerCase())
-          );
-        }
-        return true;
-      }
-
-      // 2. JAC Commercial category filter
-      if (selectedCategory === 'jac-commercial') {
-        const matchesCategory =
+  const commercialVehicles = useMemo(
+    () =>
+      products.filter(
+        (p) =>
           p.category === 'jac-commercial' ||
           (p.brand === 'JAC' && (p.category === 'trucks' || p.category === 'commercial')) ||
-          ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(p.slug);
+          ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(p.slug)
+      ),
+    [products]
+  );
 
-        if (!matchesCategory) return false;
+  const dfPrimeMover = useMemo(
+    () =>
+      products.find(
+        (p) => p.slug === 'dongfeng-prime-mover' || p.id === 'dongfeng-prime-mover'
+      ),
+    [products]
+  );
+  const dfRigid = useMemo(
+    () =>
+      products.find(
+        (p) => p.slug === 'dongfeng-rigid' || p.id === 'dongfeng-rigid'
+      ),
+    [products]
+  );
+  const dfLight = useMemo(
+    () =>
+      products.find(
+        (p) => p.slug === 'dongfeng-light' || p.id === 'dongfeng-light'
+      ),
+    [products]
+  );
 
-        if (selectedSubcategory !== 'all') {
-          return (
-            (p.subcategory || '').toLowerCase() === selectedSubcategory.toLowerCase() ||
-            p.slug.toLowerCase().includes(selectedSubcategory.toLowerCase())
-          );
-        }
-        return true;
-      }
-
-      // 3. Dongfeng category filter
-      if (selectedCategory === 'dongfeng') {
-        const matchesBrandOrCat =
-          p.brand === 'Dongfeng' ||
-          p.category === 'dongfeng' ||
-          p.slug.toLowerCase().includes('dongfeng');
-
-        if (!matchesBrandOrCat) return false;
-
-        if (selectedSubcategory === 'heavy') {
-          const isHeavy =
-            (p.subcategory || '').toLowerCase() === 'heavy' ||
-            p.slug.includes('prime-mover') ||
-            p.slug.includes('rigid');
-
-          if (!isHeavy) return false;
-
-          if (selectedSubSubcategory === 'prime-movers') {
-            return (
-              (p.subSubcategory || '').toLowerCase() === 'prime-movers' ||
-              p.slug.includes('prime-mover')
-            );
-          }
-          if (selectedSubSubcategory === 'rigid') {
-            return (
-              (p.subSubcategory || '').toLowerCase() === 'rigid' ||
-              p.slug.includes('rigid')
-            );
-          }
-          return true;
-        }
-
-        if (selectedSubcategory === 'light') {
-          return (
-            (p.subcategory || '').toLowerCase() === 'light' ||
-            p.slug.includes('light')
-          );
-        }
-
-        return true;
-      }
-
-      return true;
-    });
-  }, [products, selectedCategory, selectedSubcategory, selectedSubSubcategory]);
-
-  const handleSelectHierarchyCategory = (catId, subId = 'all', subSubId = 'all') => {
+  const handleSelectCategory = (catId) => {
     setSelectedCategory(catId);
-    setSelectedSubcategory(subId);
-    setSelectedSubSubcategory(subSubId);
-
-    // Update query params
-    const params = {};
-    if (catId !== 'all') params.category = catId;
-    if (subId !== 'all') params.subcategory = subId;
-    if (subSubId !== 'all') params.subSubcategory = subSubId;
-    setSearchParams(params);
-
-    if (productGridRef.current) {
-      productGridRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (catId === 'all') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category: catId });
     }
-  };
-
-  const handleResetFilters = () => {
-    setSelectedCategory('all');
-    setSelectedSubcategory('all');
-    setSelectedSubSubcategory('all');
-    setSearchParams({});
+    if (contentRef.current) {
+      contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
-    <div className="space-y-8 pt-4 pb-12">
+    <div className="space-y-8 pt-4 pb-16">
       <Container size="xl">
-        {/* 1. Page Header */}
-        <AnimatedSection direction="up">
-          <SectionHeading
-            badge="Product Lineup"
-            title="Our Products"
-            subtitle="Browse our comprehensive range of commercial trucks and double cabin pickups."
-            align="center"
-          />
-        </AnimatedSection>
-
-        {/* 2. Primary Product Structure / Hierarchy List (Shown First as requested) */}
-        <AnimatedSection direction="up" delay={80}>
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#C8102E]" />
-                <h2 className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-gray-900">
-                  Select Product Category
-                </h2>
-              </div>
-              <span className="text-[11px] text-gray-500 font-semibold hidden sm:inline">
-                Click a category below to explore its models
-              </span>
-            </div>
-
-            {/* 3 Main Hierarchy Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Category 1: JAC T9 */}
-              <div
-                onClick={() => handleSelectHierarchyCategory('jac-t9')}
-                className={`relative p-5 rounded-xs border-2 transition-all cursor-pointer group flex flex-col justify-between ${
-                  selectedCategory === 'jac-t9'
-                    ? 'border-[#C8102E] bg-white shadow-lg -translate-y-1'
-                    : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-md'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="bg-[#C8102E] text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
-                      1. JAC T9
-                    </span>
-                    <span className="text-[11px] font-bold text-gray-400">2 Models</span>
-                  </div>
-                  <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                    JAC T9 Series
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Flagship 2.0L Turbo Diesel 4x4 Double Cabin Pickups.
-                  </p>
-
-                  {/* Subcategories list */}
-                  <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                      Models:
+        <div ref={contentRef}>
+          {/* ========================================================================= */}
+          {/* 1. DONGFENG PAGE */}
+          {/* ========================================================================= */}
+          {selectedCategory === 'dongfeng' && (
+            <AnimatedSection direction="up">
+              <div className="space-y-10">
+                {/* Header with Main Categories Tabs at the Top */}
+                <div className="border-b border-gray-200 pb-6 bg-white p-6 rounded-xs shadow-xs">
+                  <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                        <Link
+                          to="/products"
+                          onClick={() => handleSelectCategory('all')}
+                          className="hover:text-[#C8102E] flex items-center gap-1"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>All Products</span>
+                        </Link>
+                        <span>/</span>
+                        <span className="text-[#C8102E]">Dongfeng</span>
+                      </div>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+                        Dongfeng Trucks
+                      </h1>
+                      <p className="text-sm text-gray-600 mt-2 max-w-2xl leading-relaxed">
+                        Commercial heavy haulage, rigid industrial tippers, and light cargo distribution fleet engineered with proven durability and Cummins powertrain performance.
+                      </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectHierarchyCategory('jac-t9', 'hunter');
-                        }}
-                        className={`text-left text-xs font-bold px-2.5 py-1.5 rounded-xs transition-colors border flex items-center justify-between ${
-                          selectedCategory === 'jac-t9' && selectedSubcategory === 'hunter'
-                            ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                        }`}
-                      >
-                        <span>Hunter</span>
-                        <ChevronRight className="w-3 h-3 shrink-0" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectHierarchyCategory('jac-t9', 'frison');
-                        }}
-                        className={`text-left text-xs font-bold px-2.5 py-1.5 rounded-xs transition-colors border flex items-center justify-between ${
-                          selectedCategory === 'jac-t9' && selectedSubcategory === 'frison'
-                            ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                        }`}
-                      >
-                        <span>Frison</span>
-                        <ChevronRight className="w-3 h-3 shrink-0" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="mt-4 pt-3 flex items-center justify-between text-xs font-bold text-[#C8102E]">
-                  <span>Explore JAC T9</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-
-              {/* Category 2: JAC Commercial */}
-              <div
-                onClick={() => handleSelectHierarchyCategory('jac-commercial')}
-                className={`relative p-5 rounded-xs border-2 transition-all cursor-pointer group flex flex-col justify-between ${
-                  selectedCategory === 'jac-commercial'
-                    ? 'border-[#C8102E] bg-white shadow-lg -translate-y-1'
-                    : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-md'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="bg-[#111827] text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
-                      2. JAC Commercial
-                    </span>
-                    <span className="text-[11px] font-bold text-gray-400">5 Models</span>
-                  </div>
-                  <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                    JAC Commercial Trucks
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Dependable cargo deck trucks ranging from 1.15 to 8.0 ton capacity.
-                  </p>
-
-                  {/* Subcategories list */}
-                  <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                      Models:
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {['X200', '1020', '1042', '1091', '1120'].map((model) => {
-                        const isSubSelected =
-                          selectedCategory === 'jac-commercial' &&
-                          selectedSubcategory === model.toLowerCase();
-                        return (
-                          <button
-                            key={model}
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectHierarchyCategory('jac-commercial', model.toLowerCase());
-                            }}
-                            className={`text-center text-xs font-bold px-2 py-1.5 rounded-xs transition-colors border ${
-                              isSubSelected
-                                ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                                : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                            }`}
-                          >
-                            {model}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 flex items-center justify-between text-xs font-bold text-[#C8102E]">
-                  <span>Explore JAC Commercial</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-
-              {/* Category 3: Dongfeng */}
-              <div
-                onClick={() => handleSelectHierarchyCategory('dongfeng')}
-                className={`relative p-5 rounded-xs border-2 transition-all cursor-pointer group flex flex-col justify-between ${
-                  selectedCategory === 'dongfeng'
-                    ? 'border-[#C8102E] bg-white shadow-lg -translate-y-1'
-                    : 'border-gray-200 bg-white hover:border-gray-400 hover:shadow-md'
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="bg-[#C8102E] text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
-                      3. Dongfeng
-                    </span>
-                    <span className="text-[11px] font-bold text-gray-400">Heavy & Light</span>
-                  </div>
-                  <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                    Dongfeng Logistics
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Heavy-duty Prime Movers, Rigid industrial tippers, and Light trucks.
-                  </p>
-
-                  {/* Subcategories list */}
-                  <div className="mt-4 pt-3 border-t border-gray-100 space-y-1.5">
-                    <div className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
-                      Hierarchy:
-                    </div>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-1.5">
+                    {/* Main Categories at Top: Heavy and Light */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-gray-100 p-1.5 rounded-sm border border-gray-200">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 px-2 py-1">
+                        Category:
+                      </span>
+                      <div className="flex items-center gap-1.5 w-full sm:w-auto">
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectHierarchyCategory('dongfeng', 'heavy', 'prime-movers');
-                          }}
-                          className={`text-xs font-bold px-2 py-1 rounded-xs transition-colors border flex-1 text-center ${
-                            selectedCategory === 'dongfeng' &&
-                            selectedSubcategory === 'heavy' &&
-                            selectedSubSubcategory === 'prime-movers'
-                              ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                              : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                          onClick={() => setSelectedDongfengTab('all')}
+                          className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                            selectedDongfengTab === 'all'
+                              ? 'bg-[#C8102E] text-white shadow-xs'
+                              : 'text-gray-700 hover:text-gray-900 bg-white/70 sm:bg-transparent'
                           }`}
                         >
-                          Heavy: Prime Movers
+                          All Dongfeng
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectHierarchyCategory('dongfeng', 'heavy', 'rigid');
-                          }}
-                          className={`text-xs font-bold px-2 py-1 rounded-xs transition-colors border flex-1 text-center ${
-                            selectedCategory === 'dongfeng' &&
-                            selectedSubcategory === 'heavy' &&
-                            selectedSubSubcategory === 'rigid'
-                              ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                              : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                          onClick={() => setSelectedDongfengTab('heavy')}
+                          className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                            selectedDongfengTab === 'heavy'
+                              ? 'bg-[#C8102E] text-white shadow-xs'
+                              : 'text-gray-700 hover:text-gray-900 bg-white/70 sm:bg-transparent'
                           }`}
                         >
-                          Heavy: Rigid
+                          Heavy
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedDongfengTab('light')}
+                          className={`flex-1 sm:flex-initial px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                            selectedDongfengTab === 'light'
+                              ? 'bg-[#C8102E] text-white shadow-xs'
+                              : 'text-gray-700 hover:text-gray-900 bg-white/70 sm:bg-transparent'
+                          }`}
+                        >
+                          Light
                         </button>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleSelectHierarchyCategory('dongfeng', 'light');
-                        }}
-                        className={`w-full text-xs font-bold px-2 py-1 rounded-xs transition-colors border text-center ${
-                          selectedCategory === 'dongfeng' && selectedSubcategory === 'light'
-                            ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                            : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                        }`}
-                      >
-                        Dongfeng Light
-                      </button>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 flex items-center justify-between text-xs font-bold text-[#C8102E]">
-                  <span>Explore Dongfeng</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* 3. Interactive Filter Bar & Subcategory Selector */}
-        <AnimatedSection direction="up" delay={120}>
-          <div ref={productGridRef} className="bg-white border border-gray-200 p-4 sm:p-5 rounded-sm shadow-xs mb-6 space-y-4">
-            {/* Top Level Category Tabs */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-gray-500">
-                Filter by Category:
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Product Category Filter">
-                {[
-                  { id: 'all', label: 'All Products' },
-                  { id: 'jac-t9', label: '1. JAC T9' },
-                  { id: 'jac-commercial', label: '2. JAC Commercial' },
-                  { id: 'dongfeng', label: '3. Dongfeng' },
-                ].map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => handleSelectHierarchyCategory(cat.id, 'all', 'all')}
-                    className={`px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C8102E] ${
-                      selectedCategory === cat.id
-                        ? 'bg-[#C8102E] text-white shadow-xs'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Subcategory Level Navigation for JAC T9 */}
-            {selectedCategory === 'jac-t9' && (
-              <div className="pt-2 animate-fadeIn space-y-2">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-gray-900 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#C8102E]"></span>
-                  Select JAC T9 Model:
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: 'all', label: 'All JAC T9' },
-                    { id: 'hunter', label: 'Hunter' },
-                    { id: 'frison', label: 'Frison' },
-                  ].map((sub) => (
-                    <button
-                      key={sub.id}
-                      type="button"
-                      onClick={() => setSelectedSubcategory(sub.id)}
-                      className={`px-4 py-2 text-xs font-bold rounded-xs border transition-colors cursor-pointer ${
-                        selectedSubcategory === sub.id
-                          ? 'bg-gray-900 text-white border-gray-900 shadow-xs'
-                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Subcategory Level Navigation for JAC Commercial */}
-            {selectedCategory === 'jac-commercial' && (
-              <div className="pt-2 animate-fadeIn space-y-2">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-gray-900 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#C8102E]"></span>
-                  Select Commercial Model:
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: 'all', label: 'All JAC Commercial' },
-                    { id: 'x200', label: 'X200 (1.15-Ton)' },
-                    { id: '1020', label: '1020 (3.5-Ton)' },
-                    { id: '1042', label: '1042 (14-Foot)' },
-                    { id: '1091', label: '1091 (17-Foot)' },
-                    { id: '1120', label: '1120 (20-Foot)' },
-                  ].map((sub) => (
-                    <button
-                      key={sub.id}
-                      type="button"
-                      onClick={() => setSelectedSubcategory(sub.id)}
-                      className={`px-4 py-2 text-xs font-bold rounded-xs border transition-colors cursor-pointer ${
-                        selectedSubcategory === sub.id
-                          ? 'bg-gray-900 text-white border-gray-900 shadow-xs'
-                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Subcategory Level Navigation for Dongfeng */}
-            {selectedCategory === 'dongfeng' && (
-              <div className="pt-2 animate-fadeIn space-y-3">
-                <div className="text-xs font-extrabold uppercase tracking-wider text-gray-900 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#C8102E]"></span>
-                  Select Dongfeng Category:
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: 'all', label: 'All Dongfeng' },
-                    { id: 'heavy', label: 'Heavy' },
-                    { id: 'light', label: 'Light' },
-                  ].map((sub) => (
-                    <button
-                      key={sub.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedSubcategory(sub.id);
-                        if (sub.id !== 'heavy') {
-                          setSelectedSubSubcategory('all');
-                        }
-                      }}
-                      className={`px-4 py-2 text-xs font-bold rounded-xs border transition-colors cursor-pointer ${
-                        selectedSubcategory === sub.id
-                          ? 'bg-gray-900 text-white border-gray-900 shadow-xs'
-                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Sub-subcategory for Dongfeng Heavy: Prime Movers vs Rigid */}
-                {selectedSubcategory === 'heavy' && (
-                  <div className="pl-3 border-l-2 border-[#C8102E] animate-fadeIn space-y-1.5 pt-1">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-gray-600">
-                      Dongfeng Heavy Subcategory:
+                {/* HEAVY CATEGORY SECTION */}
+                {(selectedDongfengTab === 'all' || selectedDongfengTab === 'heavy') && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                      <div className="flex items-center gap-3">
+                        <span className="w-3 h-3 rounded-full bg-[#C8102E]" />
+                        <h2 className="text-xl sm:text-2xl font-extrabold uppercase tracking-wide text-gray-900">
+                          Dongfeng Heavy
+                        </h2>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Prime Movers & Rigid
+                      </span>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { id: 'all', label: 'All Heavy Trucks' },
-                        { id: 'prime-movers', label: 'Prime Movers' },
-                        { id: 'rigid', label: 'Rigid' },
-                      ].map((subSub) => (
-                        <button
-                          key={subSub.id}
-                          type="button"
-                          onClick={() => setSelectedSubSubcategory(subSub.id)}
-                          className={`px-3 py-1.5 text-xs font-bold rounded-xs border transition-colors cursor-pointer ${
-                            selectedSubSubcategory === subSub.id
-                              ? 'bg-[#C8102E] text-white border-[#C8102E]'
-                              : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                          }`}
-                        >
-                          {subSub.label}
-                        </button>
-                      ))}
+
+                    {/* Under Heavy: Two Side-by-Side Categories */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                      {/* Side 1: Prime Movers */}
+                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
+                        <div>
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                            <div>
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
+                                Category 1
+                              </span>
+                              <Link
+                                to="/products/dongfeng-prime-mover"
+                                className="block group mt-1"
+                              >
+                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                  Prime Movers
+                                </h3>
+                              </Link>
+                            </div>
+                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
+                              Tractor Head
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                            High-power 420HP 6x4 tractor head built for maximum GCW freight transport, multi-axle trailers, and cross-country logistics.
+                          </p>
+
+                          {/* Clickable Product Card */}
+                          {loading ? (
+                            <VehicleCardSkeleton />
+                          ) : dfPrimeMover ? (
+                            <VehicleCard vehicle={dfPrimeMover} />
+                          ) : (
+                            <Link
+                              to="/products/dongfeng-prime-mover"
+                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
+                            >
+                              Dongfeng Prime Mover 420HP →
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Side 2: Rigid */}
+                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
+                        <div>
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                            <div>
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
+                                Category 2
+                              </span>
+                              <Link
+                                to="/products/dongfeng-rigid"
+                                className="block group mt-1"
+                              >
+                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                  Rigid
+                                </h3>
+                              </Link>
+                            </div>
+                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
+                              Dump & Tipper
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                            Heavy-duty 375HP rigid chassis tippers & cargo dump trucks built for severe terrain, mining, aggregate, and construction hauling.
+                          </p>
+
+                          {/* Clickable Product Card */}
+                          {loading ? (
+                            <VehicleCardSkeleton />
+                          ) : dfRigid ? (
+                            <VehicleCard vehicle={dfRigid} />
+                          ) : (
+                            <Link
+                              to="/products/dongfeng-rigid"
+                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
+                            >
+                              Dongfeng Rigid Heavy Dump Truck 375HP →
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* LIGHT CATEGORY SECTION */}
+                {(selectedDongfengTab === 'all' || selectedDongfengTab === 'light') && (
+                  <div className="space-y-6 pt-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+                      <div className="flex items-center gap-3">
+                        <span className="w-3 h-3 rounded-full bg-gray-900" />
+                        <h2 className="text-xl sm:text-2xl font-extrabold uppercase tracking-wide text-gray-900">
+                          Dongfeng Light
+                        </h2>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Distribution & Logistics
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
+                        <div>
+                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                            <div>
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-700 bg-gray-100 px-2 py-0.5 rounded-xs">
+                                Light Commercial
+                              </span>
+                              <Link
+                                to="/products/dongfeng-light"
+                                className="block group mt-1"
+                              >
+                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                  Light
+                                </h3>
+                              </Link>
+                            </div>
+                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
+                              4.5-Ton Cargo
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                            Nimble, highly efficient commercial light truck ideal for intra-city FMCG delivery, commercial freight, and supply logistics.
+                          </p>
+
+                          {/* Clickable Product Card */}
+                          {loading ? (
+                            <VehicleCardSkeleton />
+                          ) : dfLight ? (
+                            <VehicleCard vehicle={dfLight} />
+                          ) : (
+                            <Link
+                              to="/products/dongfeng-light"
+                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
+                            >
+                              Dongfeng Light Truck 4.5-Ton →
+                            </Link>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-            )}
-          </div>
-        </AnimatedSection>
+            </AnimatedSection>
+          )}
 
-        {/* 4. Products Result Count & Active Filter Indicator */}
-        <div className="flex items-center justify-between mb-6 text-xs text-gray-500 font-semibold uppercase tracking-wider">
-          <span>Showing {loading ? '...' : filteredProducts.length} Products</span>
-          {selectedCategory !== 'all' && (
-            <div className="flex items-center gap-2">
-              <span className="text-[#C8102E] font-bold">Filter:</span>
-              <span className="uppercase font-extrabold text-gray-900 bg-gray-100 px-2 py-0.5 rounded-xs">
-                {selectedCategory === 'jac-t9'
-                  ? `JAC T9 ${selectedSubcategory !== 'all' ? `→ ${selectedSubcategory}` : ''}`
-                  : selectedCategory === 'jac-commercial'
-                  ? `JAC Commercial ${selectedSubcategory !== 'all' ? `→ ${selectedSubcategory}` : ''}`
-                  : `Dongfeng ${selectedSubcategory !== 'all' ? `→ ${selectedSubcategory}` : ''} ${
-                      selectedSubSubcategory !== 'all' ? `→ ${selectedSubSubcategory}` : ''
-                    }`}
-              </span>
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="text-[10px] text-gray-400 hover:text-[#C8102E] underline cursor-pointer ml-1"
-              >
-                Clear
-              </button>
+          {/* ========================================================================= */}
+          {/* 2. JAC T9 PAGE */}
+          {/* ========================================================================= */}
+          {selectedCategory === 'jac-t9' && (
+            <AnimatedSection direction="up">
+              <div className="space-y-10">
+                {/* Header */}
+                <div className="border-b border-gray-200 pb-6 bg-white p-6 rounded-xs shadow-xs">
+                  <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                        <Link
+                          to="/products"
+                          onClick={() => handleSelectCategory('all')}
+                          className="hover:text-[#C8102E] flex items-center gap-1"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>All Products</span>
+                        </Link>
+                        <span>/</span>
+                        <span className="text-[#C8102E]">JAC T9</span>
+                      </div>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+                        JAC T9 Series
+                      </h1>
+                      <p className="text-sm text-gray-600 mt-2 max-w-2xl leading-relaxed">
+                        Flagship 2.0L CTI Turbo Diesel 4x4 Double Cabin Pickups engineered for luxury executive ride and unstoppable off-road capability.
+                      </p>
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex items-center gap-1.5 bg-gray-100 p-1.5 rounded-sm border border-gray-200">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 px-2 py-1">
+                        Model:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedT9Tab('all')}
+                        className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                          selectedT9Tab === 'all'
+                            ? 'bg-[#C8102E] text-white shadow-xs'
+                            : 'text-gray-700 hover:text-gray-900'
+                        }`}
+                      >
+                        All T9
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedT9Tab('hunter')}
+                        className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                          selectedT9Tab === 'hunter'
+                            ? 'bg-[#C8102E] text-white shadow-xs'
+                            : 'text-gray-700 hover:text-gray-900'
+                        }`}
+                      >
+                        Hunter
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedT9Tab('frison')}
+                        className={`px-4 py-2 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                          selectedT9Tab === 'frison'
+                            ? 'bg-[#C8102E] text-white shadow-xs'
+                            : 'text-gray-700 hover:text-gray-900'
+                        }`}
+                      >
+                        Frison
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Side-by-Side Model Categories: Hunter & Frison */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                  {/* Model 1: Hunter */}
+                  {(selectedT9Tab === 'all' || selectedT9Tab === 'hunter') && (
+                    <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
+                      <div>
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                          <div>
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
+                              Executive 4x4
+                            </span>
+                            <Link to="/products/t9-hunter" className="block group mt-1">
+                              <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                Hunter
+                              </h3>
+                            </Link>
+                          </div>
+                          <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
+                            8-Speed AT
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                          Premium luxury double cabin pickup featuring advanced driver-assist systems, electronic diff lock, and luxury leather appointments.
+                        </p>
+
+                        {/* Clickable Product Card */}
+                        {loading ? (
+                          <VehicleCardSkeleton />
+                        ) : t9Hunter ? (
+                          <VehicleCard vehicle={t9Hunter} />
+                        ) : (
+                          <Link
+                            to="/products/t9-hunter"
+                            className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
+                          >
+                            JAC T9 Hunter →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Model 2: Frison */}
+                  {(selectedT9Tab === 'all' || selectedT9Tab === 'frison') && (
+                    <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
+                      <div>
+                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
+                          <div>
+                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-700 bg-gray-100 px-2 py-0.5 rounded-xs">
+                              Utility & Adventure
+                            </span>
+                            <Link to="/products/t9-frison" className="block group mt-1">
+                              <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                Frison
+                              </h3>
+                            </Link>
+                          </div>
+                          <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
+                            Rugged 4x4
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 mb-5 leading-relaxed">
+                          Durable commercial utility and lifestyle pickup built for demanding fieldwork, heavy cargo versatility, and rough terrain reliability.
+                        </p>
+
+                        {/* Clickable Product Card */}
+                        {loading ? (
+                          <VehicleCardSkeleton />
+                        ) : t9Frison ? (
+                          <VehicleCard vehicle={t9Frison} />
+                        ) : (
+                          <Link
+                            to="/products/t9-frison"
+                            className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
+                          >
+                            JAC T9 Frison →
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 3. JAC COMMERCIAL PAGE */}
+          {/* ========================================================================= */}
+          {selectedCategory === 'jac-commercial' && (
+            <AnimatedSection direction="up">
+              <div className="space-y-10">
+                {/* Header */}
+                <div className="border-b border-gray-200 pb-6 bg-white p-6 rounded-xs shadow-xs">
+                  <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                        <Link
+                          to="/products"
+                          onClick={() => handleSelectCategory('all')}
+                          className="hover:text-[#C8102E] flex items-center gap-1"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>All Products</span>
+                        </Link>
+                        <span>/</span>
+                        <span className="text-[#C8102E]">JAC Commercial</span>
+                      </div>
+                      <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">
+                        JAC Commercial Trucks
+                      </h1>
+                      <p className="text-sm text-gray-600 mt-2 max-w-2xl leading-relaxed">
+                        Official 3S commercial cargo deck lineup ranging from nimble 1.15-ton city trucks to 20-foot heavy-duty freight haulers.
+                      </p>
+                    </div>
+
+                    {/* Filter Tabs for Models: X200, 1020, 1042, 1091, 1120 */}
+                    <div className="flex flex-wrap items-center gap-1.5 bg-gray-100 p-1.5 rounded-sm border border-gray-200">
+                      <span className="text-[11px] font-extrabold uppercase tracking-wider text-gray-500 px-2 py-1">
+                        Model:
+                      </span>
+                      {[
+                        { id: 'all', label: 'All Commercial' },
+                        { id: 'x200', label: 'X200' },
+                        { id: '1020', label: '1020' },
+                        { id: '1042', label: '1042' },
+                        { id: '1091', label: '1091' },
+                        { id: '1120', label: '1120' },
+                      ].map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => setSelectedCommercialTab(m.id)}
+                          className={`px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider rounded-xs transition-colors cursor-pointer ${
+                            selectedCommercialTab === m.id
+                              ? 'bg-[#C8102E] text-white shadow-xs'
+                              : 'text-gray-700 hover:text-gray-900'
+                          }`}
+                        >
+                          {m.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5 Models Grid: X200, 1020, 1042, 1091, 1120 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {loading ? (
+                    Array.from({ length: 5 }).map((_, i) => <VehicleCardSkeleton key={i} />)
+                  ) : commercialVehicles.filter(
+                      (v) =>
+                        selectedCommercialTab === 'all' ||
+                        v.slug.toLowerCase().includes(selectedCommercialTab.toLowerCase())
+                    ).length > 0 ? (
+                    commercialVehicles
+                      .filter(
+                        (v) =>
+                          selectedCommercialTab === 'all' ||
+                          v.slug.toLowerCase().includes(selectedCommercialTab.toLowerCase())
+                      )
+                      .map((truck) => (
+                        <div key={truck.slug} className="flex flex-col justify-between">
+                          <VehicleCard vehicle={truck} />
+                        </div>
+                      ))
+                  ) : (
+                    <div className="col-span-full py-8 text-center text-gray-500 text-sm">
+                      No commercial models match the selected filter.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </AnimatedSection>
+          )}
+
+          {/* ========================================================================= */}
+          {/* 4. ALL PRODUCTS VIEW (When landing on /products without category) */}
+          {/* ========================================================================= */}
+          {selectedCategory === 'all' && (
+            <div className="space-y-10">
+              <AnimatedSection direction="up">
+                <SectionHeading
+                  badge="Product Lineup"
+                  title="Our Products"
+                  subtitle="Select a parent category below to explore dedicated commercial and passenger lineups."
+                  align="center"
+                />
+              </AnimatedSection>
+
+              {/* 3 Main Parent Categories Selector */}
+              <AnimatedSection direction="up" delay={80}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Category 1: JAC T9 */}
+                  <div
+                    onClick={() => handleSelectCategory('jac-t9')}
+                    className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-[#C8102E] hover:shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="bg-[#C8102E] text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
+                          Category 1
+                        </span>
+                        <span className="text-xs font-bold text-gray-400">Hunter & Frison</span>
+                      </div>
+                      <h3 className="text-2xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                        JAC T9
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                        Flagship 2.0L CTI Turbo Diesel 4x4 Double Cabin Pickups built for luxury executive comfort and off-road supremacy.
+                      </p>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-extrabold text-[#C8102E]">
+                      <span>Open JAC T9 Page</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Category 2: JAC Commercial */}
+                  <div
+                    onClick={() => handleSelectCategory('jac-commercial')}
+                    className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-[#C8102E] hover:shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="bg-gray-900 text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
+                          Category 2
+                        </span>
+                        <span className="text-xs font-bold text-gray-400">5 Models</span>
+                      </div>
+                      <h3 className="text-2xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                        JAC Commercial
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                        Dependable cargo deck trucks engineered for intra-city distribution and regional freight haulage (X200, 1020, 1042, 1091, 1120).
+                      </p>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-extrabold text-[#C8102E]">
+                      <span>Open JAC Commercial Page</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Category 3: Dongfeng */}
+                  <div
+                    onClick={() => handleSelectCategory('dongfeng')}
+                    className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-[#C8102E] hover:shadow-xl transition-all cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="bg-[#C8102E] text-white text-[10px] font-extrabold px-2.5 py-0.5 uppercase tracking-wider rounded-xs">
+                          Category 3
+                        </span>
+                        <span className="text-xs font-bold text-gray-400">Heavy & Light</span>
+                      </div>
+                      <h3 className="text-2xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                        Dongfeng
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-2 leading-relaxed">
+                        High-capacity Prime Movers, heavy-duty Rigid chassis dump tippers, and light commercial distribution transport.
+                      </p>
+                    </div>
+                    <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-extrabold text-[#C8102E]">
+                      <span>Open Dongfeng Page</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </AnimatedSection>
+
+              {/* Complete Lineup Below */}
+              <AnimatedSection direction="up" delay={120}>
+                <div className="pt-6 border-t border-gray-200 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-extrabold uppercase tracking-wider text-gray-900 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#C8102E]" />
+                      <span>Complete Vehicle Inventory</span>
+                    </h2>
+                    <span className="text-xs font-bold text-gray-400">
+                      {products.length} Models Available
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {loading ? (
+                      Array.from({ length: 6 }).map((_, i) => <VehicleCardSkeleton key={i} />)
+                    ) : (
+                      products
+                        .filter((p) => p.status !== 'Draft' && p.status !== 'Hidden')
+                        .map((product) => (
+                          <VehicleCard key={product.id || product.slug} vehicle={product} />
+                        ))
+                    )}
+                  </div>
+                </div>
+              </AnimatedSection>
             </div>
           )}
         </div>
-
-        {/* 5. Products Grid or Empty State */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <VehicleCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn">
-            {filteredProducts.map((product) => (
-              <VehicleCard
-                key={product.id}
-                vehicle={product}
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            title="No Products Found"
-            description="No products match the selected category filter."
-            onReset={handleResetFilters}
-            resetText="Show All Products"
-          />
-        )}
       </Container>
     </div>
   );
