@@ -14,30 +14,33 @@ export const LightTrucksList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
 
-  const loadLightTrucks = async () => {
+  const loadCommercialTrucks = async () => {
     const all = await vehicleService.getVehicles();
-    const light = (all || []).filter(
-      (v) => (v.category === 'trucks' || v.category === 'commercial') && v.subcategory === 'light'
+    const commercial = (all || []).filter(
+      (v) =>
+        v.category === 'jac-commercial' ||
+        (v.brand === 'JAC' && (v.category === 'trucks' || v.category === 'commercial')) ||
+        ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(v.slug)
     );
-    setVehicles(light);
+    setVehicles(commercial);
   };
 
   useEffect(() => {
-    document.title = 'Light Trucks Management | Admin CMS';
-    loadLightTrucks();
+    document.title = 'JAC Commercial Management | Admin CMS';
+    loadCommercialTrucks();
   }, []);
 
   const handleDuplicate = async (id) => {
     const duplicated = await vehicleService.duplicateVehicle(id);
     if (duplicated) {
-      loadLightTrucks();
+      loadCommercialTrucks();
     }
   };
 
   const handleConfirmDelete = async () => {
     if (vehicleToDelete) {
       await vehicleService.deleteVehicle(vehicleToDelete.id);
-      loadLightTrucks();
+      loadCommercialTrucks();
       setVehicleToDelete(null);
     }
   };
@@ -57,21 +60,21 @@ export const LightTrucksList = () => {
         <div>
           <h2 className="text-lg font-extrabold uppercase text-gray-900 tracking-tight flex items-center gap-2">
             <Truck className="w-5 h-5 text-[#C8102E]" />
-            Light Trucks
+            2. JAC Commercial (X200, 1020, 1042, 1091, 1120)
           </h2>
           <p className="text-xs text-gray-500">
-            Manage all light-duty trucks available in the dealership catalog.
+            Manage commercial deck and freight trucks in the dealership catalog.
           </p>
         </div>
 
-        <Link to="/admin/vehicles/new?category=trucks&subcategory=light">
+        <Link to="/admin/products/new?category=jac-commercial">
           <Button
             variant="primary"
             size="md"
             leftIcon={<Plus className="w-4 h-4" />}
             className="uppercase font-bold tracking-wider"
           >
-            + Add Light Truck
+            + Add Commercial Truck
           </Button>
         </Link>
       </div>
@@ -80,27 +83,28 @@ export const LightTrucksList = () => {
       <Card className="p-4 border border-gray-200/80 bg-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
         <div className="w-full sm:w-80">
           <Input
-            placeholder="Search light trucks..."
+            placeholder="Search commercial trucks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             leftIcon={<Search className="w-4 h-4 text-gray-400" />}
             className="bg-gray-50 py-2 text-xs"
           />
         </div>
-        <div className="text-xs text-gray-500 font-semibold">
-          Total Light Trucks: <strong className="text-gray-900">{vehicles.length}</strong>
+
+        <div className="text-xs font-semibold text-gray-500">
+          Showing {filteredVehicles.length} Commercial Models
         </div>
       </Card>
 
-      {/* Desktop Table */}
+      {/* Table view */}
       <div className="hidden md:block bg-white border border-gray-200/80 rounded-xs shadow-xs overflow-hidden">
         <table className="w-full text-left text-xs text-gray-700">
           <thead className="bg-gray-100/80 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-200">
             <tr>
               <th className="px-4 py-3">Image</th>
-              <th className="px-4 py-3">Truck Name</th>
+              <th className="px-4 py-3">Product Name</th>
+              <th className="px-4 py-3">Model Subcategory</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Last Updated</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -121,26 +125,24 @@ export const LightTrucksList = () => {
                         {vehicle.name}
                       </strong>
                       <span className="text-[10px] text-gray-400 font-mono">
-                        /{vehicle.slug}
+                        /products/{vehicle.slug}
                       </span>
                     </div>
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-gray-700 uppercase">
+                    {vehicle.subcategory || vehicle.name}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={vehicle.status || 'Published'} />
                   </td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-gray-500">
-                    {vehicle.updatedAt
-                      ? new Date(vehicle.updatedAt).toLocaleDateString()
-                      : 'Default Stock'}
-                  </td>
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-1.5 justify-end">
-                      <Link to={`/vehicles/${vehicle.slug}`} target="_blank">
+                      <Link to={`/products/${vehicle.slug}`} target="_blank">
                         <Button variant="ghost" size="xs" leftIcon={<ExternalLink className="w-3.5 h-3.5 text-gray-500" />}>
                           View
                         </Button>
                       </Link>
-                      <Link to={`/admin/vehicles/${vehicle.id}/edit`}>
+                      <Link to={`/admin/products/${vehicle.id}/edit`}>
                         <Button variant="outline" size="xs" leftIcon={<Edit className="w-3.5 h-3.5 text-gray-700" />}>
                           Edit
                         </Button>
@@ -158,13 +160,7 @@ export const LightTrucksList = () => {
             ) : (
               <tr>
                 <td colSpan={5} className="px-4 py-12 text-center text-gray-500 space-y-3">
-                  <div className="text-base font-extrabold text-gray-900">No Light Trucks Yet</div>
-                  <p className="text-xs text-gray-500">Light trucks added by the dealership will appear here.</p>
-                  <Link to="/admin/vehicles/new?category=trucks&subcategory=light" className="inline-block mt-2">
-                    <Button variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
-                      + Add Light Truck
-                    </Button>
-                  </Link>
+                  <p className="font-semibold text-sm">No JAC Commercial products found.</p>
                 </td>
               </tr>
             )}
@@ -172,61 +168,18 @@ export const LightTrucksList = () => {
         </table>
       </div>
 
-      {/* Mobile Card View */}
-      <div className="grid grid-cols-1 gap-4 md:hidden">
-        {filteredVehicles.length > 0 ? (
-          filteredVehicles.map((vehicle) => (
-            <Card key={vehicle.id} className="p-4 border border-gray-200 bg-white space-y-3">
-              <div className="flex items-center gap-3">
-                <img
-                  src={vehicle.heroImage || vehicle.mainImage}
-                  alt={vehicle.name}
-                  className="w-16 h-12 object-cover rounded-xs border border-gray-200 shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-gray-900 text-sm truncate">{vehicle.name}</h3>
-                    <StatusBadge status={vehicle.status || 'Published'} />
-                  </div>
-                  <p className="text-xs font-semibold text-gray-500">Light Truck</p>
-                </div>
-              </div>
-              <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2 text-xs">
-                <Link to={`/vehicles/${vehicle.slug}`} target="_blank" className="text-gray-500 underline">
-                  View Public
-                </Link>
-                <div className="flex items-center gap-2">
-                  <Link to={`/admin/vehicles/${vehicle.id}/edit`}>
-                    <Button variant="outline" size="xs">Edit</Button>
-                  </Link>
-                  <Button variant="ghost" size="xs" onClick={() => setVehicleToDelete(vehicle)} className="text-red-600">
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))
-        ) : (
-          <Card className="p-8 text-center space-y-3 bg-white border border-gray-200">
-            <div className="text-base font-extrabold text-gray-900">No Light Trucks Yet</div>
-            <p className="text-xs text-gray-500">Light trucks added by the dealership will appear here.</p>
-            <Link to="/admin/vehicles/new?category=trucks&subcategory=light" className="inline-block mt-2">
-              <Button variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
-                + Add Light Truck
-              </Button>
-            </Link>
-          </Card>
-        )}
-      </div>
-
+      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={Boolean(vehicleToDelete)}
-        onClose={() => setVehicleToDelete(null)}
+        title="Delete Commercial Model"
+        message={`Are you sure you want to remove "${vehicleToDelete?.name}"?`}
+        confirmText="Yes, Delete"
+        confirmVariant="danger"
         onConfirm={handleConfirmDelete}
-        title="Delete Light Truck?"
-        message={vehicleToDelete ? `Remove "${vehicleToDelete.name}" from Light Trucks catalog?` : ''}
-        confirmText="Delete Truck"
+        onCancel={() => setVehicleToDelete(null)}
       />
     </div>
   );
 };
+
+export default LightTrucksList;

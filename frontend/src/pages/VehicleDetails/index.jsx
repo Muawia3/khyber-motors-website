@@ -96,7 +96,7 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
         <nav className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-6" aria-label="Breadcrumb">
           <Link to="/" className="hover:text-[#C8102E] transition-colors">Home</Link>
           <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-          <Link to="/vehicles" className="hover:text-[#C8102E] transition-colors">Vehicles</Link>
+          <Link to="/products" className="hover:text-[#C8102E] transition-colors">Products</Link>
           <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
           <span className="text-[#C8102E] font-bold">{vehicle.name}</span>
         </nav>

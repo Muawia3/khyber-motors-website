@@ -50,6 +50,7 @@ app.get('/api/health', (_req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/products', vehicleRoutes);
 app.use('/api/leads', leadRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/upload', uploadRoutes);

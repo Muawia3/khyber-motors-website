@@ -7,10 +7,10 @@ export const AdminVehicleHeader = () => {
   const currentPath = location.pathname;
 
   const navItems = [
-    { label: 'ALL VEHICLES', path: '/admin/vehicles' },
-    { label: 'PASSENGERS', path: '/admin/vehicles/passengers' },
-    { label: 'HEAVY TRUCKS', path: '/admin/vehicles/trucks/heavy' },
-    { label: 'LIGHT TRUCKS', path: '/admin/vehicles/trucks/light' },
+    { label: 'ALL PRODUCTS', path: '/admin/products' },
+    { label: '1. JAC T9', path: '/admin/products/jac-t9' },
+    { label: '2. JAC COMMERCIAL', path: '/admin/products/jac-commercial' },
+    { label: '3. DONGFENG', path: '/admin/products/dongfeng' },
   ];
 
   return (
@@ -19,19 +19,19 @@ export const AdminVehicleHeader = () => {
         <div>
           <h1 className="text-xl font-extrabold uppercase tracking-tight text-gray-900 flex items-center gap-2">
             <Car className="w-5 h-5 text-[#C8102E]" />
-            <span>Vehicles Management Suite</span>
+            <span>Products Management Suite</span>
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Centralized inventory CMS for dealership commercial trucks, passenger pickups, and model specifications.
+            Centralized inventory CMS for JAC T9 pickups, JAC Commercial haulers, and Dongfeng trucks.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
-            to="/admin/vehicles/new"
+            to="/admin/products/new"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C8102E] text-white text-xs font-bold uppercase tracking-wider rounded-xs hover:bg-red-700 transition-colors shadow-xs"
           >
-            + New Vehicle Record
+            + New Product Record
           </Link>
         </div>
       </div>

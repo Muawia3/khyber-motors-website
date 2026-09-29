@@ -36,9 +36,12 @@ export const VehicleEdit = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    category: 'passengers',
-    subcategory: null,
-    categoryLabel: 'Passenger',
+    brand: 'JAC',
+    category: queryCategory || 'jac-t9',
+    subcategory: querySubcategory || 'hunter',
+    subSubcategory: null,
+    displayOrder: 1,
+    categoryLabel: 'JAC T9',
     modelYear: '2026',
     status: 'Published',
     shortDescription: '',
@@ -55,13 +58,13 @@ export const VehicleEdit = () => {
       { name: 'Payload Capacity', value: '1,000 kg' },
     ],
     featuresArray: [
-      { title: '10.4-inch Infotainment Screen', description: 'Apple CarPlay & Android Auto integration' },
-      { title: '360-Degree HD Camera', description: 'Blindspot monitoring and parking sensors' },
-      { title: 'Leather Upholstery', description: '8-way power adjustable seats' },
+      { title: 'Infotainment System', description: 'Touchscreen with smartphone connectivity' },
+      { title: 'Panoramic Camera', description: 'Surround view monitoring and parking sensors' },
+      { title: 'Ergonomic Seats', description: 'Multi-way adjustable seating' },
     ],
     highlightsArray: [
       { title: 'Capability', description: 'Engineered for demanding terrain and heavy commercial payloads.' },
-      { title: 'Comfort', description: 'Spacious 5-seater cabin with luxury finishes.' },
+      { title: 'Comfort', description: 'Refined cabin layout with durable acoustic insulation.' },
     ],
     seoTitle: '',
     metaDescription: '',
@@ -74,12 +77,12 @@ export const VehicleEdit = () => {
   const [saveErrorMsg, setSaveErrorMsg] = useState('');
   const [seoExpanded, setSeoExpanded] = useState(false);
 
-  // Load existing vehicle if editing
+  // Load existing vehicle/product if editing
   useEffect(() => {
     let isMounted = true;
     const loadVehicle = async () => {
       if (isEditing) {
-        document.title = 'Edit Vehicle | Admin CMS';
+        document.title = 'Edit Product | Admin CMS';
         try {
           const existing = await vehicleService.getVehicleById(id);
           if (existing && isMounted) {
@@ -106,11 +109,21 @@ export const VehicleEdit = () => {
               ? existing.highlights
               : [];
 
+            const cat = (existing.category || '').toLowerCase();
+            let category = cat;
+            if (cat === 'passengers' || cat === 'pickups') category = 'jac-t9';
+            if (cat === 'trucks' || cat === 'commercial') {
+              category = existing.brand === 'Dongfeng' || existing.slug?.includes('dongfeng') ? 'dongfeng' : 'jac-commercial';
+            }
+
             setFormData({
               name: existing.name || '',
-              category: existing.category || 'passengers',
+              brand: existing.brand || (category === 'dongfeng' ? 'Dongfeng' : 'JAC'),
+              category: category || 'jac-t9',
               subcategory: existing.subcategory || null,
-              categoryLabel: existing.categoryLabel || 'Passenger',
+              subSubcategory: existing.subSubcategory || null,
+              displayOrder: existing.displayOrder ?? 1,
+              categoryLabel: existing.categoryLabel || 'Product',
               modelYear: existing.modelYear || '2026',
               status: existing.status || 'Published',
               shortDescription: existing.tagline || existing.shortDescription || '',
@@ -121,83 +134,74 @@ export const VehicleEdit = () => {
               specsArray: specsArr,
               featuresArray: featuresArr,
               highlightsArray: highlightsArr,
-              seoTitle: existing.seoTitle || '',
+              seoTitle: existing.seoTitle || existing.name || '',
               metaDescription: existing.metaDescription || '',
               slug: existing.slug || '',
             });
           }
         } catch (err) {
-          console.error('Error loading vehicle:', err);
+          console.error('Failed to load product details for edit:', err);
+          if (isMounted) setSaveErrorMsg('Failed to load product data.');
         }
       } else {
-        document.title = 'Add New Vehicle | Admin CMS';
-        if (queryCategory) {
-          const cat = queryCategory === 'trucks' ? 'trucks' : 'passengers';
-          const subcat = cat === 'trucks' ? (querySubcategory === 'light' ? 'light' : 'heavy') : null;
-          const catLabel = cat === 'passengers' ? 'Passenger' : (subcat === 'heavy' ? 'Heavy Truck' : 'Light Truck');
-
-          setFormData((prev) => ({
-            ...prev,
-            category: cat,
-            subcategory: subcat,
-            categoryLabel: catLabel,
-          }));
-        }
+        document.title = 'Add New Product | Admin CMS';
       }
     };
 
     loadVehicle();
+
     return () => {
       isMounted = false;
     };
-  }, [id, isEditing, queryCategory, querySubcategory]);
+  }, [id, isEditing]);
 
-  // Input change helper using functional state update to prevent stale closures
-  const updateFormField = (key, value) => {
+  const updateFormField = (field, value) => {
     setFormData((prev) => ({
       ...prev,
-      [key]: value,
+      [field]: value,
     }));
+
+    if (formErrors[field]) {
+      setFormErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
   };
 
-  // Auto-generate URL slug when name changes
   const handleNameChange = (e) => {
-    const newName = e.target.value;
-    const generatedSlug = newName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    const val = e.target.value;
+    updateFormField('name', val);
 
-    setFormData((prev) => ({
-      ...prev,
-      name: newName,
-      slug: isEditing ? prev.slug : (prev.slug || generatedSlug),
-      seoTitle: prev.seoTitle || newName,
-    }));
+    if (!isEditing && (!formData.slug || formData.slug === formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))) {
+      const generatedSlug = val
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+      updateFormField('slug', generatedSlug);
+    }
   };
 
   const validateForm = () => {
     const errors = {};
     if (!validateRequired(formData.name)) {
-      errors.name = 'Vehicle Name is required';
+      errors.name = 'Product name is required.';
     }
     if (!validateRequired(formData.category)) {
-      errors.category = 'Vehicle Category is required';
-    }
-    if (formData.category === 'trucks') {
-      if (!formData.subcategory || (formData.subcategory !== 'heavy' && formData.subcategory !== 'light')) {
-        errors.subcategory = 'Truck Type (Heavy or Light) is required for trucks';
-      }
+      errors.category = 'Category selection is required.';
     }
     if (!validateRequired(formData.shortDescription)) {
-      errors.shortDescription = 'Short Description is required';
+      errors.shortDescription = 'Short description is required.';
     }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSave = async (targetStatus = 'Published') => {
+  const handleSave = async (targetStatus = null) => {
     if (!validateForm()) {
+      setSaveErrorMsg('Please fill in all required fields indicated in red.');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -206,69 +210,62 @@ export const VehicleEdit = () => {
     setSaveSuccessMsg('');
     setSaveErrorMsg('');
 
-    try {
-      const payload = {
-        name: formData.name,
-        category: formData.category,
-        subcategory: formData.subcategory,
-        categoryLabel: formData.categoryLabel,
-        modelYear: formData.modelYear,
-        status: targetStatus,
-        shortDescription: formData.shortDescription,
-        tagline: formData.shortDescription,
-        fullDescription: formData.fullDescription,
-        description: formData.fullDescription,
-        overview: formData.fullDescription,
-        heroImage: formData.heroImage,
-        mainImage: formData.heroImage,
-        galleryImages: formData.galleryImages,
-        gallery: formData.galleryImages,
-        brochureUrl: formData.brochureUrl,
-        brochureAvailable: Boolean(formData.brochureUrl),
-        specsArray: formData.specsArray,
-        specs: formData.specsArray,
-        featuresArray: formData.featuresArray,
-        features: formData.featuresArray,
-        highlightsArray: formData.highlightsArray,
-        whyT9Benefits: formData.highlightsArray,
-        seoTitle: formData.seoTitle,
-        metaDescription: formData.metaDescription,
-        slug: formData.slug,
-      };
+    const statusToApply = targetStatus || formData.status;
 
+    const specsObject = {};
+    (formData.specsArray || []).forEach((item) => {
+      if (item.name && item.name.trim()) {
+        specsObject[item.name.trim()] = item.value || '';
+      }
+    });
+
+    const payload = {
+      name: formData.name.trim(),
+      brand: formData.brand,
+      category: formData.category,
+      subcategory: formData.subcategory,
+      subSubcategory: formData.subSubcategory,
+      displayOrder: parseInt(formData.displayOrder, 10) || 1,
+      categoryLabel: formData.categoryLabel,
+      modelYear: formData.modelYear,
+      status: statusToApply,
+      tagline: formData.shortDescription.trim(),
+      shortDescription: formData.shortDescription.trim(),
+      overview: formData.fullDescription.trim(),
+      fullDescription: formData.fullDescription.trim(),
+      heroImage: formData.heroImage,
+      mainImage: formData.heroImage,
+      gallery: formData.galleryImages,
+      galleryImages: formData.galleryImages,
+      brochureUrl: formData.brochureUrl || '',
+      brochureAvailable: Boolean(formData.brochureUrl),
+      specs: specsObject,
+      specsArray: formData.specsArray,
+      features: formData.featuresArray,
+      featuresArray: formData.featuresArray,
+      whyT9Benefits: formData.highlightsArray,
+      highlightsArray: formData.highlightsArray,
+      slug: (formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')).replace(/(^-|-$)+/g, ''),
+      seoTitle: formData.seoTitle || formData.name,
+      metaDescription: formData.metaDescription || '',
+    };
+
+    try {
       if (isEditing) {
-        const updated = await vehicleService.updateVehicle(id, payload);
-        if (updated) {
-          setFormData((prev) => ({
-            ...prev,
-            name: updated.name || prev.name,
-            category: updated.category || prev.category,
-            subcategory: updated.subcategory || prev.subcategory,
-            categoryLabel: updated.categoryLabel || prev.categoryLabel,
-            status: updated.status || targetStatus,
-            shortDescription: updated.shortDescription || updated.tagline || prev.shortDescription,
-            fullDescription: updated.fullDescription || updated.overview || prev.fullDescription,
-            heroImage: updated.heroImage || updated.mainImage || prev.heroImage,
-            galleryImages: updated.galleryImages || updated.gallery || prev.galleryImages,
-            brochureUrl: updated.brochureUrl || prev.brochureUrl,
-            slug: updated.slug || prev.slug,
-            stockStatus: updated.stockStatus || prev.stockStatus,
-            stockQuantity: updated.stockQuantity ?? prev.stockQuantity,
-          }));
-          setSaveSuccessMsg(`Vehicle "${updated.name}" saved successfully to PostgreSQL database.`);
-        }
+        await vehicleService.updateVehicle(id, payload);
+        setSaveSuccessMsg(`Product "${formData.name}" updated successfully.`);
       } else {
         const created = await vehicleService.saveVehicle(payload);
-        setSaveSuccessMsg(`Vehicle "${created?.name || formData.name}" created successfully.`);
+        setSaveSuccessMsg(`Product "${created?.name || formData.name}" created successfully.`);
         if (created?.id) {
           setTimeout(() => {
-            navigate(`/admin/vehicles/${created.id}/edit`);
+            navigate(`/admin/products/${created.id}/edit`);
           }, 1500);
         }
       }
     } catch (err) {
-      console.error('Save vehicle error:', err);
-      setSaveErrorMsg(err.message || 'Failed to save vehicle.');
+      console.error('Save product error:', err);
+      setSaveErrorMsg(err.message || 'Failed to save product.');
     } finally {
       setIsSaving(false);
     }
@@ -276,9 +273,9 @@ export const VehicleEdit = () => {
 
   const handlePreview = () => {
     if (isEditing) {
-      navigate(`/admin/vehicles/${id}/preview`);
+      navigate(`/admin/products/${id}/preview`);
     } else {
-      alert('Please save draft or publish vehicle first to preview.');
+      alert('Please save draft or publish product first to preview.');
     }
   };
 
@@ -288,7 +285,7 @@ export const VehicleEdit = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center gap-3">
           <Link
-            to="/admin/vehicles"
+            to="/admin/products"
             className="p-2 rounded-xs border border-gray-200 bg-white hover:bg-gray-100 text-gray-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -296,12 +293,12 @@ export const VehicleEdit = () => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-extrabold uppercase text-gray-900 tracking-tight">
-                {isEditing ? `Edit Vehicle: ${formData.name}` : 'Add New Vehicle'}
+                {isEditing ? `Edit Product: ${formData.name}` : 'Add New Product'}
               </h2>
               <StatusBadge status={formData.status} />
             </div>
             <p className="text-xs text-gray-500 font-mono">
-              /vehicles/{formData.slug || 'new-model'}
+              /products/{formData.slug || 'new-model'}
             </p>
           </div>
         </div>
@@ -327,13 +324,13 @@ export const VehicleEdit = () => {
         {/* Section 1: Basic Information */}
         <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
-            1. Basic Vehicle Information
+            1. Basic Product Information & Hierarchy
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Input
-              label="Vehicle Name"
-              placeholder="e.g. JAC T9 4x4"
+              label="Product Name"
+              placeholder="e.g. JAC T9 Hunter"
               required
               value={formData.name}
               onChange={handleNameChange}
@@ -341,48 +338,126 @@ export const VehicleEdit = () => {
             />
 
             <Select
-              label="Vehicle Category"
+              label="Brand"
+              required
+              value={formData.brand}
+              onChange={(e) => updateFormField('brand', e.target.value)}
+              options={[
+                { value: 'JAC', label: 'JAC Motors' },
+                { value: 'Dongfeng', label: 'Dongfeng' },
+              ]}
+            />
+
+            <Select
+              label="Product Category"
               required
               value={formData.category}
               onChange={(e) => {
                 const cat = e.target.value;
+                let sub = 'hunter';
+                let label = 'JAC T9';
+                let brand = 'JAC';
+                if (cat === 'jac-commercial') {
+                  sub = 'x200';
+                  label = 'JAC Commercial';
+                  brand = 'JAC';
+                } else if (cat === 'dongfeng') {
+                  sub = 'heavy';
+                  label = 'Dongfeng Heavy';
+                  brand = 'Dongfeng';
+                }
                 setFormData((prev) => ({
                   ...prev,
                   category: cat,
-                  subcategory: cat === 'trucks' ? 'heavy' : null,
-                  categoryLabel: cat === 'passengers' ? 'Passenger' : 'Heavy Truck',
+                  brand,
+                  subcategory: sub,
+                  subSubcategory: cat === 'dongfeng' ? 'prime-movers' : null,
+                  categoryLabel: label,
                 }));
               }}
               options={[
-                { value: 'passengers', label: 'Passenger Vehicle' },
-                { value: 'trucks', label: 'Commercial Truck' },
+                { value: 'jac-t9', label: '1. JAC T9' },
+                { value: 'jac-commercial', label: '2. JAC Commercial' },
+                { value: 'dongfeng', label: '3. Dongfeng' },
               ]}
             />
           </div>
 
-          {formData.category === 'trucks' && (
+          {/* Subcategory selectors based on selected category */}
+          {formData.category === 'jac-t9' && (
             <div className="animate-fadeIn">
               <Select
-                label="Truck Subcategory Type"
+                label="JAC T9 Model Subcategory"
+                value={formData.subcategory || 'hunter'}
+                onChange={(e) => updateFormField('subcategory', e.target.value)}
+                options={[
+                  { value: 'hunter', label: 'Hunter' },
+                  { value: 'frison', label: 'Frison' },
+                ]}
+              />
+            </div>
+          )}
+
+          {formData.category === 'jac-commercial' && (
+            <div className="animate-fadeIn">
+              <Select
+                label="Commercial Model Subcategory"
+                value={formData.subcategory || 'x200'}
+                onChange={(e) => updateFormField('subcategory', e.target.value)}
+                options={[
+                  { value: 'x200', label: 'X200 (1.15-Ton)' },
+                  { value: '1020', label: '1020 (3.5-Ton)' },
+                  { value: '1042', label: '1042 (14-Foot)' },
+                  { value: '1091', label: '1091 (17-Foot)' },
+                  { value: '1120', label: '1120 (20-Foot)' },
+                ]}
+              />
+            </div>
+          )}
+
+          {formData.category === 'dongfeng' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fadeIn">
+              <Select
+                label="Dongfeng Subcategory"
                 value={formData.subcategory || 'heavy'}
                 onChange={(e) => {
                   const sub = e.target.value;
                   setFormData((prev) => ({
                     ...prev,
                     subcategory: sub,
-                    categoryLabel: sub === 'heavy' ? 'Heavy Truck' : 'Light Truck',
+                    subSubcategory: sub === 'heavy' ? 'prime-movers' : null,
+                    categoryLabel: sub === 'heavy' ? 'Dongfeng Heavy' : 'Dongfeng Light',
                   }));
                 }}
-                error={formErrors.subcategory}
                 options={[
-                  { value: 'heavy', label: 'Heavy Truck' },
-                  { value: 'light', label: 'Light Truck' },
+                  { value: 'heavy', label: 'Heavy' },
+                  { value: 'light', label: 'Light' },
                 ]}
               />
+
+              {formData.subcategory === 'heavy' && (
+                <Select
+                  label="Heavy Sub-Subcategory"
+                  value={formData.subSubcategory || 'prime-movers'}
+                  onChange={(e) => updateFormField('subSubcategory', e.target.value)}
+                  options={[
+                    { value: 'prime-movers', label: 'Prime Movers' },
+                    { value: 'rigid', label: 'Rigid' },
+                  ]}
+                />
+              )}
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Input
+              label="Display Order (Reordering)"
+              type="number"
+              placeholder="1"
+              value={formData.displayOrder ?? 1}
+              onChange={(e) => updateFormField('displayOrder', parseInt(e.target.value, 10) || 1)}
+            />
+
             <Input
               label="Model Year"
               placeholder="2026"
@@ -416,17 +491,17 @@ export const VehicleEdit = () => {
 
           <Textarea
             label="Full Detailed Description"
-            placeholder="Write full vehicle overview, interior comfort features, engine capabilities..."
+            placeholder="Write full product overview, interior comfort features, engine capabilities..."
             rows={4}
             value={formData.fullDescription}
             onChange={(e) => updateFormField('fullDescription', e.target.value)}
           />
         </Card>
 
-        {/* Section 2: Vehicle Images */}
+        {/* Section 2: Product Images & Brochure */}
         <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
-            2. Vehicle Media & Gallery Uploader
+            2. Product Media & Brochure Uploader
           </h3>
 
           <VehicleImageUploader
@@ -440,7 +515,7 @@ export const VehicleEdit = () => {
             <BrochureUploader
               brochureUrl={formData.brochureUrl}
               onBrochureChange={(url) => updateFormField('brochureUrl', url)}
-              vehicleName={formData.name || 'Vehicle'}
+              vehicleName={formData.name || 'Product'}
             />
           </div>
         </Card>
@@ -457,7 +532,7 @@ export const VehicleEdit = () => {
           />
         </Card>
 
-        {/* Section 4: Dynamic Vehicle Features */}
+        {/* Section 4: Dynamic Product Features */}
         <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
             4. Dynamic Features & Equipment
@@ -472,7 +547,7 @@ export const VehicleEdit = () => {
         {/* Section 5: Key Highlights */}
         <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
           <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-900 border-b border-gray-100 pb-2">
-            5. Key Vehicle Highlights
+            5. Key Product Highlights
           </h3>
 
           <HighlightsEditor
@@ -481,7 +556,7 @@ export const VehicleEdit = () => {
           />
         </Card>
 
-        {/* Section 6: SEO Settings (Collapsible Accordion) */}
+        {/* Section 6: SEO Settings */}
         <Card className="p-6 border border-gray-200/80 bg-white space-y-4 shadow-xs">
           <div
             className="flex items-center justify-between cursor-pointer select-none border-b border-gray-100 pb-2"
@@ -504,10 +579,10 @@ export const VehicleEdit = () => {
             <div className="space-y-4 pt-2 animate-fadeIn">
               <Input
                 label="URL Slug"
-                placeholder="e.g. jac-t9"
+                placeholder="e.g. t9-hunter"
                 value={formData.slug}
                 onChange={(e) => updateFormField('slug', e.target.value)}
-                helperText={`Public URL: /vehicles/${formData.slug}`}
+                helperText={`Public URL: /products/${formData.slug}`}
               />
 
               <Input
@@ -519,7 +594,7 @@ export const VehicleEdit = () => {
 
               <Textarea
                 label="Meta Description"
-                placeholder="Discover official specifications, features, and test drive booking for JAC T9."
+                placeholder="Discover official specifications, features, and quote request for JAC T9."
                 rows={2}
                 value={formData.metaDescription}
                 onChange={(e) => updateFormField('metaDescription', e.target.value)}
@@ -571,7 +646,7 @@ export const VehicleEdit = () => {
               leftIcon={isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               className="uppercase font-bold tracking-wider"
             >
-              {isSaving ? 'Saving to Database...' : 'Publish Vehicle'}
+              {isSaving ? 'Saving...' : 'Publish Product'}
             </Button>
           </div>
         </div>
@@ -579,3 +654,5 @@ export const VehicleEdit = () => {
     </div>
   );
 };
+
+export default VehicleEdit;

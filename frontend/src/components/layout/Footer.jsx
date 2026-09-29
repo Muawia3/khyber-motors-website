@@ -180,8 +180,8 @@ export const Footer = () => {
             <ul className="space-y-2.5 text-xs text-gray-300">
               {[
                 { name: 'Home', path: '/' },
-                { name: 'Vehicle Catalog', path: '/vehicles' },
-                { name: 'Flagship JAC T9 4x4', path: '/vehicles/t9' },
+                { name: 'Products', path: '/products' },
+                { name: 'Flagship JAC T9 4x4', path: '/products/t9-hunter' },
                 { name: '3S Service & Maintenance', path: '/services' },
                 { name: 'About Dealership', path: '/about' },
                 { name: 'Contact & Location', path: '/contact' },
@@ -199,16 +199,16 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Column 3: Featured Vehicles */}
+          {/* Column 3: Products Lineup */}
           <div>
             <h4 className="text-sm font-extrabold uppercase tracking-wider text-white mb-4 border-b border-gray-800 pb-2">
-              JAC Lineup
+              Products Lineup
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-300">
               {VEHICLES.map((v) => (
                 <li key={v.id}>
                   <Link
-                    to={`/vehicles/${v.slug}`}
+                    to={`/products/${v.slug}`}
                     className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
                   >
                     <span className="flex items-center gap-1.5">

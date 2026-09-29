@@ -30,10 +30,10 @@ export const ADMIN_NAV_GROUPS = [
   {
     groupLabel: 'Content',
     items: [
-      { label: 'All Vehicles', path: '/admin/vehicles', icon: Car },
-      { label: 'Passengers', path: '/admin/vehicles/passengers', icon: Car },
-      { label: 'Heavy Trucks', path: '/admin/vehicles/trucks/heavy', icon: Truck },
-      { label: 'Light Trucks', path: '/admin/vehicles/trucks/light', icon: Truck },
+      { label: 'All Products', path: '/admin/products', icon: Car },
+      { label: 'JAC T9', path: '/admin/products/jac-t9', icon: Car },
+      { label: 'JAC Commercial', path: '/admin/products/jac-commercial', icon: Truck },
+      { label: 'Dongfeng', path: '/admin/products/dongfeng', icon: Truck },
       { label: 'Homepage', path: '/admin/content/homepage', icon: Home },
       { label: 'Hero Images', path: '/admin/content/homepage/hero-images', icon: ImageIcon },
       { label: 'Social Media', path: '/admin/content/social-media', icon: Share2 },

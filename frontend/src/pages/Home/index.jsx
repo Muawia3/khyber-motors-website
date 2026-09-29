@@ -169,23 +169,21 @@ export const HomePage = () => {
     ? vehicles
     : vehicles.filter((v) => {
         const cat = (v.category || '').toLowerCase();
-        const subcat = (v.subcategory || '').toLowerCase();
-        const catLabel = (v.categoryLabel || '').toLowerCase();
+        const brand = (v.brand || '').toLowerCase();
+        const slug = (v.slug || '').toLowerCase();
 
-        if (selectedCategory === 'passengers') {
-          return cat === 'passengers' || cat === 'passenger' || cat === 'pickups' || cat === 'pickup' || catLabel.includes('passenger');
+        if (selectedCategory === 'jac-t9') {
+          return cat === 'jac-t9' || cat === 'passengers' || slug.includes('t9-') || slug.includes('hunter') || slug.includes('frison');
         }
-        if (selectedCategory === 'light-truck') {
+        if (selectedCategory === 'jac-commercial') {
           return (
-            (cat === 'trucks' || cat === 'truck' || cat === 'commercial') &&
-            (subcat === 'light' || catLabel.includes('light') || (!subcat && !catLabel.includes('heavy')))
+            cat === 'jac-commercial' ||
+            (brand === 'jac' && (cat === 'trucks' || cat === 'commercial')) ||
+            ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(slug)
           );
         }
-        if (selectedCategory === 'heavy-truck') {
-          return (
-            (cat === 'trucks' || cat === 'truck' || cat === 'commercial') &&
-            (subcat === 'heavy' || catLabel.includes('heavy'))
-          );
+        if (selectedCategory === 'dongfeng') {
+          return cat === 'dongfeng' || brand === 'dongfeng' || slug.includes('dongfeng');
         }
         return true;
       });
@@ -221,7 +219,7 @@ export const HomePage = () => {
       title: 'Vehicle Sales',
       description: 'Explore our lineup of commercial pickups, heavy trucks, and utility crossovers tailored for work and transport.',
       icon: Car,
-      link: '/vehicles',
+      link: '/products',
     },
     {
       id: 'service',
@@ -275,7 +273,7 @@ export const HomePage = () => {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth' });
     } else {
-      navigate('/vehicles');
+      navigate('/products');
     }
   };
 
@@ -408,13 +406,13 @@ export const HomePage = () => {
         <AnimatedSection direction="up">
           <Container size="xl" className="space-y-8">
             <SectionHeading
-              badge="Vehicle Lineup"
-              title="Explore Our Vehicles"
-              subtitle="Find the right JAC vehicle for your work, business, and everyday needs."
+              badge="Product Lineup"
+              title="Explore Our Products"
+              subtitle="Find the right model for your personal, fleet, and commercial logistics needs."
               action={
-                <Link to="/vehicles">
+                <Link to="/products">
                   <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                    View All Models
+                    View All Products
                   </Button>
                 </Link>
               }
@@ -423,10 +421,10 @@ export const HomePage = () => {
             {/* Interactive Category Selector */}
             <div className="flex flex-wrap items-center gap-2 pb-2">
               {[
-                { id: 'all', label: 'All Models' },
-                { id: 'passengers', label: 'Passenger' },
-                { id: 'light-truck', label: 'Light Truck' },
-                { id: 'heavy-truck', label: 'Heavy Truck' },
+                { id: 'all', label: 'All Products' },
+                { id: 'jac-t9', label: '1. JAC T9' },
+                { id: 'jac-commercial', label: '2. JAC Commercial' },
+                { id: 'dongfeng', label: '3. Dongfeng' },
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -577,7 +575,7 @@ export const HomePage = () => {
               </div>
 
               <div className="pt-6 border-t border-gray-100 flex flex-wrap items-center gap-4">
-                <Link to={`/vehicles/${featuredPickup.slug}`}>
+                <Link to={`/products/${featuredPickup.slug}`}>
                   <Button
                     id="spotlight-explore-cta"
                     variant="primary"
@@ -611,9 +609,9 @@ export const HomePage = () => {
                 No vehicle is currently spotlighted as the Featured Pickup on the homepage. An admin can select one in the Admin CMS.
               </p>
             </div>
-            <Link to="/vehicles">
+            <Link to="/products">
               <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                View All Vehicles
+                View All Products
               </Button>
             </Link>
           </div>

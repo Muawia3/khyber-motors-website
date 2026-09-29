@@ -27,7 +27,7 @@ export const VehiclePreview = () => {
   }, [id]);
 
   const handleBackToEditor = () => {
-    navigate(`/admin/vehicles/${id}/edit`);
+    navigate(`/admin/products/${id}/edit`);
   };
 
   return (

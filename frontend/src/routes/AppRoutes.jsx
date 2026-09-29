@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { HomePage } from '../pages/Home';
+import { ProductsPage } from '../pages/Products';
 import { VehiclesPage } from '../pages/Vehicles';
 import { VehicleDetailsPage } from '../pages/VehicleDetails';
+import { ProductDetailsPage } from '../pages/ProductDetails';
 import { ServicesPage } from '../pages/Services';
 import { AboutPage } from '../pages/About';
 import { ContactPage } from '../pages/Contact';
@@ -76,12 +78,14 @@ export const AppRoutes = () => {
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<HomePage />} />
-      <Route path="/vehicles" element={<VehiclesPage />} />
+      <Route path="/products" element={<ProductsPage />} />
+      <Route path="/products/:id" element={<ProductDetailsPage />} />
       
-      {/* Specific Vehicle Alias Routes */}
-      <Route path="/vehicles/t9" element={<VehicleDetailsPage />} />
-      <Route path="/vehicles/trucks" element={<VehicleDetailsPage />} />
-      <Route path="/vehicles/:id" element={<VehicleDetailsPage />} />
+      {/* Specific Product / Vehicle Alias Routes */}
+      <Route path="/vehicles" element={<ProductsPage />} />
+      <Route path="/vehicles/t9" element={<ProductDetailsPage />} />
+      <Route path="/vehicles/trucks" element={<ProductDetailsPage />} />
+      <Route path="/vehicles/:id" element={<ProductDetailsPage />} />
 
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/about" element={<AboutPage />} />
@@ -95,7 +99,16 @@ export const AppRoutes = () => {
       {/* Admin CRM & CMS Protected Routes */}
       <Route path="/admin" element={<ProtectedRoute><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>} />
       
-      {/* Vehicle CMS */}
+      {/* Products CMS */}
+      <Route path="/admin/products" element={<ProtectedRoute><AdminLayout><VehicleList /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/jac-t9" element={<ProtectedRoute><AdminLayout><PassengersList /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/jac-commercial" element={<ProtectedRoute><AdminLayout><LightTrucksList /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/dongfeng" element={<ProtectedRoute><AdminLayout><HeavyTrucksList /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/new" element={<ProtectedRoute><AdminLayout><VehicleEdit /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/:id/edit" element={<ProtectedRoute><AdminLayout><VehicleEdit /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/products/:id/preview" element={<ProtectedRoute><VehiclePreview /></ProtectedRoute>} />
+
+      {/* Vehicle CMS aliases */}
       <Route path="/admin/vehicles" element={<ProtectedRoute><AdminLayout><VehicleList /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/vehicles/passengers" element={<ProtectedRoute><AdminLayout><PassengersList /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/vehicles/trucks/heavy" element={<ProtectedRoute><AdminLayout><HeavyTrucksList /></AdminLayout></ProtectedRoute>} />

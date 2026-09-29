@@ -73,7 +73,7 @@ export const VehicleCard = ({ vehicle }) => {
 
       {/* Card Actions */}
       <div className="p-5 pt-0 grid grid-cols-2 gap-2">
-        <Link to={`/vehicles/${vehicle.slug}`} className="w-full">
+        <Link to={`/products/${vehicle.slug}`} className="w-full">
           <Button variant="outline" size="sm" fullWidth rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
             View Details
           </Button>

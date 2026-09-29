@@ -27,6 +27,9 @@ const parseVehicleFields = (vehicle, isCardsView = false) => {
       tagline: vehicle.tagline,
       category: vehicle.category,
       subcategory: vehicle.subcategory,
+      subSubcategory: vehicle.subSubcategory,
+      brand: vehicle.brand,
+      displayOrder: vehicle.displayOrder ?? 0,
       categoryLabel: vehicle.categoryLabel,
       status: vehicle.status,
       stockStatus: stockStat,
@@ -42,6 +45,9 @@ const parseVehicleFields = (vehicle, isCardsView = false) => {
 
   return {
     ...vehicle,
+    subSubcategory: vehicle.subSubcategory,
+    brand: vehicle.brand,
+    displayOrder: vehicle.displayOrder ?? 0,
     stockQuantity: stockQty,
     stockStatus: stockStat,
     mainImage: sanitizeUrl(vehicle.mainImage),
@@ -64,15 +70,18 @@ const stringifyIfNeeded = (val, fallback = '[]') => {
 // GET /api/vehicles
 router.get('/', async (req, res) => {
   try {
-    const { category, subcategory, search, status, view } = req.query;
+    const { category, subcategory, search, status, view, brand } = req.query;
     const isCardsView = view === 'cards';
 
     const where = {};
     if (category && category.toUpperCase() !== 'ALL') {
-      where.category = category.toUpperCase();
+      where.category = { contains: category, mode: 'insensitive' };
     }
     if (subcategory) {
-      where.subcategory = subcategory.toUpperCase();
+      where.subcategory = { contains: subcategory, mode: 'insensitive' };
+    }
+    if (brand) {
+      where.brand = { contains: brand, mode: 'insensitive' };
     }
     if (status) {
       where.status = status;
@@ -95,6 +104,9 @@ router.get('/', async (req, res) => {
           tagline: true,
           category: true,
           subcategory: true,
+          subSubcategory: true,
+          brand: true,
+          displayOrder: true,
           categoryLabel: true,
           status: true,
           stockStatus: true,
@@ -111,7 +123,7 @@ router.get('/', async (req, res) => {
     const vehicles = await prisma.vehicle.findMany({
       where,
       select,
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ displayOrder: 'asc' }, { createdAt: 'asc' }],
     });
 
     const formatted = vehicles.map((v) => parseVehicleFields(v, isCardsView));
@@ -171,8 +183,11 @@ router.post('/', authMiddleware, async (req, res) => {
         fullTitle: body.fullTitle || body.name,
         slug,
         tagline: body.tagline || '',
-        category: body.category.toUpperCase(),
+        category: (body.category || 'JAC-T9').toUpperCase(),
         subcategory: body.subcategory ? body.subcategory.toUpperCase() : null,
+        subSubcategory: body.subSubcategory ? body.subSubcategory.toLowerCase() : null,
+        brand: body.brand || null,
+        displayOrder: parseInt(body.displayOrder, 10) || 0,
         categoryLabel: body.categoryLabel || null,
         status: body.status || 'Published',
         stockStatus: stockStatus || 'out_of_stock',
@@ -199,6 +214,30 @@ router.post('/', authMiddleware, async (req, res) => {
     return res.status(201).json({ success: true, data: parseVehicleFields(newVehicle) });
   } catch (error) {
     console.error('Create vehicle error:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT /api/vehicles/reorder (Admin protected)
+router.put('/reorder', authMiddleware, async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ success: false, error: 'Items array is required.' });
+    }
+
+    for (const item of items) {
+      if (item.id) {
+        await prisma.vehicle.update({
+          where: { id: item.id },
+          data: { displayOrder: parseInt(item.displayOrder, 10) || 0 },
+        }).catch((err) => console.warn(`Reorder item ${item.id} skipped:`, err.message));
+      }
+    }
+
+    return res.json({ success: true, message: 'Products reordered successfully.' });
+  } catch (error) {
+    console.error('Reorder products error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -307,6 +346,9 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (body.description !== undefined) updateData.overview = body.description;
     if (body.category !== undefined) updateData.category = body.category.toUpperCase();
     if (body.subcategory !== undefined) updateData.subcategory = body.subcategory ? body.subcategory.toUpperCase() : null;
+    if (body.subSubcategory !== undefined) updateData.subSubcategory = body.subSubcategory ? body.subSubcategory.toLowerCase() : null;
+    if (body.brand !== undefined) updateData.brand = body.brand;
+    if (body.displayOrder !== undefined) updateData.displayOrder = parseInt(body.displayOrder, 10) || 0;
     if (body.categoryLabel !== undefined) updateData.categoryLabel = body.categoryLabel;
     if (body.status !== undefined) updateData.status = body.status;
     if (body.isFlagship !== undefined) updateData.isFlagship = Boolean(body.isFlagship);

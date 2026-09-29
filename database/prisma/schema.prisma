@@ -40,8 +40,11 @@ model Vehicle {
   fullTitle         String?
   slug              String   @unique
   tagline           String?
-  category          String   // 'PASSENGERS' | 'COMMERCIAL' | 'ELECTRIC'
-  subcategory       String?  // 'PICKUP' | 'VAN' | 'TRUCK'
+  category          String   // 'jac-t9' | 'jac-commercial' | 'dongfeng' (or legacy passengers | trucks)
+  subcategory       String?  // for dongfeng: 'heavy' | 'light'
+  subSubcategory    String?  // for dongfeng heavy: 'prime-movers' | 'rigid'
+  brand             String?  // 'JAC' | 'Dongfeng'
+  displayOrder      Int      @default(0)
   categoryLabel     String?
   price             Float?
   formattedPrice    String?
