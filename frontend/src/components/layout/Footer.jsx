@@ -21,11 +21,12 @@ import { useContact } from '../../context/useContact';
 import { socialLinkService } from '../../services/socialLinkService';
 import { SocialIcon } from '../common/SocialIcons';
 import { BrandLogo } from '../common/BrandLogo';
-import { VEHICLES } from '../../data/vehicles';
+import { vehicleService } from '../../services/vehicleService';
 
 export const Footer = () => {
   const { contactData } = useContact();
   const [socialLinks, setSocialLinks] = useState([]);
+  const [lineupVehicles, setLineupVehicles] = useState(() => vehicleService.getCachedVehicles() || []);
 
   useEffect(() => {
     let isMounted = true;
@@ -39,7 +40,20 @@ export const Footer = () => {
         console.warn('Footer social fetch notice:', err);
       }
     };
+
+    const fetchVehicles = async () => {
+      try {
+        const list = await vehicleService.getVehicles();
+        if (isMounted && Array.isArray(list)) {
+          setLineupVehicles(list.filter((v) => v.status !== 'Draft' && v.status !== 'Hidden'));
+        }
+      } catch (err) {
+        console.warn('Footer vehicles fetch notice:', err);
+      }
+    };
+
     fetchSocial();
+    fetchVehicles();
     return () => {
       isMounted = false;
     };
@@ -199,20 +213,63 @@ export const Footer = () => {
               Products Lineup
             </h4>
             <ul className="space-y-2.5 text-xs text-gray-300">
-              {VEHICLES.map((v) => (
-                <li key={v.id}>
-                  <Link
-                    to={`/products/${v.slug}`}
-                    className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
-                  >
-                    <span className="flex items-center gap-1.5">
-                      <ChevronRight className="w-3 h-3 text-[#C8102E]" />
-                      {v.name}
-                    </span>
-                    <span className="text-[10px] text-gray-500 font-mono">{v.categoryLabel}</span>
-                  </Link>
-                </li>
-              ))}
+              {lineupVehicles.length > 0 ? (
+                lineupVehicles.slice(0, 7).map((v) => (
+                  <li key={v.id || v.slug}>
+                    <Link
+                      to={`/products/${v.slug}`}
+                      className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ChevronRight className="w-3 h-3 text-[#C8102E]" />
+                        {v.name}
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">
+                        {v.categoryLabel || v.category}
+                      </span>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      to="/products?category=jac-t9"
+                      className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ChevronRight className="w-3 h-3 text-[#C8102E]" />
+                        JAC T9 Series
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">Double Cabin</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/products?category=jac-commercial"
+                      className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ChevronRight className="w-3 h-3 text-[#C8102E]" />
+                        JAC Commercial Trucks
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">Cargo Haulers</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/products?category=dongfeng"
+                      className="hover:text-[#C8102E] transition-colors flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <ChevronRight className="w-3 h-3 text-[#C8102E]" />
+                        Dongfeng Heavy & Light
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">Logistics Fleet</span>
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
           </div>
 

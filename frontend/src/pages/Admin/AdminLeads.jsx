@@ -9,7 +9,7 @@ import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { Modal } from '../../components/ui/Modal';
 import { apiFetch } from '../../services/api';
-import { VEHICLES } from '../../data/vehicles';
+import { vehicleService } from '../../services/vehicleService';
 import { validatePakistaniPhone, validateRequired } from '../../utils/validation';
 
 export const AdminLeads = () => {
@@ -17,13 +17,14 @@ export const AdminLeads = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [availableVehicles, setAvailableVehicles] = useState([]);
 
   // New Lead Form State
   const [newLead, setNewLead] = useState({
     customerName: '',
     phone: '',
     email: '',
-    vehicle: VEHICLES[0]?.name || 'JAC T9 4x4',
+    vehicle: 'JAC T9 4x4',
     source: 'Admin Manual',
     status: 'New',
     assignedTo: 'Hawad Khan Khalil (Sales Desk)',
@@ -73,6 +74,12 @@ export const AdminLeads = () => {
   useEffect(() => {
     document.title = 'Leads Directory | Admin CRM';
     fetchLeads();
+    vehicleService.getVehicles().then((list) => {
+      if (Array.isArray(list) && list.length > 0) {
+        setAvailableVehicles(list);
+        setNewLead((prev) => ({ ...prev, vehicle: prev.vehicle || list[0].name }));
+      }
+    });
   }, []);
 
   const handleAddLeadSubmit = async (e) => {
@@ -371,7 +378,11 @@ export const AdminLeads = () => {
               label="Vehicle Interest"
               value={newLead.vehicle}
               onChange={(e) => setNewLead({ ...newLead, vehicle: e.target.value })}
-              options={VEHICLES.map((v) => ({ value: v.name, label: v.name }))}
+              options={
+                availableVehicles.length > 0
+                  ? availableVehicles.map((v) => ({ value: v.name, label: v.name }))
+                  : [{ value: 'JAC T9 Hunter', label: 'JAC T9 Hunter' }]
+              }
             />
 
             <Select
