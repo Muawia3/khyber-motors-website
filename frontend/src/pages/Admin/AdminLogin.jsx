@@ -41,7 +41,7 @@ export const AdminLogin = () => {
         {/* Brand Header */}
         <div className="text-center space-y-3">
           <div className="flex justify-center mb-2">
-            <BrandLogo size="lg" variant="dark" hideLink={true} />
+            <BrandLogo size="md" layout="stacked" variant="dark" hideLink={true} className="!max-w-[260px]" />
           </div>
           <h1 className="text-2xl font-extrabold uppercase tracking-tight text-white">
             Dealership Admin CMS

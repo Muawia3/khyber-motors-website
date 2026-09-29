@@ -10,11 +10,16 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
       {/* Desktop Fixed Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-[#111827] text-gray-300 border-r border-gray-800 shrink-0 min-h-screen">
         {/* Brand Header */}
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-          <BrandLogo size="sm" variant="dark" to="/admin" />
-          <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded-xs uppercase">
-            CMS
-          </span>
+        <div className="p-3.5 border-b border-gray-800 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 font-mono">
+              Dealership Portal
+            </span>
+            <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded-xs uppercase">
+              CMS
+            </span>
+          </div>
+          <BrandLogo size="sm" layout="stacked" variant="dark" to="/admin" className="w-full max-w-full !p-2.5" />
         </div>
 
         {/* Nav Groups List */}
@@ -69,15 +74,20 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
             className="w-64 bg-[#111827] text-gray-300 h-full flex flex-col shadow-2xl overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 border-b border-gray-800 flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase">CMS Menu</span>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-gray-400 hover:text-white p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
+            <div className="p-3.5 border-b border-gray-800 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 font-mono">
+                  CMS Navigation
+                </span>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-white p-1 rounded-xs"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <BrandLogo size="sm" layout="stacked" variant="dark" to="/admin" className="w-full max-w-full !p-2" />
             </div>
 
             <div className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
