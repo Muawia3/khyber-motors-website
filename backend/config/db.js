@@ -92,14 +92,13 @@ export function getPrisma() {
     try {
       let dbUrl = getDatabaseUrl();
 
-      // Enforce postgresql:// prefix if not already specified, so Prisma's schema validator succeeds
-      if (!dbUrl.startsWith('postgres://') && !dbUrl.startsWith('postgresql://')) {
+      const isPg = dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://');
+      if (!isPg && !dbUrl.startsWith('file:')) {
         const pgFallback = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
         if (pgFallback && (pgFallback.startsWith('postgres://') || pgFallback.startsWith('postgresql://'))) {
           dbUrl = pgFallback.trim();
         } else {
-          // Fallback connection string for local development with PostgreSQL provider
-          dbUrl = 'postgresql://postgres:postgres@localhost:5432/jac_motors?schema=public';
+          dbUrl = `file:${dbUrl}`;
         }
       }
 

@@ -8,7 +8,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const publicDir = path.join(__dirname, '../../public');
+const rootDir = path.join(__dirname, '../../');
+const frontendPublicDir = path.join(rootDir, 'frontend/public');
+const publicDir = path.join(rootDir, 'public');
 
 // Helper to locate a file across potential directories safely, with DB fallback
 async function findFileOnDiskOrDb(targetPath) {
@@ -19,14 +21,26 @@ async function findFileOnDiskOrDb(targetPath) {
   const cleanRelative = decoded.replace(/^[/\\]+/, '').replace(/^(\.\.[/\\])+/, '');
   const base = path.basename(cleanRelative);
   
-  // 1. Direct path inside public/
-  const directPath = path.join(publicDir, cleanRelative);
-  if (fs.existsSync(directPath) && fs.statSync(directPath).isFile()) {
-    return directPath;
+  // 1. Direct path inside frontend/public or public
+  const candidateDirectPaths = [
+    path.join(frontendPublicDir, cleanRelative),
+    path.join(frontendPublicDir, 'uploads', cleanRelative),
+    path.join(publicDir, cleanRelative),
+    path.join(publicDir, 'uploads', cleanRelative),
+  ];
+  for (const p of candidateDirectPaths) {
+    if (fs.existsSync(p) && fs.statSync(p).isFile()) {
+      return p;
+    }
   }
 
   // 2. Search by basename in common storage folders
   const searchLocations = [
+    path.join(frontendPublicDir, 'uploads', 'images', base),
+    path.join(frontendPublicDir, 'uploads', 'brochures', base),
+    path.join(frontendPublicDir, 'uploads', base),
+    path.join(frontendPublicDir, 'brochures', base),
+    path.join(frontendPublicDir, base),
     path.join(publicDir, 'uploads', 'images', base),
     path.join(publicDir, 'uploads', 'brochures', base),
     path.join(publicDir, 'uploads', base),
@@ -203,10 +217,7 @@ export async function handleUploadsStaticServing(req, res, next) {
   const filePath = await findFileOnDiskOrDb(cleanUrl);
 
   if (!filePath) {
-    return res.status(404).json({
-      success: false,
-      error: `Uploaded asset "${req.path}" not found on server disk.`,
-    });
+    return next();
   }
 
   const mimeType = getMimeType(filePath);
