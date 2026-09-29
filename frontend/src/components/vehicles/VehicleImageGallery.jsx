@@ -1,23 +1,43 @@
 import React, { useState } from 'react';
-import { Expand, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Expand, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { SafeImage } from '../common/SafeImage';
 
 export const VehicleImageGallery = ({
-  images,
-  vehicleName,
+  images = [],
+  vehicleName = 'Product',
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
 
-  const activeImage = images[selectedIndex] || images[0];
+  const validImages = Array.isArray(images)
+    ? images.filter((img) => img && typeof img === 'string' && img.trim())
+    : [];
+
+  if (validImages.length === 0) {
+    return (
+      <div className="relative aspect-16/10 bg-gray-50 border-2 border-dashed border-gray-200 rounded-sm flex flex-col items-center justify-center p-8 text-center text-gray-400 shadow-2xs">
+        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+          <ImageIcon className="w-6 h-6 text-gray-400 stroke-[1.5]" />
+        </div>
+        <p className="text-xs font-extrabold uppercase tracking-wider text-gray-700">
+          No Images Uploaded
+        </p>
+        <p className="text-[11px] text-gray-400 mt-1 max-w-xs">
+          Product photography for {vehicleName} will appear here once uploaded via the Admin panel.
+        </p>
+      </div>
+    );
+  }
+
+  const activeImage = validImages[selectedIndex] || validImages[0];
 
   const handlePrev = () => {
-    setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setSelectedIndex((prev) => (prev === 0 ? validImages.length - 1 : prev - 1));
   };
 
   const handleNext = () => {
-    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setSelectedIndex((prev) => (prev === validImages.length - 1 ? 0 : prev + 1));
   };
 
   const handleKeyDown = (e) => {
@@ -43,13 +63,13 @@ export const VehicleImageGallery = ({
         <SafeImage
           key={activeImage}
           src={activeImage}
-          alt={`${vehicleName} View ${selectedIndex + 1} of ${images.length}`}
+          alt={`${vehicleName} View ${selectedIndex + 1} of ${validImages.length}`}
           loading="eager"
           className="w-full h-full object-cover transition-all duration-300 animate-fadeIn motion-reduce:animate-none"
         />
 
         {/* Navigation Buttons for Quick Cycling */}
-        {images.length > 1 && (
+        {validImages.length > 1 && (
           <>
             <button
               type="button"
@@ -84,14 +104,14 @@ export const VehicleImageGallery = ({
 
         {/* Caption */}
         <div className="absolute bottom-3 left-3 bg-black/80 px-3 py-1 text-xs text-white uppercase tracking-wider font-semibold rounded-xs border border-gray-700">
-          View {selectedIndex + 1} of {images.length}
+          View {selectedIndex + 1} of {validImages.length}
         </div>
       </div>
 
       {/* Thumbnails List with Keyboard Focus */}
-      {images.length > 1 && (
+      {validImages.length > 1 && (
         <div className="grid grid-cols-4 gap-3" role="tablist" aria-label="Vehicle image thumbnails">
-          {images.map((img, idx) => (
+          {validImages.map((img, idx) => (
             <button
               key={idx}
               type="button"
@@ -134,3 +154,5 @@ export const VehicleImageGallery = ({
     </div>
   );
 };
+
+export default VehicleImageGallery;

@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Shield, ChevronRight, Layers, ArrowRight, Truck, Check, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ArrowRight, Truck, ArrowLeft } from 'lucide-react';
 import { Container } from '../../components/common/Container';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { VehicleCard } from '../../components/vehicles/VehicleCard';
-import { EmptyState } from '../../components/common/EmptyState';
 import { vehicleService } from '../../services/vehicleService';
 import { AnimatedSection } from '../../components/common/AnimatedSection';
 import { VehicleCardSkeleton } from '../../components/ui/Skeleton';
@@ -29,8 +28,8 @@ export const ProductsPage = () => {
     initialCategory === 'jac-commercial' && initialSubcategory !== 'all' ? initialSubcategory : 'all'
   );
 
-  const [products, setProducts] = useState(() => vehicleService.getCachedVehicles() || []);
-  const [loading, setLoading] = useState(() => !vehicleService.getCachedVehicles()?.length);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const contentRef = useRef(null);
 
@@ -75,12 +74,11 @@ export const ProductsPage = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const list = await vehicleService.getVehicleCards();
-        if (list && list.length > 0) {
-          setProducts(list);
-        }
+        const list = await vehicleService.getVehicleCards(true);
+        setProducts(list || []);
       } catch (err) {
-        console.error('Failed to load products from API:', err);
+        console.error('Failed to load products from database:', err);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -88,7 +86,7 @@ export const ProductsPage = () => {
     fetchProducts();
   }, [selectedCategory]);
 
-  // Specific vehicles mapped for fast, reliable lookup
+  // Specific vehicles mapped directly from real database products
   const t9Hunter = useMemo(
     () => products.find((p) => p.slug === 't9-hunter' || p.id === 'jac-t9-hunter'),
     [products]
@@ -260,7 +258,7 @@ export const ProductsPage = () => {
                             </span>
                           </div>
                           <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                            High-power 420HP 6x4 tractor head built for maximum GCW freight transport, multi-axle trailers, and cross-country logistics.
+                            High-power tractor head built for maximum GCW freight transport, multi-axle trailers, and cross-country logistics.
                           </p>
 
                           {/* Clickable Product Card */}
@@ -269,12 +267,15 @@ export const ProductsPage = () => {
                           ) : dfPrimeMover ? (
                             <VehicleCard vehicle={dfPrimeMover} />
                           ) : (
-                            <Link
-                              to="/products/dongfeng-prime-mover"
-                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
-                            >
-                              Dongfeng Prime Mover 420HP →
-                            </Link>
+                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
+                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                Prime Movers Not Added Yet
+                              </p>
+                              <p className="text-[11px] text-gray-400 mt-1">
+                                This model will appear once created or published from the Admin panel.
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -301,7 +302,7 @@ export const ProductsPage = () => {
                             </span>
                           </div>
                           <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                            Heavy-duty 375HP rigid chassis tippers & cargo dump trucks built for severe terrain, mining, aggregate, and construction hauling.
+                            Heavy-duty rigid chassis tippers & cargo dump trucks built for severe terrain, mining, aggregate, and construction hauling.
                           </p>
 
                           {/* Clickable Product Card */}
@@ -310,12 +311,15 @@ export const ProductsPage = () => {
                           ) : dfRigid ? (
                             <VehicleCard vehicle={dfRigid} />
                           ) : (
-                            <Link
-                              to="/products/dongfeng-rigid"
-                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
-                            >
-                              Dongfeng Rigid Heavy Dump Truck 375HP →
-                            </Link>
+                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
+                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                Rigid Trucks Not Added Yet
+                              </p>
+                              <p className="text-[11px] text-gray-400 mt-1">
+                                This model will appear once created or published from the Admin panel.
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -356,7 +360,7 @@ export const ProductsPage = () => {
                               </Link>
                             </div>
                             <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                              4.5-Ton Cargo
+                              Cargo Truck
                             </span>
                           </div>
                           <p className="text-xs text-gray-600 mb-5 leading-relaxed">
@@ -369,12 +373,15 @@ export const ProductsPage = () => {
                           ) : dfLight ? (
                             <VehicleCard vehicle={dfLight} />
                           ) : (
-                            <Link
-                              to="/products/dongfeng-light"
-                              className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
-                            >
-                              Dongfeng Light Truck 4.5-Ton →
-                            </Link>
+                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
+                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                                Light Truck Not Added Yet
+                              </p>
+                              <p className="text-[11px] text-gray-400 mt-1">
+                                This model will appear once created or published from the Admin panel.
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -475,7 +482,7 @@ export const ProductsPage = () => {
                             </Link>
                           </div>
                           <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                            8-Speed AT
+                            Automatic
                           </span>
                         </div>
                         <p className="text-xs text-gray-600 mb-5 leading-relaxed">
@@ -488,12 +495,15 @@ export const ProductsPage = () => {
                         ) : t9Hunter ? (
                           <VehicleCard vehicle={t9Hunter} />
                         ) : (
-                          <Link
-                            to="/products/t9-hunter"
-                            className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
-                          >
-                            JAC T9 Hunter →
-                          </Link>
+                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
+                            <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                              JAC T9 Hunter Not Added Yet
+                            </p>
+                            <p className="text-[11px] text-gray-400 mt-1">
+                              This model will appear once created or published from the Admin panel.
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -528,12 +538,15 @@ export const ProductsPage = () => {
                         ) : t9Frison ? (
                           <VehicleCard vehicle={t9Frison} />
                         ) : (
-                          <Link
-                            to="/products/t9-frison"
-                            className="block p-4 border border-dashed border-gray-300 text-center font-bold text-[#C8102E] hover:underline text-sm"
-                          >
-                            JAC T9 Frison →
-                          </Link>
+                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
+                            <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                              JAC T9 Frison Not Added Yet
+                            </p>
+                            <p className="text-[11px] text-gray-400 mt-1">
+                              This model will appear once created or published from the Admin panel.
+                            </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -619,13 +632,19 @@ export const ProductsPage = () => {
                           v.slug.toLowerCase().includes(selectedCommercialTab.toLowerCase())
                       )
                       .map((truck) => (
-                        <div key={truck.slug} className="flex flex-col justify-between">
+                        <div key={truck.slug || truck.id} className="flex flex-col justify-between">
                           <VehicleCard vehicle={truck} />
                         </div>
                       ))
                   ) : (
-                    <div className="col-span-full py-8 text-center text-gray-500 text-sm">
-                      No commercial models match the selected filter.
+                    <div className="col-span-full py-12 text-center bg-white p-8 rounded-sm border-2 border-dashed border-gray-200 text-gray-500 text-sm">
+                      <Truck className="w-10 h-10 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                      <p className="font-extrabold uppercase text-gray-800 text-xs">
+                        No Commercial Models Added Yet
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Commercial trucks (X200, 1020, 1042, 1091, 1120) can be added or published from the Admin panel.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -740,17 +759,35 @@ export const ProductsPage = () => {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {loading ? (
-                      Array.from({ length: 6 }).map((_, i) => <VehicleCardSkeleton key={i} />)
-                    ) : (
-                      products
+                  {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <VehicleCardSkeleton key={i} />
+                      ))}
+                    </div>
+                  ) : products.filter((p) => p.status !== 'Draft' && p.status !== 'Hidden').length >
+                    0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {products
                         .filter((p) => p.status !== 'Draft' && p.status !== 'Hidden')
                         .map((product) => (
-                          <VehicleCard key={product.id || product.slug} vehicle={product} />
-                        ))
-                    )}
-                  </div>
+                          <VehicleCard
+                            key={product.id || product.slug}
+                            vehicle={product}
+                          />
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 text-center bg-white p-8 rounded-sm border-2 border-dashed border-gray-200 text-gray-500 text-sm">
+                      <Truck className="w-10 h-10 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
+                      <p className="font-extrabold uppercase text-gray-800 text-xs">
+                        No Products in Catalog
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Products can be added from the Admin panel.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </AnimatedSection>
             </div>

@@ -1,20 +1,18 @@
 import { apiFetch } from './api';
-import { VEHICLES_DATA, PRODUCT_HIERARCHY } from '../data/vehicles';
+import { PRODUCT_HIERARCHY } from '../data/vehicles';
 
 /**
- * Normalizes vehicle / product category, subcategory, specs, and image fields to standard taxonomy.
+ * Normalizes vehicle / product fields from the PostgreSQL database into a standard frontend shape.
+ * Real database data is the single source of truth. No static or demo fallbacks are used.
  */
 function normalizeVehicle(v) {
   if (!v) return null;
-  const defaultMatch = VEHICLES_DATA.find(
-    (d) => d.slug === v.slug || String(d.id) === String(v.id) || d.id === v.id
-  );
 
   const rawCat = (v.category || '').toLowerCase().trim();
   const slug = (v.slug || '').toLowerCase().trim();
   const rawSub = (v.subcategory || '').toLowerCase().trim();
 
-  let brand = v.brand || defaultMatch?.brand;
+  let brand = v.brand;
   if (!brand) {
     if (rawCat.includes('dongfeng') || slug.includes('dongfeng')) {
       brand = 'Dongfeng';
@@ -39,8 +37,8 @@ function normalizeVehicle(v) {
     category = 'jac-t9';
   }
 
-  let subcategory = v.subcategory ? v.subcategory.toLowerCase().trim() : defaultMatch?.subcategory || null;
-  let subSubcategory = v.subSubcategory ? v.subSubcategory.toLowerCase().trim() : defaultMatch?.subSubcategory || null;
+  const subcategory = v.subcategory ? v.subcategory.toLowerCase().trim() : null;
+  const subSubcategory = v.subSubcategory ? v.subSubcategory.toLowerCase().trim() : null;
 
   let categoryLabel = v.categoryLabel;
   if (!categoryLabel) {
@@ -53,35 +51,68 @@ function normalizeVehicle(v) {
     }
   }
 
-  const displayOrder = v.displayOrder !== undefined ? v.displayOrder : (defaultMatch?.displayOrder ?? 99);
+  const displayOrder = v.displayOrder !== undefined ? v.displayOrder : 99;
 
-  // Ensure specs object format
+  // Real specifications object from database
   let specsObj = {};
   if (v.specs) {
     if (typeof v.specs === 'object' && !Array.isArray(v.specs)) {
       specsObj = v.specs;
+    } else if (typeof v.specs === 'string') {
+      try {
+        specsObj = JSON.parse(v.specs);
+      } catch {
+        specsObj = {};
+      }
     } else if (Array.isArray(v.specs)) {
       v.specs.forEach((item) => {
         if (item && item.name) {
-          const key = item.name.toLowerCase().replace(/[^a-z0-9]+/g, '');
-          specsObj[key] = item.value;
           specsObj[item.name] = item.value;
         }
       });
     }
-  } else if (defaultMatch?.specs) {
-    specsObj = defaultMatch.specs;
   }
 
-  // Guaranteed persistent image fallback hierarchy
-  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || defaultMatch?.mainImage || defaultMatch?.heroImage || '';
-  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || defaultMatch?.heroImage || defaultMatch?.mainImage || '';
+  // Real images from database only
+  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || '';
+  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || '';
 
-  let gallery = Array.isArray(v.gallery) && v.gallery.length > 0
-    ? v.gallery
-    : Array.isArray(v.galleryImages) && v.galleryImages.length > 0
-    ? v.galleryImages
-    : (defaultMatch?.gallery || [mainImage].filter(Boolean));
+  let gallery = [];
+  if (Array.isArray(v.gallery) && v.gallery.length > 0) {
+    gallery = v.gallery.filter(Boolean);
+  } else if (typeof v.gallery === 'string') {
+    try {
+      const parsed = JSON.parse(v.gallery);
+      if (Array.isArray(parsed)) gallery = parsed.filter(Boolean);
+    } catch {}
+  }
+  if (gallery.length === 0 && (mainImage || heroImage)) {
+    gallery = [mainImage || heroImage].filter(Boolean);
+  }
+
+  // Real features list from database only
+  let features = [];
+  if (Array.isArray(v.features)) {
+    features = v.features;
+  } else if (typeof v.features === 'string') {
+    try {
+      const parsed = JSON.parse(v.features);
+      if (Array.isArray(parsed)) features = parsed;
+    } catch {}
+  }
+
+  // Real highlights from database only
+  let highlights = [];
+  if (Array.isArray(v.whyT9Benefits)) {
+    highlights = v.whyT9Benefits;
+  } else if (Array.isArray(v.highlightsArray)) {
+    highlights = v.highlightsArray;
+  } else if (typeof v.whyT9Benefits === 'string') {
+    try {
+      const parsed = JSON.parse(v.whyT9Benefits);
+      if (Array.isArray(parsed)) highlights = parsed;
+    } catch {}
+  }
 
   const normalizedObj = {
     ...v,
@@ -91,20 +122,24 @@ function normalizeVehicle(v) {
     subSubcategory,
     displayOrder,
     categoryLabel,
-    shortDescription: v.tagline || v.shortDescription || v.overview || defaultMatch?.tagline || '',
-    tagline: v.tagline || v.shortDescription || v.overview || defaultMatch?.tagline || '',
-    fullDescription: v.overview || v.fullDescription || v.description || defaultMatch?.overview || '',
-    overview: v.overview || v.fullDescription || v.description || defaultMatch?.overview || '',
+    shortDescription: v.tagline || v.shortDescription || v.overview || '',
+    tagline: v.tagline || v.shortDescription || v.overview || '',
+    fullDescription: v.overview || v.fullDescription || v.description || '',
+    overview: v.overview || v.fullDescription || v.description || '',
     heroImage,
     mainImage,
     galleryImages: gallery,
     gallery: gallery,
     specs: specsObj,
-    specsArray: Array.isArray(v.specs) ? v.specs : Object.entries(specsObj).map(([name, value]) => ({ name, value })),
-    featuresArray: Array.isArray(v.features) ? v.features : Array.isArray(v.featuresArray) ? v.featuresArray : defaultMatch?.features || [],
-    highlightsArray: Array.isArray(v.whyT9Benefits) ? v.whyT9Benefits : Array.isArray(v.highlightsArray) ? v.highlightsArray : defaultMatch?.whyT9Benefits || [],
-    brochureAvailable: v.brochureAvailable ?? defaultMatch?.brochureAvailable ?? Boolean(v.brochureUrl || defaultMatch?.brochureUrl),
-    brochureUrl: v.brochureUrl || defaultMatch?.brochureUrl || '',
+    specsArray: Array.isArray(v.specsArray) && v.specsArray.length > 0
+      ? v.specsArray
+      : Object.entries(specsObj).map(([name, value]) => ({ name, value: String(value) })),
+    featuresArray: features,
+    features: features,
+    highlightsArray: highlights,
+    whyT9Benefits: highlights,
+    brochureAvailable: Boolean(v.brochureUrl && v.brochureUrl.trim()),
+    brochureUrl: v.brochureUrl || '',
   };
 
   // Strictly omit prices across the entire application
@@ -123,10 +158,7 @@ export const vehicleService = {
   getHierarchy: () => PRODUCT_HIERARCHY,
 
   getCachedVehicles: () => {
-    if (!vehiclesMemoryCache) {
-      vehiclesMemoryCache = VEHICLES_DATA.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-    }
-    return vehiclesMemoryCache;
+    return vehiclesMemoryCache || [];
   },
 
   clearCache: () => {
@@ -134,25 +166,20 @@ export const vehicleService = {
   },
 
   getVehicles: async (force = false, view = 'cards') => {
-    if (force) {
-      vehiclesMemoryCache = null;
-    }
-    try {
-      const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
-      const res = await apiFetch(endpoint);
-      if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-        const normalized = res.data.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-        vehiclesMemoryCache = normalized;
-        return vehiclesMemoryCache;
+    if (force || !vehiclesMemoryCache) {
+      try {
+        const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
+        const res = await apiFetch(endpoint);
+        if (res && res.success && Array.isArray(res.data)) {
+          const normalized = res.data.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          vehiclesMemoryCache = normalized;
+          return vehiclesMemoryCache;
+        }
+      } catch (err) {
+        console.warn('[vehicleService] API getVehicles warning:', err.message);
       }
-    } catch (err) {
-      console.warn('[vehicleService] API getVehicles warning:', err.message);
     }
-
-    if (!vehiclesMemoryCache) {
-      vehiclesMemoryCache = VEHICLES_DATA.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-    }
-    return vehiclesMemoryCache;
+    return vehiclesMemoryCache || [];
   },
 
   getVehicleCards: async (force = false) => {
@@ -187,55 +214,28 @@ export const vehicleService = {
 
   saveVehicle: async (vehicleData) => {
     vehiclesMemoryCache = null;
-    try {
-      const res = await apiFetch('/vehicles', {
-        method: 'POST',
-        body: JSON.stringify(vehicleData),
-      });
-      if (res && res.success && res.data) {
-        return normalizeVehicle(res.data);
-      }
-    } catch (err) {
-      console.warn('[vehicleService] saveVehicle API warning:', err);
-    }
-
-    // Fallback local creation
-    const newProduct = normalizeVehicle({
-      id: 'local-' + Date.now(),
-      ...vehicleData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    const res = await apiFetch('/vehicles', {
+      method: 'POST',
+      body: JSON.stringify(vehicleData),
     });
-    if (!vehiclesMemoryCache) {
-      vehiclesMemoryCache = VEHICLES_DATA.map(normalizeVehicle);
+    if (res && res.success && res.data) {
+      vehiclesMemoryCache = null;
+      return normalizeVehicle(res.data);
     }
-    vehiclesMemoryCache.push(newProduct);
-    return newProduct;
+    throw new Error(res?.error || 'Failed to create vehicle in database.');
   },
 
   updateVehicle: async (id, updatedData) => {
     vehiclesMemoryCache = null;
-    try {
-      const res = await apiFetch(`/vehicles/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(updatedData),
-      });
-      if (res && res.success && res.data) {
-        return normalizeVehicle(res.data);
-      }
-    } catch (err) {
-      console.warn('[vehicleService] updateVehicle API warning:', err);
+    const res = await apiFetch(`/vehicles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updatedData),
+    });
+    if (res && res.success && res.data) {
+      vehiclesMemoryCache = null;
+      return normalizeVehicle(res.data);
     }
-
-    // Fallback local update
-    const all = await vehicleService.getVehicles();
-    const index = all.findIndex((v) => String(v.id) === String(id) || v.slug === id);
-    if (index !== -1) {
-      all[index] = normalizeVehicle({ ...all[index], ...updatedData, updatedAt: new Date().toISOString() });
-      vehiclesMemoryCache = all;
-      return all[index];
-    }
-    throw new Error('Vehicle not found to update.');
+    throw new Error(res?.error || 'Failed to update vehicle in database.');
   },
 
   reorderVehicles: async (items) => {
@@ -245,34 +245,20 @@ export const vehicleService = {
         body: JSON.stringify({ items }),
       });
     } catch (err) {
-      console.warn('Reorder API warning, applied locally:', err);
+      console.warn('Reorder API warning:', err);
     }
-    if (vehiclesMemoryCache) {
-      items.forEach((item) => {
-        const found = vehiclesMemoryCache.find((v) => String(v.id) === String(item.id) || v.slug === item.id);
-        if (found) {
-          found.displayOrder = item.displayOrder;
-        }
-      });
-      vehiclesMemoryCache.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-    }
+    vehiclesMemoryCache = null;
     return true;
   },
 
   deleteVehicle: async (id) => {
     vehiclesMemoryCache = null;
-    try {
-      const res = await apiFetch(`/vehicles/${id}`, { method: 'DELETE' });
-      if (res && res.success) {
-        return true;
-      }
-    } catch (err) {
-      console.warn('[vehicleService] deleteVehicle API warning:', err);
+    const res = await apiFetch(`/vehicles/${id}`, { method: 'DELETE' });
+    if (res && res.success) {
+      vehiclesMemoryCache = null;
+      return true;
     }
-
-    const all = await vehicleService.getVehicles();
-    vehiclesMemoryCache = all.filter((v) => String(v.id) !== String(id) && v.slug !== id);
-    return true;
+    throw new Error(res?.error || 'Failed to delete vehicle.');
   },
 
   duplicateVehicle: async (id) => {

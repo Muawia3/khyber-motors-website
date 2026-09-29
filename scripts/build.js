@@ -9,8 +9,10 @@ if (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://')) {
   console.log('🚀 Synchronizing PostgreSQL database schema with Prisma db push...');
   try {
     execSync('npx prisma db push --schema=database/prisma/schema.prisma --accept-data-loss', { stdio: 'inherit' });
+    console.log('🌱 Checking and ensuring initial database seed records...');
+    execSync('node database/seed/seed.js', { stdio: 'inherit' });
   } catch (err) {
-    console.warn('⚠️ db push warning:', err.message);
+    console.warn('⚠️ db push / seed warning:', err.message);
   }
 } else {
   console.log('ℹ️ Local environment detected. Skipping remote PostgreSQL db push.');
