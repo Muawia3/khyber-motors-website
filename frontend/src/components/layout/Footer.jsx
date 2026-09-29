@@ -20,6 +20,7 @@ import { Container } from '../common/Container';
 import { useContact } from '../../context/useContact';
 import { socialLinkService } from '../../services/socialLinkService';
 import { SocialIcon } from '../common/SocialIcons';
+import { BrandLogo } from '../common/BrandLogo';
 import { VEHICLES } from '../../data/vehicles';
 
 export const Footer = () => {
@@ -71,18 +72,11 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-12 border-b border-gray-800">
           {/* Column 1: Dealership Branding */}
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="bg-[#C8102E] text-white font-extrabold px-3 py-1 text-2xl tracking-tighter uppercase rounded-xs">
-                JAC
-              </div>
-              <div className="flex flex-col">
-                <span className="font-extrabold text-lg tracking-tight text-white uppercase">
-                  KHYBER MOTORS
-                </span>
-                <span className="text-[10px] font-semibold tracking-widest text-[#C8102E] uppercase">
-                  {contactData.status || 'Authorized 3S Facility'}
-                </span>
-              </div>
+            <div>
+              <BrandLogo size="md" variant="dark" to="/" />
+              <span className="text-[10px] font-semibold tracking-widest text-[#C8102E] uppercase block mt-2">
+                {contactData.status || 'Authorized 3S Facility'}
+              </span>
             </div>
 
             <p className="text-xs text-gray-400 leading-relaxed">

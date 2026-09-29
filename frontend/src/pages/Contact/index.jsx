@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Container } from '../../components/common/Container';
 import { SectionHeading } from '../../components/common/SectionHeading';
+import { BrandLogo } from '../../components/common/BrandLogo';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
@@ -344,12 +345,15 @@ export const ContactPage = () => {
               </div>
 
               <div className="p-5 bg-gray-900 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-gray-800">
+                  <h3 className="text-xs font-extrabold uppercase text-white tracking-wider">
+                    {contactData.name || 'Khyber Motors 3S Dealership'}
+                  </h3>
+                  <BrandLogo size="sm" variant="dark" hideLink={true} />
+                </div>
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-5 h-5 text-[#C8102E] shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="text-xs font-extrabold uppercase text-white tracking-wider">
-                      {contactData.name || 'Khyber Motors 3S Dealership'}
-                    </h3>
                     <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
                       {contactData.address ||
                         'XHQQ+8GV, Ring Road Sohailabad, near Kakakhel CNG, Hazara Khawani, Peshawar, 25000, Pakistan'}

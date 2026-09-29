@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { ShieldCheck, X } from 'lucide-react';
 import { ADMIN_NAV_GROUPS } from '../../data/adminNav';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const AdminSidebar = ({ isOpen, onClose }) => {
   return (
@@ -9,18 +10,8 @@ export const AdminSidebar = ({ isOpen, onClose }) => {
       {/* Desktop Fixed Sidebar */}
       <aside className="hidden lg:flex flex-col w-64 bg-[#111827] text-gray-300 border-r border-gray-800 shrink-0 min-h-screen">
         {/* Brand Header */}
-        <div className="p-5 border-b border-gray-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#C8102E] text-white rounded-xs flex items-center justify-center font-extrabold text-sm shadow-xs">
-              JAC
-            </div>
-            <div>
-              <span className="text-xs font-black tracking-wider text-white uppercase block">
-                Dealership CMS
-              </span>
-              <span className="text-[10px] text-gray-400 font-mono">Management Portal</span>
-            </div>
-          </div>
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          <BrandLogo size="sm" variant="dark" to="/admin" />
           <span className="bg-amber-500/20 text-amber-400 border border-amber-500/40 text-[9px] font-bold px-1.5 py-0.5 rounded-xs uppercase">
             CMS
           </span>

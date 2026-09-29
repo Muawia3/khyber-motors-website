@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { X, Phone, MessageSquare, MapPin, Calendar, ChevronRight, ChevronDown } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useContact } from '../../context/useContact';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const MobileMenu = ({
   isOpen,
@@ -55,14 +56,9 @@ export const MobileMenu = ({
       <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-[#111827] text-white shadow-2xl z-10 flex flex-col justify-between overflow-y-auto">
         <div>
           {/* Header */}
-          <div className="flex items-center justify-between p-5 border-b border-gray-800 bg-gray-900">
-            <div className="flex items-center gap-2">
-              <span className="bg-[#C8102E] text-white font-extrabold text-lg px-2.5 py-1 uppercase rounded-xs">
-                JAC
-              </span>
-              <span className="font-extrabold text-sm tracking-tight text-white uppercase">
-                Peshawar
-              </span>
+          <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-gray-900">
+            <div onClick={onClose}>
+              <BrandLogo size="sm" variant="dark" to="/" />
             </div>
             <button
               onClick={onClose}

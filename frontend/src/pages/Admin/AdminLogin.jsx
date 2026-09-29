@@ -5,6 +5,7 @@ import { Lock, Mail, ShieldAlert, ArrowRight } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Card } from '../../components/ui/Card';
+import { BrandLogo } from '../../components/common/BrandLogo';
 
 export const AdminLogin = () => {
   const navigate = useNavigate();
@@ -38,9 +39,9 @@ export const AdminLogin = () => {
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-4 selection:bg-[#C8102E] selection:text-white">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xs bg-[#C8102E] text-white font-extrabold text-xl mb-2">
-            JAC
+        <div className="text-center space-y-3">
+          <div className="flex justify-center mb-2">
+            <BrandLogo size="lg" variant="dark" hideLink={true} />
           </div>
           <h1 className="text-2xl font-extrabold uppercase tracking-tight text-white">
             Dealership Admin CMS

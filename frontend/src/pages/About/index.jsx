@@ -20,6 +20,7 @@ import { Button } from '../../components/ui/Button';
 import { contentService } from '../../services/contentService';
 import { useContact } from '../../context/useContact';
 import { AnimatedSection } from '../../components/common/AnimatedSection';
+import { BrandLogo } from '../../components/common/BrandLogo';
 
 import { DEFAULT_ABOUT_CONTENT } from '../../data/about';
 
@@ -97,8 +98,11 @@ export const AboutPage = () => {
         {/* Section 1: Who We Are */}
         <div className="my-6 sm:my-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-7 space-y-4 bg-white p-6 sm:p-8 rounded-xs border border-gray-200/80 shadow-sm">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#C8102E] uppercase tracking-wider">
-              <Building2 className="w-4 h-4" /> Section 1 — Who We Are
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-gray-100">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#C8102E] uppercase tracking-wider">
+                <Building2 className="w-4 h-4" /> Section 1 — Who We Are
+              </div>
+              <BrandLogo size="sm" variant="light" hideLink={true} />
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-tight">
               {aboutContent?.whoWeAre?.heading || aboutContent?.whoWeAre?.title || "Authorized Automotive & Commercial Vehicle Representative"}

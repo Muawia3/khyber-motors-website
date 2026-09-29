@@ -4,6 +4,7 @@ import { Menu, Phone, ChevronDown, ChevronRight, ArrowRight, Car, Truck } from '
 import { Container } from '../common/Container';
 import { Button } from '../ui/Button';
 import { MobileMenu } from './MobileMenu';
+import { BrandLogo } from '../common/BrandLogo';
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -82,19 +83,7 @@ export const Navbar = () => {
       <div className="py-3.5">
         <Container size="xl" className="flex items-center justify-between">
           {/* Logo Area */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="bg-[#C8102E] text-white font-extrabold px-3 py-1.5 text-2xl tracking-tighter uppercase rounded-xs shadow-xs group-hover:bg-[#A80C24] transition-colors">
-              JAC
-            </div>
-            <div className="flex flex-col border-l border-gray-300 pl-3">
-              <span className="font-extrabold text-lg tracking-tight text-gray-900 leading-tight">
-                KHYBER MOTORS
-              </span>
-              <span className="text-[10px] font-semibold tracking-widest text-[#C8102E] uppercase">
-                3S Dealership KP
-              </span>
-            </div>
-          </Link>
+          <BrandLogo size="md" variant="light" to="/" />
 
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center gap-8">
