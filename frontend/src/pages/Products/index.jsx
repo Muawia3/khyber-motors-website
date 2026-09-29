@@ -5,6 +5,7 @@ import { Container } from '../../components/common/Container';
 import { SectionHeading } from '../../components/common/SectionHeading';
 import { VehicleCard } from '../../components/vehicles/VehicleCard';
 import { vehicleService } from '../../services/vehicleService';
+import { PRODUCTS } from '../../data/vehicles';
 import { AnimatedSection } from '../../components/common/AnimatedSection';
 import { VehicleCardSkeleton } from '../../components/ui/Skeleton';
 
@@ -92,46 +93,74 @@ export const ProductsPage = () => {
     };
   }, []);
 
-  // Specific vehicles mapped directly from real database products
+  // Specific vehicles mapped directly from real products with dependable catalog fallback
   const t9Hunter = useMemo(
-    () => products.find((p) => p.slug === 't9-hunter' || p.id === 'jac-t9-hunter'),
+    () =>
+      products.find(
+        (p) =>
+          p.slug === 't9-hunter' ||
+          p.id === 'jac-t9-hunter' ||
+          p.slug?.toLowerCase().includes('hunter') ||
+          p.name?.toLowerCase().includes('hunter')
+      ) || PRODUCTS.find((p) => p.slug === 't9-hunter'),
     [products]
   );
   const t9Frison = useMemo(
-    () => products.find((p) => p.slug === 't9-frison' || p.id === 'jac-t9-frison'),
+    () =>
+      products.find(
+        (p) =>
+          p.slug === 't9-frison' ||
+          p.slug === 'jac-frison' ||
+          p.id === 'jac-frison' ||
+          p.id === 'jac-t9-frison' ||
+          p.slug?.toLowerCase().includes('frison') ||
+          p.name?.toLowerCase().includes('frison')
+      ) || PRODUCTS.find((p) => p.slug === 't9-frison' || p.id === 'jac-frison'),
     [products]
   );
 
   const commercialVehicles = useMemo(
-    () =>
-      products.filter(
+    () => {
+      const list = products.filter(
         (p) =>
           p.category === 'jac-commercial' ||
           (p.brand === 'JAC' && (p.category === 'trucks' || p.category === 'commercial')) ||
           ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(p.slug)
-      ),
+      );
+      if (list.length > 0) return list;
+      return PRODUCTS.filter((p) => p.category === 'jac-commercial');
+    },
     [products]
   );
 
   const dfPrimeMover = useMemo(
     () =>
       products.find(
-        (p) => p.slug === 'dongfeng-prime-mover' || p.id === 'dongfeng-prime-mover'
-      ),
+        (p) =>
+          p.slug === 'dongfeng-prime-mover' ||
+          p.id === 'dongfeng-prime-mover' ||
+          p.slug?.includes('prime-mover')
+      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-prime-mover'),
     [products]
   );
   const dfRigid = useMemo(
     () =>
       products.find(
-        (p) => p.slug === 'dongfeng-rigid' || p.id === 'dongfeng-rigid'
-      ),
+        (p) =>
+          p.slug === 'dongfeng-rigid' ||
+          p.id === 'dongfeng-rigid' ||
+          p.slug?.includes('rigid')
+      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-rigid'),
     [products]
   );
   const dfLight = useMemo(
     () =>
       products.find(
-        (p) => p.slug === 'dongfeng-light' || p.id === 'dongfeng-light'
-      ),
+        (p) =>
+          p.slug === 'dongfeng-light' ||
+          p.id === 'dongfeng-light' ||
+          p.slug?.includes('light')
+      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-light'),
     [products]
   );
 
@@ -141,6 +170,13 @@ export const ProductsPage = () => {
       setSearchParams({});
     } else {
       setSearchParams({ category: catId });
+    }
+    if (catId === 'jac-t9') {
+      setSelectedT9Tab('all');
+    } else if (catId === 'dongfeng') {
+      setSelectedDongfengTab('all');
+    } else if (catId === 'jac-commercial') {
+      setSelectedCommercialTab('all');
     }
     if (contentRef.current) {
       contentRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });

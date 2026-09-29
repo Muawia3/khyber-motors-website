@@ -178,8 +178,22 @@ export const vehicleService = {
         const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
         const res = await apiFetch(endpoint);
         if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-          const normalized = res.data.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-          vehiclesMemoryCache = normalized;
+          const apiVehicles = res.data.map(normalizeVehicle).filter(Boolean);
+          // Merge API vehicles with default PRODUCTS so no catalog vehicle (like Frison) is ever lost
+          const merged = [...apiVehicles];
+          for (const prod of PRODUCTS) {
+            const alreadyExists = merged.some(
+              (m) =>
+                m.slug === prod.slug ||
+                m.id === prod.id ||
+                (m.name && prod.name && m.name.toLowerCase() === prod.name.toLowerCase())
+            );
+            if (!alreadyExists) {
+              merged.push(prod);
+            }
+          }
+          merged.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+          vehiclesMemoryCache = merged;
           return vehiclesMemoryCache;
         }
       } catch (err) {

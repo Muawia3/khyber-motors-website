@@ -598,13 +598,36 @@ async function seed() {
     });
     console.log(`✅ Primary Admin user seeded: ${admin.email}`);
 
-    // 2. Seed Vehicles (Do NOT overwrite existing vehicle data or images if already in DB)
+    // 2. Seed Vehicles: Upsert to ensure all 10 real vehicles exist with valid images & Published status
     for (const v of defaultVehicles) {
-      const existing = await prisma.vehicle.findUnique({ where: { slug: v.slug } });
-      if (!existing) {
-        const vehicle = await prisma.vehicle.create({ data: v });
-        console.log(`✅ Vehicle seeded: ${vehicle.name} (${vehicle.slug})`);
-      }
+      await prisma.vehicle.upsert({
+        where: { slug: v.slug },
+        update: {
+          name: v.name,
+          fullTitle: v.fullTitle,
+          tagline: v.tagline,
+          category: v.category,
+          subcategory: v.subcategory,
+          subSubcategory: v.subSubcategory,
+          brand: v.brand,
+          displayOrder: v.displayOrder,
+          categoryLabel: v.categoryLabel,
+          status: 'Published',
+          mainImage: v.mainImage,
+          heroImage: v.heroImage,
+          gallery: v.gallery,
+          specs: v.specs,
+          features: v.features,
+          colorOptions: v.colorOptions,
+          overview: v.overview,
+          whyT9Benefits: v.whyT9Benefits,
+          warranty: v.warranty,
+          brochureAvailable: v.brochureAvailable,
+          brochureUrl: v.brochureUrl,
+        },
+        create: v,
+      });
+      console.log(`✅ Vehicle seeded/updated: ${v.name} (${v.slug})`);
     }
 
     // 3. Seed Page Content
