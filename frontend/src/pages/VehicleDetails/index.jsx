@@ -16,23 +16,28 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
   const navigate = useNavigate();
   const targetId = overrideVehicleId || routeId || '';
 
-  const [vehicle, setVehicle] = useState(null);
-  const [relatedVehicles, setRelatedVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [vehicle, setVehicle] = useState(() =>
+    vehicleService.getCachedVehicles().find((v) => v.slug === targetId || String(v.id) === String(targetId)) || null
+  );
+  const [relatedVehicles, setRelatedVehicles] = useState(() => {
+    const cached = vehicleService.getCachedVehicles();
+    return cached.filter((v) => v.slug !== targetId && String(v.id) !== String(targetId)).slice(0, 3);
+  });
+  const [loading, setLoading] = useState(() =>
+    !vehicleService.getCachedVehicles().some((v) => v.slug === targetId || String(v.id) === String(targetId))
+  );
 
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
-      setLoading(true);
       try {
         const found =
           (await vehicleService.getVehicleBySlug(targetId)) ||
           (await vehicleService.getVehicleById(targetId));
 
         if (isMounted) {
-          setVehicle(found || null);
-
           if (found) {
+            setVehicle(found);
             const all = await vehicleService.getVehicles();
             setRelatedVehicles(
               all
@@ -49,7 +54,6 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
         }
       } catch (err) {
         console.error('Failed loading product details:', err);
-        if (isMounted) setVehicle(null);
       } finally {
         if (isMounted) setLoading(false);
       }

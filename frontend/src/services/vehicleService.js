@@ -1,9 +1,9 @@
 import { apiFetch } from './api';
-import { PRODUCT_HIERARCHY } from '../data/vehicles';
+import { PRODUCT_HIERARCHY, PRODUCTS } from '../data/vehicles';
 
 /**
  * Normalizes vehicle / product fields from the PostgreSQL database into a standard frontend shape.
- * Real database data is the single source of truth. No static or demo fallbacks are used.
+ * Real database data is the primary source of truth, with reliable fallback to real catalog assets.
  */
 function normalizeVehicle(v) {
   if (!v) return null;
@@ -73,9 +73,10 @@ function normalizeVehicle(v) {
     }
   }
 
-  // Real images from database only
-  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || '';
-  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || '';
+  // Real images with reliable catalog fallback
+  const fallbackProduct = PRODUCTS.find((p) => p.slug === slug || p.id === v.id);
+  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || fallbackProduct?.mainImage || '';
+  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || fallbackProduct?.heroImage || fallbackProduct?.mainImage || '';
 
   let gallery = [];
   if (Array.isArray(v.gallery) && v.gallery.length > 0) {
@@ -88,6 +89,9 @@ function normalizeVehicle(v) {
   }
   if (gallery.length === 0 && (mainImage || heroImage)) {
     gallery = [mainImage || heroImage].filter(Boolean);
+  }
+  if (gallery.length === 0 && fallbackProduct?.gallery?.length > 0) {
+    gallery = fallbackProduct.gallery;
   }
 
   // Real features list from database only
@@ -158,7 +162,10 @@ export const vehicleService = {
   getHierarchy: () => PRODUCT_HIERARCHY,
 
   getCachedVehicles: () => {
-    return vehiclesMemoryCache || [];
+    if (vehiclesMemoryCache && vehiclesMemoryCache.length > 0) {
+      return vehiclesMemoryCache;
+    }
+    return PRODUCTS;
   },
 
   clearCache: () => {
@@ -170,7 +177,7 @@ export const vehicleService = {
       try {
         const endpoint = view ? `/vehicles?view=${view}` : '/vehicles';
         const res = await apiFetch(endpoint);
-        if (res && res.success && Array.isArray(res.data)) {
+        if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
           const normalized = res.data.map(normalizeVehicle).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
           vehiclesMemoryCache = normalized;
           return vehiclesMemoryCache;
@@ -178,8 +185,11 @@ export const vehicleService = {
       } catch (err) {
         console.warn('[vehicleService] API getVehicles warning:', err.message);
       }
+      if (!vehiclesMemoryCache || vehiclesMemoryCache.length === 0) {
+        vehiclesMemoryCache = PRODUCTS;
+      }
     }
-    return vehiclesMemoryCache || [];
+    return vehiclesMemoryCache || PRODUCTS;
   },
 
   getVehicleCards: async (force = false) => {
@@ -196,7 +206,7 @@ export const vehicleService = {
       console.warn(`[vehicleService] getVehicleById(${id}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
-    return all.find((v) => String(v.id) === String(id) || v.slug === id) || null;
+    return all.find((v) => String(v.id) === String(id) || v.slug === id) || PRODUCTS.find((p) => String(p.id) === String(id) || p.slug === id) || null;
   },
 
   getVehicleBySlug: async (slug) => {
@@ -209,7 +219,7 @@ export const vehicleService = {
       console.warn(`[vehicleService] getVehicleBySlug(${slug}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
-    return all.find((v) => v.slug === slug || String(v.id) === String(slug)) || null;
+    return all.find((v) => v.slug === slug || String(v.id) === String(slug)) || PRODUCTS.find((p) => p.slug === slug || String(p.id) === String(slug)) || null;
   },
 
   saveVehicle: async (vehicleData) => {

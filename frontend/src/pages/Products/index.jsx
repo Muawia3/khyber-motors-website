@@ -28,8 +28,8 @@ export const ProductsPage = () => {
     initialCategory === 'jac-commercial' && initialSubcategory !== 'all' ? initialSubcategory : 'all'
   );
 
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState(() => vehicleService.getCachedVehicles());
+  const [loading, setLoading] = useState(() => vehicleService.getCachedVehicles().length === 0);
 
   const contentRef = useRef(null);
 
@@ -70,21 +70,27 @@ export const ProductsPage = () => {
       'content',
       'Explore official commercial and passenger products from JAC Motors and Dongfeng at Khyber Motors Peshawar. Discover the JAC T9, JAC Commercial, and Dongfeng lineups.'
     );
+  }, [selectedCategory]);
 
+  useEffect(() => {
+    let isMounted = true;
     const fetchProducts = async () => {
-      setLoading(true);
       try {
-        const list = await vehicleService.getVehicleCards(true);
-        setProducts(list || []);
+        const list = await vehicleService.getVehicleCards();
+        if (isMounted && list && list.length > 0) {
+          setProducts(list);
+        }
       } catch (err) {
         console.error('Failed to load products from database:', err);
-        setProducts([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchProducts();
-  }, [selectedCategory]);
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Specific vehicles mapped directly from real database products
   const t9Hunter = useMemo(
