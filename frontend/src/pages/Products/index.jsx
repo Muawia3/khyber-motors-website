@@ -235,93 +235,79 @@ export const ProductsPage = () => {
                     </div>
 
                     {/* Under Heavy: Two Side-by-Side Categories */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                       {/* Side 1: Prime Movers */}
-                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
-                        <div>
-                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                            <div>
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
-                                Category 1
-                              </span>
-                              <Link
-                                to="/products/dongfeng-prime-mover"
-                                className="block group mt-1"
-                              >
-                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                                  Prime Movers
-                                </h3>
-                              </Link>
-                            </div>
-                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                              Tractor Head
-                            </span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#C8102E]" />
+                            <Link
+                              to="/products/dongfeng-prime-mover"
+                              className="block group"
+                            >
+                              <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                Prime Movers
+                              </h3>
+                            </Link>
                           </div>
-                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                            High-power tractor head built for maximum GCW freight transport, multi-axle trailers, and cross-country logistics.
-                          </p>
-
-                          {/* Clickable Product Card */}
-                          {loading ? (
-                            <VehicleCardSkeleton />
-                          ) : dfPrimeMover ? (
-                            <VehicleCard vehicle={dfPrimeMover} />
-                          ) : (
-                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
-                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
-                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                Prime Movers Not Added Yet
-                              </p>
-                              <p className="text-[11px] text-gray-400 mt-1">
-                                This model will appear once created or published from the Admin panel.
-                              </p>
-                            </div>
-                          )}
+                          <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-xs">
+                            Tractor Head
+                          </span>
                         </div>
+
+                        {/* Clickable Product Card */}
+                        {loading ? (
+                          <VehicleCardSkeleton />
+                        ) : dfPrimeMover ? (
+                          <VehicleCard vehicle={dfPrimeMover} />
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-6 text-center text-gray-400 bg-gray-50/50">
+                            <Truck className="w-7 h-7 text-gray-300 mx-auto mb-1 stroke-[1.5]" />
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                              Prime Movers Not Added Yet
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              This model will appear once created or published from the Admin panel.
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {/* Side 2: Rigid */}
-                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
-                        <div>
-                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                            <div>
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
-                                Category 2
-                              </span>
-                              <Link
-                                to="/products/dongfeng-rigid"
-                                className="block group mt-1"
-                              >
-                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                                  Rigid
-                                </h3>
-                              </Link>
-                            </div>
-                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                              Dump & Tipper
-                            </span>
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-[#C8102E]" />
+                            <Link
+                              to="/products/dongfeng-rigid"
+                              className="block group"
+                            >
+                              <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                                Rigid
+                              </h3>
+                            </Link>
                           </div>
-                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                            Heavy-duty rigid chassis tippers & cargo dump trucks built for severe terrain, mining, aggregate, and construction hauling.
-                          </p>
-
-                          {/* Clickable Product Card */}
-                          {loading ? (
-                            <VehicleCardSkeleton />
-                          ) : dfRigid ? (
-                            <VehicleCard vehicle={dfRigid} />
-                          ) : (
-                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
-                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
-                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                Rigid Trucks Not Added Yet
-                              </p>
-                              <p className="text-[11px] text-gray-400 mt-1">
-                                This model will appear once created or published from the Admin panel.
-                              </p>
-                            </div>
-                          )}
+                          <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-xs">
+                            Dump & Tipper
+                          </span>
                         </div>
+
+                        {/* Clickable Product Card */}
+                        {loading ? (
+                          <VehicleCardSkeleton />
+                        ) : dfRigid ? (
+                          <VehicleCard vehicle={dfRigid} />
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-6 text-center text-gray-400 bg-gray-50/50">
+                            <Truck className="w-7 h-7 text-gray-300 mx-auto mb-1 stroke-[1.5]" />
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                              Rigid Trucks Not Added Yet
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              This model will appear once created or published from the Admin panel.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -342,48 +328,41 @@ export const ProductsPage = () => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
-                        <div>
-                          <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                            <div>
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-700 bg-gray-100 px-2 py-0.5 rounded-xs">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="flex flex-col">
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-gray-900" />
+                            <Link
+                              to="/products/dongfeng-light"
+                              className="block group"
+                            >
+                              <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
                                 Light Commercial
-                              </span>
-                              <Link
-                                to="/products/dongfeng-light"
-                                className="block group mt-1"
-                              >
-                                <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                                  Light
-                                </h3>
-                              </Link>
-                            </div>
-                            <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                              Cargo Truck
-                            </span>
+                              </h3>
+                            </Link>
                           </div>
-                          <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                            Nimble, highly efficient commercial light truck ideal for intra-city FMCG delivery, commercial freight, and supply logistics.
-                          </p>
-
-                          {/* Clickable Product Card */}
-                          {loading ? (
-                            <VehicleCardSkeleton />
-                          ) : dfLight ? (
-                            <VehicleCard vehicle={dfLight} />
-                          ) : (
-                            <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
-                              <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
-                              <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                                Light Truck Not Added Yet
-                              </p>
-                              <p className="text-[11px] text-gray-400 mt-1">
-                                This model will appear once created or published from the Admin panel.
-                              </p>
-                            </div>
-                          )}
+                          <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-xs">
+                            Cargo Truck
+                          </span>
                         </div>
+
+                        {/* Clickable Product Card */}
+                        {loading ? (
+                          <VehicleCardSkeleton />
+                        ) : dfLight ? (
+                          <VehicleCard vehicle={dfLight} />
+                        ) : (
+                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-6 text-center text-gray-400 bg-gray-50/50">
+                            <Truck className="w-7 h-7 text-gray-300 mx-auto mb-1 stroke-[1.5]" />
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                              Light Truck Not Added Yet
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">
+                              This model will appear once created or published from the Admin panel.
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -465,90 +444,76 @@ export const ProductsPage = () => {
                 </div>
 
                 {/* Side-by-Side Model Categories: Hunter & Frison */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
                   {/* Model 1: Hunter */}
                   {(selectedT9Tab === 'all' || selectedT9Tab === 'hunter') && (
-                    <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
-                      <div>
-                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                          <div>
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#C8102E] bg-red-50 px-2 py-0.5 rounded-xs">
-                              Executive 4x4
-                            </span>
-                            <Link to="/products/t9-hunter" className="block group mt-1">
-                              <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                                Hunter
-                              </h3>
-                            </Link>
-                          </div>
-                          <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                            Automatic
-                          </span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[#C8102E]" />
+                          <Link to="/products/t9-hunter" className="block group">
+                            <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                              Hunter
+                            </h3>
+                          </Link>
                         </div>
-                        <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                          Premium luxury double cabin pickup featuring advanced driver-assist systems, electronic diff lock, and luxury leather appointments.
-                        </p>
-
-                        {/* Clickable Product Card */}
-                        {loading ? (
-                          <VehicleCardSkeleton />
-                        ) : t9Hunter ? (
-                          <VehicleCard vehicle={t9Hunter} />
-                        ) : (
-                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
-                            <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                              JAC T9 Hunter Not Added Yet
-                            </p>
-                            <p className="text-[11px] text-gray-400 mt-1">
-                              This model will appear once created or published from the Admin panel.
-                            </p>
-                          </div>
-                        )}
+                        <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-xs">
+                          Executive 4x4
+                        </span>
                       </div>
+
+                      {/* Clickable Product Card */}
+                      {loading ? (
+                        <VehicleCardSkeleton />
+                      ) : t9Hunter ? (
+                        <VehicleCard vehicle={t9Hunter} />
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-200 rounded-sm p-6 text-center text-gray-400 bg-gray-50/50">
+                          <Truck className="w-7 h-7 text-gray-300 mx-auto mb-1 stroke-[1.5]" />
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                            JAC T9 Hunter Not Added Yet
+                          </p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">
+                            This model will appear once created or published from the Admin panel.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
                   {/* Model 2: Frison */}
                   {(selectedT9Tab === 'all' || selectedT9Tab === 'frison') && (
-                    <div className="bg-white border-2 border-gray-200 rounded-sm p-6 hover:border-gray-400 transition-all flex flex-col justify-between shadow-xs">
-                      <div>
-                        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100">
-                          <div>
-                            <span className="text-[10px] font-extrabold uppercase tracking-wider text-gray-700 bg-gray-100 px-2 py-0.5 rounded-xs">
-                              Utility & Adventure
-                            </span>
-                            <Link to="/products/t9-frison" className="block group mt-1">
-                              <h3 className="text-xl font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
-                                Frison
-                              </h3>
-                            </Link>
-                          </div>
-                          <span className="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-200">
-                            Rugged 4x4
-                          </span>
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-gray-700" />
+                          <Link to="/products/t9-frison" className="block group">
+                            <h3 className="text-base font-extrabold text-gray-900 group-hover:text-[#C8102E] transition-colors">
+                              Frison
+                            </h3>
+                          </Link>
                         </div>
-                        <p className="text-xs text-gray-600 mb-5 leading-relaxed">
-                          Durable commercial utility and lifestyle pickup built for demanding fieldwork, heavy cargo versatility, and rough terrain reliability.
-                        </p>
-
-                        {/* Clickable Product Card */}
-                        {loading ? (
-                          <VehicleCardSkeleton />
-                        ) : t9Frison ? (
-                          <VehicleCard vehicle={t9Frison} />
-                        ) : (
-                          <div className="border-2 border-dashed border-gray-200 rounded-sm p-8 text-center text-gray-400 bg-gray-50/50">
-                            <Truck className="w-8 h-8 text-gray-300 mx-auto mb-2 stroke-[1.5]" />
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                              JAC T9 Frison Not Added Yet
-                            </p>
-                            <p className="text-[11px] text-gray-400 mt-1">
-                              This model will appear once created or published from the Admin panel.
-                            </p>
-                          </div>
-                        )}
+                        <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-xs">
+                          Utility 4x4
+                        </span>
                       </div>
+
+                      {/* Clickable Product Card */}
+                      {loading ? (
+                        <VehicleCardSkeleton />
+                      ) : t9Frison ? (
+                        <VehicleCard vehicle={t9Frison} />
+                      ) : (
+                        <div className="border-2 border-dashed border-gray-200 rounded-sm p-6 text-center text-gray-400 bg-gray-50/50">
+                          <Truck className="w-7 h-7 text-gray-300 mx-auto mb-1 stroke-[1.5]" />
+                          <p className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                            JAC T9 Frison Not Added Yet
+                          </p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">
+                            This model will appear once created or published from the Admin panel.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
