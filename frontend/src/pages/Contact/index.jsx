@@ -349,7 +349,7 @@ export const ContactPage = () => {
                   <h3 className="text-xs font-extrabold uppercase text-white tracking-wider">
                     {contactData.name || 'Khyber Motors 3S Dealership'}
                   </h3>
-                  <BrandLogo size="sm" variant="dark" hideLink={true} />
+                  <BrandLogo size="md" variant="dark" hideLink={true} />
                 </div>
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-5 h-5 text-[#C8102E] shrink-0 mt-0.5" />

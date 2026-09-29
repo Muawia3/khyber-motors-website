@@ -102,7 +102,7 @@ export const AboutPage = () => {
               <div className="flex items-center gap-2 text-xs font-bold text-[#C8102E] uppercase tracking-wider">
                 <Building2 className="w-4 h-4" /> Section 1 — Who We Are
               </div>
-              <BrandLogo size="sm" variant="light" hideLink={true} />
+              <BrandLogo size="md" variant="light" hideLink={true} />
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-tight">
               {aboutContent?.whoWeAre?.heading || aboutContent?.whoWeAre?.title || "Authorized Automotive & Commercial Vehicle Representative"}

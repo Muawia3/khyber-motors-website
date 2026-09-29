@@ -15,22 +15,28 @@ export const BrandLogo = ({
 }) => {
   const sizeMap = {
     sm: {
-      jac: 'h-6 sm:h-7',
-      ghandhara: 'h-4 sm:h-5',
-      divider: 'h-4 sm:h-5',
-      container: 'gap-2 px-2 py-1',
+      jac: 'h-8 sm:h-9.5',
+      ghandhara: 'h-6 sm:h-7',
+      divider: 'h-6 sm:h-7',
+      container: 'gap-2.5 sm:gap-3 px-3 py-1.5',
     },
     md: {
-      jac: 'h-8 sm:h-10',
-      ghandhara: 'h-6 sm:h-7.5',
-      divider: 'h-6 sm:h-7',
-      container: 'gap-2.5 sm:gap-3 px-2.5 py-1.5',
+      jac: 'h-11 sm:h-13 md:h-14',
+      ghandhara: 'h-8 sm:h-9.5 md:h-10.5',
+      divider: 'h-8 sm:h-10 md:h-11',
+      container: 'gap-3.5 sm:gap-4 px-3.5 py-2 sm:px-4 sm:py-2.5',
     },
     lg: {
-      jac: 'h-10 sm:h-12',
-      ghandhara: 'h-7 sm:h-9',
-      divider: 'h-7 sm:h-8',
-      container: 'gap-3 sm:gap-4 px-3 py-2',
+      jac: 'h-14 sm:h-16 md:h-18',
+      ghandhara: 'h-10 sm:h-12 md:h-13.5',
+      divider: 'h-10 sm:h-12 md:h-13',
+      container: 'gap-4 sm:gap-5 px-4.5 py-3',
+    },
+    xl: {
+      jac: 'h-18 sm:h-22',
+      ghandhara: 'h-13 sm:h-16',
+      divider: 'h-13 sm:h-16',
+      container: 'gap-5 sm:gap-6 px-6 py-4',
     },
   };
 
