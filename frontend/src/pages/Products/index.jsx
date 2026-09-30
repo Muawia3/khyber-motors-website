@@ -102,7 +102,7 @@ export const ProductsPage = () => {
           p.id === 'jac-t9-hunter' ||
           p.slug?.toLowerCase().includes('hunter') ||
           p.name?.toLowerCase().includes('hunter')
-      ) || PRODUCTS.find((p) => p.slug === 't9-hunter'),
+      ) || null,
     [products]
   );
   const t9Frison = useMemo(
@@ -115,7 +115,7 @@ export const ProductsPage = () => {
           p.id === 'jac-t9-frison' ||
           p.slug?.toLowerCase().includes('frison') ||
           p.name?.toLowerCase().includes('frison')
-      ) || PRODUCTS.find((p) => p.slug === 't9-frison' || p.id === 'jac-frison'),
+      ) || null,
     [products]
   );
 
@@ -127,8 +127,7 @@ export const ProductsPage = () => {
           (p.brand === 'JAC' && (p.category === 'trucks' || p.category === 'commercial')) ||
           ['jac-x200', 'jac-1020', 'jac-1042', 'jac-1091', 'jac-1120'].includes(p.slug)
       );
-      if (list.length > 0) return list;
-      return PRODUCTS.filter((p) => p.category === 'jac-commercial');
+      return list;
     },
     [products]
   );
@@ -140,7 +139,7 @@ export const ProductsPage = () => {
           p.slug === 'dongfeng-prime-mover' ||
           p.id === 'dongfeng-prime-mover' ||
           p.slug?.includes('prime-mover')
-      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-prime-mover'),
+      ) || null,
     [products]
   );
   const dfRigid = useMemo(
@@ -150,7 +149,7 @@ export const ProductsPage = () => {
           p.slug === 'dongfeng-rigid' ||
           p.id === 'dongfeng-rigid' ||
           p.slug?.includes('rigid')
-      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-rigid'),
+      ) || null,
     [products]
   );
   const dfLight = useMemo(
@@ -160,7 +159,7 @@ export const ProductsPage = () => {
           p.slug === 'dongfeng-light' ||
           p.id === 'dongfeng-light' ||
           p.slug?.includes('light')
-      ) || PRODUCTS.find((p) => p.slug === 'dongfeng-light'),
+      ) || null,
     [products]
   );
 
