@@ -179,19 +179,7 @@ export const vehicleService = {
         const res = await apiFetch(endpoint);
         if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
           const apiVehicles = res.data.map(normalizeVehicle).filter(Boolean);
-          // Merge API vehicles with default PRODUCTS so no catalog vehicle (like Frison) is ever lost
           const merged = [...apiVehicles];
-          for (const prod of PRODUCTS) {
-            const alreadyExists = merged.some(
-              (m) =>
-                m.slug === prod.slug ||
-                m.id === prod.id ||
-                (m.name && prod.name && m.name.toLowerCase() === prod.name.toLowerCase())
-            );
-            if (!alreadyExists) {
-              merged.push(prod);
-            }
-          }
           merged.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
           vehiclesMemoryCache = merged;
           return vehiclesMemoryCache;
@@ -199,11 +187,11 @@ export const vehicleService = {
       } catch (err) {
         console.warn('[vehicleService] API getVehicles warning:', err.message);
       }
-      if (!vehiclesMemoryCache || vehiclesMemoryCache.length === 0) {
-        vehiclesMemoryCache = PRODUCTS;
+      if (!vehiclesMemoryCache) {
+        vehiclesMemoryCache = [];
       }
     }
-    return vehiclesMemoryCache || PRODUCTS;
+    return vehiclesMemoryCache || [];
   },
 
   getVehicleCards: async (force = false) => {
@@ -220,7 +208,7 @@ export const vehicleService = {
       console.warn(`[vehicleService] getVehicleById(${id}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
-    return all.find((v) => String(v.id) === String(id) || v.slug === id) || PRODUCTS.find((p) => String(p.id) === String(id) || p.slug === id) || null;
+    return all.find((v) => String(v.id) === String(id) || v.slug === id) || null;
   },
 
   getVehicleBySlug: async (slug) => {
@@ -233,7 +221,7 @@ export const vehicleService = {
       console.warn(`[vehicleService] getVehicleBySlug(${slug}) warning:`, err.message);
     }
     const all = await vehicleService.getVehicles();
-    return all.find((v) => v.slug === slug || String(v.id) === String(slug)) || PRODUCTS.find((p) => p.slug === slug || String(p.id) === String(slug)) || null;
+    return all.find((v) => v.slug === slug || String(v.id) === String(slug)) || null;
   },
 
   saveVehicle: async (vehicleData) => {
