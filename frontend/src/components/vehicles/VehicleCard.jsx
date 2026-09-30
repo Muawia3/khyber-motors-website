@@ -23,7 +23,7 @@ export const VehicleCard = ({ vehicle }) => {
     <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none h-full">
       {/* Top Banner & Image */}
       <div>
-        <div className="relative h-36 sm:h-40 w-full bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden flex items-center justify-center">
+        <div className="relative h-48 sm:h-56 w-full bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden flex items-center justify-center p-2">
           {/* Badge Overlays */}
           <div className="absolute top-2 left-2 z-10 flex flex-wrap gap-1">
             <Badge variant="gray">{vehicle.categoryLabel || vehicle.category}</Badge>
@@ -35,7 +35,7 @@ export const VehicleCard = ({ vehicle }) => {
               src={imageSrc}
               alt={vehicle.altText || vehicle.name}
               loading="lazy"
-              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"
+              className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none drop-shadow-xl"
             />
           ) : (
             <div className="text-center p-2 space-y-1 text-gray-400">
