@@ -35,7 +35,7 @@ export const VehicleCard = ({ vehicle }) => {
               src={imageSrc}
               alt={vehicle.altText || vehicle.name}
               loading="lazy"
-              className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none drop-shadow-xl"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none drop-shadow-xl"
             />
           ) : (
             <div className="text-center p-2 space-y-1 text-gray-400">
