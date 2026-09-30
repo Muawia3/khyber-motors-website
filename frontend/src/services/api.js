@@ -4,13 +4,13 @@
 const envApiUrl = import.meta.env.VITE_API_BASE_URL;
 const API_BASE = envApiUrl ? envApiUrl.replace(/\/$/, '') : '/api';
 
-export const getToken = () => localStorage.getItem('jac_admin_jwt_token');
+export const getToken = () => sessionStorage.getItem('jac_admin_jwt_token');
 
 export const setToken = (token) => {
   if (token) {
-    localStorage.setItem('jac_admin_jwt_token', token);
+    sessionStorage.setItem('jac_admin_jwt_token', token);
   } else {
-    localStorage.removeItem('jac_admin_jwt_token');
+    sessionStorage.removeItem('jac_admin_jwt_token');
   }
 };
 
@@ -49,7 +49,7 @@ export const apiFetch = async (endpoint, options = {}) => {
 
   if (response.status === 401 && !endpoint.includes('/auth/login')) {
     setToken(null);
-    localStorage.removeItem('jac_admin_user');
+    sessionStorage.removeItem('jac_admin_user');
     window.dispatchEvent(new CustomEvent('jac_admin_unauthorized'));
   }
 
