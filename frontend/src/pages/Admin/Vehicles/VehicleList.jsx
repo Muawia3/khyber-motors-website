@@ -72,7 +72,7 @@ export const VehicleList = () => {
   const filteredVehicles = vehicles.filter((v) => {
     const matchesSearch =
       !searchTerm ||
-      v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (v.name && v.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (v.category && v.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (v.subcategory && v.subcategory.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (v.tagline && v.tagline.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -104,7 +104,7 @@ export const VehicleList = () => {
 
     const matchesStatus =
       statusFilter === 'ALL' ||
-      v.status.toLowerCase() === statusFilter.toLowerCase();
+      (v.status && v.status.toLowerCase() === statusFilter.toLowerCase());
 
     return matchesSearch && matchesCategory && matchesSubcategory && matchesStatus;
   });
