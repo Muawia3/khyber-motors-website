@@ -56,14 +56,12 @@ function getDatabaseUrl() {
         }
       }
 
-      if (fs.existsSync(tmpDbPath)) {
-        try { fs.chmodSync(tmpDbPath, 0o666); } catch {}
-        return `file:${tmpDbPath}`;
-      } else if (source) {
-        return `file:${source}`;
-      }
+      // On Vercel, we MUST use /tmp because /var/task is read-only
+      // If source didn't exist, Prisma will create a new empty DB in /tmp
+      return `file:${tmpDbPath}`;
     } catch (err) {
       console.warn('Vercel SQLite resolution warning:', err.message);
+      return `file:${tmpDbPath}`;
     }
   }
 
