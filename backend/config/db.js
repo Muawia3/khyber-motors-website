@@ -15,73 +15,23 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let prismaInstance = null;
 
 function getDatabaseUrl() {
-  const cwd = process.cwd();
-  const tmpDbPath = '/tmp/dev.db';
-
-  // 1. Check Vercel or AWS Lambda serverless environment (for SQLite fallback)
-  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NOW_BUILDER) {
-    try {
-      const candidatePaths = [
-        path.join(cwd, 'database', 'prisma', 'dev.db'),
-        path.join(cwd, 'prisma', 'dev.db'),
-        path.join(cwd, 'dev.db'),
-        path.resolve('database/prisma/dev.db'),
-        path.resolve('prisma/dev.db'),
-        path.resolve('dev.db'),
-        path.join(__dirname, '../../database/prisma/dev.db'),
-        path.join(__dirname, '../database/prisma/dev.db'),
-        path.join(__dirname, '../../prisma/dev.db'),
-        '/var/task/database/prisma/dev.db',
-        '/var/task/prisma/dev.db',
-        '/var/task/dev.db',
-      ];
-
-      const source = candidatePaths.find((p) => {
-        try {
-          return fs.existsSync(p) && fs.statSync(p).size > 0;
-        } catch {
-          return false;
-        }
-      });
-
-      if (source) {
-        if (!fs.existsSync(tmpDbPath) || fs.statSync(tmpDbPath).size === 0) {
-          try {
-            fs.copyFileSync(source, tmpDbPath);
-            fs.chmodSync(tmpDbPath, 0o666);
-            console.log(`✅ Copied SQLite database from ${source} to ${tmpDbPath}`);
-          } catch (copyErr) {
-            console.warn('Failed to copy SQLite DB to /tmp:', copyErr.message);
-          }
-        }
-      }
-
-      // On Vercel, we MUST use /tmp because /var/task is read-only
-      // If source didn't exist, Prisma will create a new empty DB in /tmp
-      return `file:${tmpDbPath}`;
-    } catch (err) {
-      console.warn('Vercel SQLite resolution warning:', err.message);
-      return `file:${tmpDbPath}`;
-    }
+  const envPgUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
+  if (envPgUrl) {
+    return envPgUrl.trim();
   }
 
-  // 2. Local / Standard Server environment
-  // If process.env.DATABASE_URL starts with file:, preserve it directly
-  if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:')) {
+  if (process.env.DATABASE_URL) {
     return process.env.DATABASE_URL.trim();
   }
 
-  return 'file:./dev.db';
+
+  return process.env.DATABASE_URL;
 }
 
 export function getPrisma() {
   if (!prismaInstance) {
     try {
       let dbUrl = getDatabaseUrl();
-
-      if (!dbUrl.startsWith('file:')) {
-        dbUrl = `file:${dbUrl}`;
-      }
 
       process.env.DATABASE_URL = dbUrl;
 
