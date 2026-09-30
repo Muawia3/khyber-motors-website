@@ -69,7 +69,7 @@ export const AdminLogin = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="muawiakhan000@gmail.com"
+                placeholder="admin@dealership.com"
                 leftIcon={<Mail className="w-4 h-4 text-gray-500" />}
               />
             </div>
