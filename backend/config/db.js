@@ -15,9 +15,13 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let prismaInstance = null;
 
 function getDatabaseUrl() {
-  const envPgUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
+  const envPgUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
   if (envPgUrl && (envPgUrl.startsWith('postgres://') || envPgUrl.startsWith('postgresql://'))) {
     return envPgUrl.trim();
+  }
+
+  if (process.env.DATABASE_URL && (process.env.DATABASE_URL.startsWith('postgres://') || process.env.DATABASE_URL.startsWith('postgresql://'))) {
+    return process.env.DATABASE_URL.trim();
   }
 
   const cwd = process.cwd();
@@ -73,18 +77,12 @@ function getDatabaseUrl() {
   }
 
   // 2. Local / Standard Server environment
-  let rootDir = cwd;
-  let prismaDir = path.resolve(rootDir, 'database/prisma');
-  if (!fs.existsSync(prismaDir)) {
-    prismaDir = path.resolve(rootDir, 'prisma');
+  // If process.env.DATABASE_URL starts with file:, preserve it directly
+  if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:')) {
+    return process.env.DATABASE_URL.trim();
   }
 
-  if (!fs.existsSync(prismaDir)) {
-    fs.mkdirSync(prismaDir, { recursive: true });
-  }
-
-  const dbPath = path.resolve(prismaDir, 'dev.db').replace(/\\/g, '/');
-  return `file:${dbPath}`;
+  return 'file:./dev.db';
 }
 
 export function getPrisma() {

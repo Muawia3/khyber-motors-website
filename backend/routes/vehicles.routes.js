@@ -194,18 +194,18 @@ router.post('/', authMiddleware, async (req, res) => {
         stockQuantity: stockQuantity || 0,
         isFlagship: Boolean(body.isFlagship),
         isNew: Boolean(body.isNew),
-        mainImage: body.mainImage || '',
-        heroImage: body.heroImage || '',
+        mainImage: body.mainImage || body.heroImage || '',
+        heroImage: body.heroImage || body.mainImage || '',
         altText: body.altText || body.name,
         gallery: stringifyIfNeeded(body.gallery, '[]'),
         specs: stringifyIfNeeded(body.specs, '{}'),
         features: stringifyIfNeeded(body.features, '[]'),
         whyT9Benefits: stringifyIfNeeded(body.whyT9Benefits, '[]'),
         colorOptions: stringifyIfNeeded(body.colorOptions, '[]'),
-        overview: body.overview || '',
+        overview: body.overview || body.fullDescription || body.description || body.tagline || body.name || 'JAC Vehicle',
         warranty: body.warranty || '',
-        brochureAvailable: body.brochureAvailable ?? true,
-        brochureUrl: body.brochureUrl || null,
+        brochureAvailable: body.brochureAvailable ?? Boolean(body.brochureUrl),
+        brochureUrl: body.brochureUrl ? body.brochureUrl.trim() : null,
         seoTitle: body.seoTitle || body.name,
         metaDescription: body.metaDescription || '',
       },
@@ -389,7 +389,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (body.colorOptions !== undefined) updateData.colorOptions = stringifyIfNeeded(body.colorOptions, '[]');
     if (body.warranty !== undefined) updateData.warranty = body.warranty;
     if (body.brochureAvailable !== undefined) updateData.brochureAvailable = Boolean(body.brochureAvailable);
-    if (body.brochureUrl !== undefined) updateData.brochureUrl = body.brochureUrl;
+    if (body.brochureUrl !== undefined) updateData.brochureUrl = body.brochureUrl ? body.brochureUrl.trim() : null;
     if (body.seoTitle !== undefined) updateData.seoTitle = body.seoTitle;
     if (body.metaDescription !== undefined) updateData.metaDescription = body.metaDescription;
 
