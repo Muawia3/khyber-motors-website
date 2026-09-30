@@ -71,7 +71,6 @@ export const AdminLogin = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="muawiakhan000@gmail.com"
                 leftIcon={<Mail className="w-4 h-4 text-gray-500" />}
-                className="bg-gray-800 border-gray-700 text-white text-xs"
               />
             </div>
 
@@ -86,7 +85,6 @@ export const AdminLogin = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 leftIcon={<Lock className="w-4 h-4 text-gray-500" />}
-                className="bg-gray-800 border-gray-700 text-white text-xs"
               />
             </div>
 
