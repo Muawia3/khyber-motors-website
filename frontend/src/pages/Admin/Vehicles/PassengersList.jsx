@@ -179,7 +179,7 @@ export const PassengersList = () => {
         confirmText="Yes, Delete"
         confirmVariant="danger"
         onConfirm={handleConfirmDelete}
-        onCancel={() => setVehicleToDelete(null)}
+        onClose={() => setVehicleToDelete(null)}
       />
     </div>
   );

@@ -451,7 +451,7 @@ export const VehicleList = () => {
         confirmText="Yes, Delete Product"
         confirmVariant="danger"
         onConfirm={handleConfirmDelete}
-        onCancel={() => setVehicleToDelete(null)}
+        onClose={() => setVehicleToDelete(null)}
       />
     </div>
   );
