@@ -44,6 +44,7 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
     service: 'Khyber Motors REST API',
     timestamp: new Date().toISOString(),
+    dbEngine: process.env.POSTGRES_PRISMA_URL ? 'postgres' : 'sqlite (or missing env)',
   });
 });
 
