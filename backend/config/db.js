@@ -15,15 +15,6 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 let prismaInstance = null;
 
 function getDatabaseUrl() {
-  const envPgUrl = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
-  if (envPgUrl && (envPgUrl.startsWith('postgres://') || envPgUrl.startsWith('postgresql://'))) {
-    return envPgUrl.trim();
-  }
-
-  if (process.env.DATABASE_URL && (process.env.DATABASE_URL.startsWith('postgres://') || process.env.DATABASE_URL.startsWith('postgresql://'))) {
-    return process.env.DATABASE_URL.trim();
-  }
-
   const cwd = process.cwd();
   const tmpDbPath = '/tmp/dev.db';
 
@@ -90,14 +81,8 @@ export function getPrisma() {
     try {
       let dbUrl = getDatabaseUrl();
 
-      const isPg = dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://');
-      if (!isPg && !dbUrl.startsWith('file:')) {
-        const pgFallback = process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL;
-        if (pgFallback && (pgFallback.startsWith('postgres://') || pgFallback.startsWith('postgresql://'))) {
-          dbUrl = pgFallback.trim();
-        } else {
-          dbUrl = `file:${dbUrl}`;
-        }
+      if (!dbUrl.startsWith('file:')) {
+        dbUrl = `file:${dbUrl}`;
       }
 
       process.env.DATABASE_URL = dbUrl;
