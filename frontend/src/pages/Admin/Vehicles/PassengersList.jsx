@@ -50,7 +50,7 @@ export const PassengersList = () => {
 
   const filteredVehicles = vehicles.filter((v) =>
     !searchTerm ||
-    v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (v.name && v.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (v.tagline && v.tagline.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 

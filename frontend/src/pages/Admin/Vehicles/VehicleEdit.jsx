@@ -34,14 +34,20 @@ export const VehicleEdit = () => {
   const queryCategory = searchParams.get('category');
   const querySubcategory = searchParams.get('subcategory');
 
+  const initCategory = queryCategory || 'jac-t9';
+  const initSubcategory = querySubcategory || (initCategory === 'dongfeng' ? 'heavy' : initCategory === 'jac-commercial' ? 'x200' : 'hunter');
+  const initBrand = initCategory === 'dongfeng' ? 'Dongfeng' : 'JAC';
+  const initCategoryLabel = initCategory === 'dongfeng' ? 'Dongfeng Heavy' : initCategory === 'jac-commercial' ? 'JAC Commercial' : 'JAC T9';
+  const initSubSubcategory = initCategory === 'dongfeng' && initSubcategory === 'heavy' ? 'prime-movers' : null;
+
   const [formData, setFormData] = useState({
     name: '',
-    brand: 'JAC',
-    category: queryCategory || 'jac-t9',
-    subcategory: querySubcategory || 'hunter',
-    subSubcategory: null,
+    brand: initBrand,
+    category: initCategory,
+    subcategory: initSubcategory,
+    subSubcategory: initSubSubcategory,
     displayOrder: 1,
-    categoryLabel: 'JAC T9',
+    categoryLabel: initCategoryLabel,
     modelYear: '2026',
     status: 'Published',
     shortDescription: '',
