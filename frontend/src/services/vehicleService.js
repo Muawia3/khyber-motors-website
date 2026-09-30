@@ -1,5 +1,5 @@
 import { apiFetch } from './api';
-import { PRODUCT_HIERARCHY, PRODUCTS } from '../data/vehicles';
+import { PRODUCT_HIERARCHY } from '../data/vehicles';
 
 /**
  * Normalizes vehicle / product fields from the PostgreSQL database into a standard frontend shape.
@@ -73,10 +73,8 @@ function normalizeVehicle(v) {
     }
   }
 
-  // Real images with reliable catalog fallback
-  const fallbackProduct = PRODUCTS.find((p) => p.slug === slug || p.id === v.id);
-  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || fallbackProduct?.mainImage || '';
-  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || fallbackProduct?.heroImage || fallbackProduct?.mainImage || '';
+  const mainImage = (v.mainImage && v.mainImage.trim()) || (v.heroImage && v.heroImage.trim()) || '';
+  const heroImage = (v.heroImage && v.heroImage.trim()) || (v.mainImage && v.mainImage.trim()) || '';
 
   let gallery = [];
   if (Array.isArray(v.gallery) && v.gallery.length > 0) {
@@ -89,9 +87,6 @@ function normalizeVehicle(v) {
   }
   if (gallery.length === 0 && (mainImage || heroImage)) {
     gallery = [mainImage || heroImage].filter(Boolean);
-  }
-  if (gallery.length === 0 && fallbackProduct?.gallery?.length > 0) {
-    gallery = fallbackProduct.gallery;
   }
 
   // Real features list from database only
@@ -165,7 +160,7 @@ export const vehicleService = {
     if (vehiclesMemoryCache && vehiclesMemoryCache.length > 0) {
       return vehiclesMemoryCache;
     }
-    return PRODUCTS;
+    return [];
   },
 
   clearCache: () => {
