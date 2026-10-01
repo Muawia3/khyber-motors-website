@@ -26,6 +26,7 @@ import { Select } from '../../components/ui/Select';
 import { Textarea } from '../../components/ui/Textarea';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { apiFetch } from '../../services/api';
 import { useContact } from '../../context/useContact';
 import { socialLinkService } from '../../services/socialLinkService';
 import { departmentService } from '../../services/departmentService';
@@ -144,9 +145,8 @@ export const ContactPage = () => {
     setIsLoading(true);
 
     try {
-      await fetch('/api/leads', {
+      const res = await apiFetch('/leads', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: formData.fullName,
           phone: formData.phone,
@@ -156,10 +156,14 @@ export const ContactPage = () => {
           message: formData.message,
         }),
       });
-      setIsSubmitted(true);
+      if (res && res.success) {
+        setIsSubmitted(true);
+      } else {
+        alert(res?.error || 'Failed to submit form. Please try again.');
+      }
     } catch (err) {
       console.warn('Lead submission API warning:', err.message);
-      setIsSubmitted(true);
+      alert('An error occurred. Please try again later.');
     } finally {
       setIsLoading(false);
     }
