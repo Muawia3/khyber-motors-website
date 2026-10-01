@@ -336,7 +336,7 @@ export const ContactPage = () => {
                   title="Khyber Motors Location Map"
                   src={
                     contactData.mapEmbedUrl ||
-                    'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed'
+                    'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed'
                   }
                   className="w-full h-full border-0 grayscale opacity-90 hover:grayscale-0 transition-all duration-500"
                   allowFullScreen
@@ -348,7 +348,7 @@ export const ContactPage = () => {
               <div className="p-5 bg-gray-900 space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-gray-800">
                   <h3 className="text-xs font-extrabold uppercase text-white tracking-wider">
-                    {contactData.name || 'Khyber Motors 3S Dealership'}
+                    {contactData.name || 'JAC Khyber Motors'}
                   </h3>
                   <BrandLogo size="md" variant="dark" hideLink={true} />
                 </div>
@@ -371,7 +371,7 @@ export const ContactPage = () => {
                   <a
                     href={
                       contactData.mapLink ||
-                      'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan'
+                      'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan'
                     }
                     target="_blank"
                     rel="noopener noreferrer"

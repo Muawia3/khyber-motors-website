@@ -6,14 +6,14 @@ const router = express.Router();
 
 const DEFAULT_DEFAULTS = {
   contact: {
-    name: 'Khyber Motors',
-    shortName: 'Khyber Motors',
+    name: 'JAC Khyber Motors',
+    shortName: 'JAC Khyber Motors',
     status: 'Authorized 3S Dealership (Sales, Service & Spare Parts)',
     tagline: 'Engineered for Performance. Built for Pakistan.',
     footerText: 'Khyber Pakhtunkhwa’s premier 3S Dealership for double cabin pickup trucks, commercial logistics vehicles, and modern crossover SUVs.',
     address: 'XHQQ+8GV, Ring Road Sohailabad, near Kakakhel CNG, Hazara Khawani, Peshawar, 25000, Pakistan',
-    mapLink: 'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan',
-    mapEmbedUrl: 'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed',
+    mapLink: 'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan',
+    mapEmbedUrl: 'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed',
     plusCode: 'XHQQ+8GV, Peshawar',
     city: 'Peshawar',
     province: 'Khyber Pakhtunkhwa',

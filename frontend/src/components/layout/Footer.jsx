@@ -283,7 +283,7 @@ export const Footer = () => {
               <a
                 href={
                   contactData.mapLink ||
-                  'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan'
+                  'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan'
                 }
                 target="_blank"
                 rel="noopener noreferrer"
@@ -327,7 +327,7 @@ export const Footer = () => {
         {/* Bottom Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
           <p>
-            © {new Date().getFullYear()} {contactData.name || 'Khyber Motors'}. All rights
+            © {new Date().getFullYear()} {contactData.name || 'JAC Khyber Motors'}. All rights
             reserved.
           </p>
           <div className="flex items-center gap-6">
