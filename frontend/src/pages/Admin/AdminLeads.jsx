@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Eye, UserPlus, X, Trash2, Send } from 'lucide-react';
+import { Plus, Eye, UserPlus, X, Trash2 } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
 import { StatusBadge } from '../../components/admin/StatusBadge';
 import { ConfirmModal } from '../../components/admin/ConfirmModal';
@@ -17,7 +17,6 @@ export const AdminLeads = () => {
   const [selectedLead, setSelectedLead] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [isForwarding, setIsForwarding] = useState(false);
   const [availableVehicles, setAvailableVehicles] = useState([]);
 
   const [newLead, setNewLead] = useState({
@@ -137,21 +136,6 @@ export const AdminLeads = () => {
       console.error('Failed to delete lead:', err);
     } finally {
       setDeleteTarget(null);
-    }
-  };
-
-  const handleForwardLead = async (leadId) => {
-    try {
-      setIsForwarding(true);
-      const res = await apiFetch(`/leads/${leadId}/forward`, { method: 'POST' });
-      if (res.success) {
-        alert('Email has been successfully sent to the assigned department/representative!');
-      }
-    } catch (err) {
-      console.error('Failed to forward lead:', err.message);
-      alert('Failed to forward email: ' + err.message);
-    } finally {
-      setIsForwarding(false);
     }
   };
 
@@ -317,20 +301,9 @@ export const AdminLeads = () => {
                 Delete Lead
               </Button>
 
-              <div className="flex gap-2">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  disabled={isForwarding}
-                  onClick={() => handleForwardLead(selectedLead.id)}
-                  leftIcon={<Send className="w-4 h-4" />}
-                >
-                  {isForwarding ? 'Sending...' : 'Forward to Email'}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setSelectedLead(null)}>
-                  Close
-                </Button>
-              </div>
+              <Button variant="outline" size="sm" onClick={() => setSelectedLead(null)}>
+                Close Window
+              </Button>
             </div>
           </div>
         )}
