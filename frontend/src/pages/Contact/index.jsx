@@ -78,7 +78,7 @@ export const ContactPage = () => {
     phone: '',
     email: '',
     department: 'sales',
-    subject: '',
+    city: '',
     message: '',
   });
 
@@ -110,8 +110,8 @@ export const ContactPage = () => {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    if (!validateRequired(formData.subject)) {
-      newErrors.subject = 'Subject is required';
+    if (!validateRequired(formData.city)) {
+      newErrors.city = 'City / Location is required';
     }
 
     if (!validateRequired(formData.message)) {
@@ -134,7 +134,7 @@ export const ContactPage = () => {
       fullName: true,
       phone: true,
       email: true,
-      subject: true,
+      city: true,
       message: true,
     });
 
@@ -152,7 +152,7 @@ export const ContactPage = () => {
           phone: formData.phone,
           email: formData.email,
           department: formData.department,
-          subject: formData.subject,
+          city: formData.city,
           message: formData.message,
         }),
       });
@@ -254,13 +254,13 @@ export const ContactPage = () => {
                   </div>
 
                   <Input
-                    label="Subject"
-                    placeholder="e.g. JAC T9 4x4 Quotation & Delivery Inquiry"
+                    label="City / Location"
+                    placeholder="e.g. Peshawar"
                     required
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    onBlur={() => handleBlur('subject')}
-                    error={touched.subject && errors.subject}
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    onBlur={() => handleBlur('city')}
+                    error={touched.city && errors.city}
                   />
 
                   <Textarea

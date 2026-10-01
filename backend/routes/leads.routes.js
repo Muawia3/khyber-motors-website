@@ -9,7 +9,7 @@ const router = express.Router();
 // POST /api/leads (Public submission)
 router.post('/', async (req, res) => {
   try {
-    const { name, phone, email, vehicleInterest, department, subject, message } = req.body;
+    const { name, phone, email, vehicleInterest, department, city, message } = req.body;
 
     if (!name || !phone) {
       return res.status(400).json({
@@ -23,16 +23,17 @@ router.post('/', async (req, res) => {
         type: department?.toLowerCase().includes('service') ? 'SERVICE' : 'INQUIRY',
         name,
         phone,
+        city: city || null,
         email: email || 'no-email@example.com',
         message: message || null,
-        notes: `Department: ${department || 'N/A'}\nSubject: ${subject || 'N/A'}\nVehicle Interest: ${vehicleInterest || 'N/A'}`,
+        notes: `Department: ${department || 'N/A'}\nVehicle Interest: ${vehicleInterest || 'N/A'}`,
         status: 'NEW',
       },
     });
 
     // Automatically trigger notification for Admin
-    const isContactForm = department || subject || message;
-    const isServiceReq = department?.toLowerCase().includes('service') || subject?.toLowerCase().includes('service');
+    const isContactForm = department || city || message;
+    const isServiceReq = department?.toLowerCase().includes('service');
 
     let notifType = 'LEAD';
     let notifTitle = `New Lead: ${name}`;
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
     } else if (isContactForm) {
       notifType = 'CONTACT_FORM';
       notifTitle = `Contact Form: ${name}`;
-      notifMsg = `${name} (${phone}): "${subject || message || 'New contact form submission'}"`;
+      notifMsg = `${name} (${phone}) from ${city || 'Unknown Location'}: "${message ? message.substring(0, 30) + '...' : 'New contact form submission'}"`;
     }
 
     await createNotificationRecord({

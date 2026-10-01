@@ -39,15 +39,15 @@ export const sendLeadEmail = async (lead) => {
     toEmail = process.env.HAWAD_EMAIL || 'hawadkhan@khybermotors.com'; 
   }
 
-  const subject = `New Inquiry: ${lead.subject || lead.department || 'General Contact'}`;
+  const subject = `New Inquiry from ${lead.name} (${lead.city || 'Unknown Location'})`;
   
   const htmlContent = `
     <h2>New Lead Submission</h2>
     <p><strong>Name:</strong> ${lead.name}</p>
     <p><strong>Phone:</strong> ${lead.phone}</p>
     <p><strong>Email:</strong> ${lead.email || 'N/A'}</p>
-    <p><strong>Department:</strong> ${lead.department || 'N/A'}</p>
-    <p><strong>Vehicle Interest:</strong> ${lead.vehicleInterest || 'N/A'}</p>
+    <p><strong>City:</strong> ${lead.city || 'N/A'}</p>
+    <p><strong>Department:</strong> ${lead.type || 'N/A'}</p>
     <hr />
     <h3>Message:</h3>
     <p>${lead.message || 'No message provided.'}</p>

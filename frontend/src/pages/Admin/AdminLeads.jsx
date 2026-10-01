@@ -19,15 +19,12 @@ export const AdminLeads = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [availableVehicles, setAvailableVehicles] = useState([]);
 
-  // New Lead Form State
   const [newLead, setNewLead] = useState({
     customerName: '',
     phone: '',
     email: '',
-    vehicle: 'JAC T9 4x4',
-    source: 'Admin Manual',
-    status: 'New',
-    assignedTo: 'Hawad Khan Khalil (Sales Desk)',
+    department: 'sales',
+    status: 'NEW',
     city: 'Peshawar',
     notes: '',
   });
@@ -39,29 +36,16 @@ export const AdminLeads = () => {
       const res = await apiFetch('/leads');
       if (res && res.success && Array.isArray(res.data)) {
         const formatted = res.data.map((item) => {
-          const dept = (item.department || '').toLowerCase();
-          let rep = item.assignedTo || 'Hawad Khan Khalil (Sales Desk)';
-          if (!item.assignedTo) {
-            if (dept.includes('service') || dept.includes('workshop')) {
-              rep = 'Sikandar Hayat Jan (3S Service Desk)';
-            } else if (dept.includes('parts')) {
-              rep = 'Ismail (Spare Parts Desk)';
-            } else {
-              rep = 'Hawad Khan Khalil (Sales Desk)';
-            }
-          }
           return {
             id: item.id,
             customerName: item.name,
             phone: item.phone,
             email: item.email || 'N/A',
-            vehicle: item.vehicleInterest || 'JAC Vehicle',
-            source: item.department ? `Contact (${item.department})` : 'Website Form',
-            status: item.status || 'New',
+            department: item.type || 'INQUIRY',
+            status: item.status || 'NEW',
             date: item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : 'Today',
-            assignedTo: rep,
-            city: 'Peshawar',
-            notes: item.message || item.subject || '',
+            city: item.city || 'N/A',
+            notes: item.message || item.notes || '',
           };
         });
         setLeadsList(formatted);
@@ -74,12 +58,13 @@ export const AdminLeads = () => {
   useEffect(() => {
     document.title = 'Leads Directory | Admin CRM';
     fetchLeads();
-    vehicleService.getVehicles().then((list) => {
-      if (Array.isArray(list) && list.length > 0) {
-        setAvailableVehicles(list);
-        setNewLead((prev) => ({ ...prev, vehicle: prev.vehicle || list[0].name }));
-      }
-    });
+    
+    // Auto-refresh leads every 15 seconds
+    const interval = setInterval(() => {
+      fetchLeads();
+    }, 15000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleAddLeadSubmit = async (e) => {
@@ -107,7 +92,8 @@ export const AdminLeads = () => {
           name: newLead.customerName,
           phone: newLead.phone,
           email: newLead.email,
-          vehicleInterest: newLead.vehicle,
+          city: newLead.city,
+          department: newLead.department,
           message: newLead.notes,
         }),
       });
@@ -117,10 +103,8 @@ export const AdminLeads = () => {
         customerName: '',
         phone: '',
         email: '',
-        vehicle: VEHICLES[0]?.name || 'JAC T9 4x4',
-        source: 'Admin Manual',
-        status: 'New',
-        assignedTo: 'Hawad Khan Khalil (Sales Desk)',
+        department: 'sales',
+        status: 'NEW',
         city: 'Peshawar',
         notes: '',
       });
@@ -173,16 +157,16 @@ export const AdminLeads = () => {
       cell: (row) => <span className="font-mono text-gray-700">{row.phone}</span>,
     },
     {
-      header: 'Vehicle',
-      accessor: 'vehicle',
-      cell: (row) => <span className="font-medium text-gray-900">{row.vehicle}</span>,
+      header: 'City',
+      accessor: 'city',
+      cell: (row) => <span className="font-medium text-gray-900">{row.city}</span>,
     },
     {
-      header: 'Source',
-      accessor: 'source',
+      header: 'Department',
+      accessor: 'department',
       cell: (row) => (
         <span className="text-[11px] text-gray-600 bg-gray-100 px-2 py-0.5 rounded-xs font-medium">
-          {row.source}
+          {row.department}
         </span>
       ),
     },
@@ -209,11 +193,6 @@ export const AdminLeads = () => {
       header: 'Date',
       accessor: 'date',
       cell: (row) => <span className="font-mono text-[11px] text-gray-500">{row.date}</span>,
-    },
-    {
-      header: 'Assigned To',
-      accessor: 'assignedTo',
-      cell: (row) => <span className="text-[11px] text-gray-600 font-medium">{row.assignedTo}</span>,
     },
     {
       header: 'Actions',
@@ -297,20 +276,12 @@ export const AdminLeads = () => {
 
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-2.5 bg-gray-50 rounded-xs">
-                <span className="text-gray-400 block">Vehicle Interest:</span>
-                <strong className="text-gray-900 font-semibold">{selectedLead.vehicle}</strong>
-              </div>
-              <div className="p-2.5 bg-gray-50 rounded-xs">
-                <span className="text-gray-400 block">Lead Source:</span>
-                <strong className="text-gray-900 font-semibold">{selectedLead.source}</strong>
-              </div>
-              <div className="p-2.5 bg-gray-50 rounded-xs">
                 <span className="text-gray-400 block">City / Location:</span>
                 <strong className="text-gray-900 font-semibold">{selectedLead.city}</strong>
               </div>
               <div className="p-2.5 bg-gray-50 rounded-xs">
-                <span className="text-gray-400 block">Assigned Representative:</span>
-                <strong className="text-gray-900 font-semibold">{selectedLead.assignedTo}</strong>
+                <span className="text-gray-400 block">Department:</span>
+                <strong className="text-gray-900 font-semibold">{selectedLead.department}</strong>
               </div>
             </div>
 
@@ -374,27 +345,23 @@ export const AdminLeads = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Select
-              label="Vehicle Interest"
-              value={newLead.vehicle}
-              onChange={(e) => setNewLead({ ...newLead, vehicle: e.target.value })}
-              options={
-                availableVehicles.length > 0
-                  ? availableVehicles.map((v) => ({ value: v.name, label: v.name }))
-                  : [{ value: 'JAC T9 Hunter', label: 'JAC T9 Hunter' }]
-              }
+            <Input
+              label="City"
+              placeholder="e.g. Peshawar"
+              value={newLead.city}
+              onChange={(e) => setNewLead({ ...newLead, city: e.target.value })}
             />
 
             <Select
-              label="Lead Source"
-              value={newLead.source}
-              onChange={(e) => setNewLead({ ...newLead, source: e.target.value })}
+              label="Department"
+              value={newLead.department}
+              onChange={(e) => setNewLead({ ...newLead, department: e.target.value })}
               options={[
-                { value: 'Website Form', label: 'Website Form' },
-                { value: 'Test Drive Request', label: 'Test Drive Request' },
-                { value: 'WhatsApp Direct', label: 'WhatsApp Direct' },
-                { value: 'Showroom Walk-in', label: 'Showroom Walk-in' },
-                { value: 'Corporate Inquiry', label: 'Corporate Inquiry' },
+                { value: 'sales', label: 'New Vehicle Sales' },
+                { value: 'service', label: '3S Service & Maintenance' },
+                { value: 'parts', label: 'Genuine Spare Parts' },
+                { value: 'fleet', label: 'Corporate & Fleet Sales' },
+                { value: 'hawad khan', label: 'Hawad Khan (Direct)' },
               ]}
             />
           </div>
