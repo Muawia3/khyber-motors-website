@@ -20,14 +20,13 @@ router.post('/', async (req, res) => {
 
     const lead = await prisma.lead.create({
       data: {
+        type: department?.toLowerCase().includes('service') ? 'SERVICE' : 'INQUIRY',
         name,
         phone,
-        email: email || null,
-        vehicleInterest: vehicleInterest || null,
-        department: department || null,
-        subject: subject || null,
+        email: email || 'no-email@example.com',
         message: message || null,
-        status: 'New',
+        notes: `Department: ${department || 'N/A'}\nSubject: ${subject || 'N/A'}\nVehicle Interest: ${vehicleInterest || 'N/A'}`,
+        status: 'NEW',
       },
     });
 
