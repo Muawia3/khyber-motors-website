@@ -236,45 +236,11 @@ export const AboutPage = () => {
           </div>
         </div>
 
-        {/* Section 5: Location */}
-        <div className="my-12">
-          <Card className="p-6 sm:p-8 bg-[#111827] text-white border border-gray-800">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <div className="lg:col-span-7 space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-[#C8102E]">
-                  Section 5 — Facility Location
-                </span>
-                <h3 className="text-xl font-extrabold text-white uppercase tracking-tight">
-                  {aboutContent?.location?.heading || "Dealership Address & Operating Schedule"}
-                </h3>
-                <div className="space-y-2 text-xs text-gray-300 pt-2">
-                  <div className="flex items-start gap-2.5">
-                    <MapPin className="w-4 h-4 text-[#C8102E] shrink-0 mt-0.5" />
-                    <span>{contactData.address}</span>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-[#C8102E] shrink-0" />
-                    <span>{aboutContent?.location?.schedule || "Showroom Hours: Mon – Sat (9:00 AM – 7:00 PM)"}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 flex flex-col sm:flex-row items-center gap-3 justify-end">
-                <Link to="/contact" className="w-full sm:w-auto">
-                  <Button variant="primary" size="md" fullWidth leftIcon={<MapPin className="w-4 h-4" />}>
-                    View Location Map
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Section 6: Contact CTA */}
+        {/* Section 5: Contact CTA */}
         <div className="my-12 bg-gradient-to-r from-[#111827] via-gray-900 to-[#111827] text-white p-8 sm:p-12 rounded-xs border-l-4 border-[#C8102E] text-center space-y-6">
           <div className="max-w-2xl mx-auto space-y-3">
             <span className="text-xs font-bold uppercase tracking-widest text-[#C8102E]">
-              Section 6 — Get Started
+              Section 5 — Get Started
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight uppercase">
               {aboutContent?.cta?.heading || "Ready to Experience JAC Performance?"}
