@@ -2,6 +2,7 @@ import express from 'express';
 import prisma from '../config/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { createNotificationRecord } from './notifications.routes.js';
+import { sendLeadEmail } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -54,6 +55,9 @@ router.post('/', async (req, res) => {
       message: notifMsg,
       relatedId: lead.id,
     });
+
+    // Send email asynchronously (don't await it so we don't block the response)
+    sendLeadEmail(lead).catch(err => console.error('Email send error:', err));
 
     return res.status(201).json({
       success: true,
