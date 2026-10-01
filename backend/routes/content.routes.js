@@ -253,6 +253,23 @@ router.get('/:key', async (req, res) => {
       return res.status(404).json({ success: false, error: `Content key '${key}' not found.` });
     }
 
+    // TEMPORARY MIGRATION: Force update map links in DB if they are the old ones
+    if (content && lowerKey === 'contact') {
+      let parsed = typeof content.data === 'string' ? JSON.parse(content.data) : content.data;
+      if (parsed.mapLink && parsed.mapLink.includes('XHQQ')) {
+        parsed.mapLink = 'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan';
+        parsed.mapEmbedUrl = 'https://maps.google.com/maps?q=JAC+Khyber+Motors,+Ring+Road,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed';
+        parsed.name = 'JAC Khyber Motors';
+        parsed.shortName = 'JAC Khyber Motors';
+        
+        await prisma.pageContent.update({
+          where: { key: 'contact' },
+          data: { data: JSON.stringify(parsed) }
+        });
+        content.data = JSON.stringify(parsed);
+      }
+    }
+
     const data = typeof content.data === 'string' ? JSON.parse(content.data) : content.data;
     return res.json({ success: true, key: content.key, data });
   } catch (error) {
