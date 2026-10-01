@@ -63,29 +63,7 @@ async function seed() {
     for (const v of defaultVehicles) {
       await prisma.vehicle.upsert({
         where: { slug: v.slug },
-        update: {
-          name: v.name,
-          fullTitle: v.fullTitle,
-          tagline: v.tagline,
-          category: v.category,
-          subcategory: v.subcategory,
-          subSubcategory: v.subSubcategory,
-          brand: v.brand,
-          displayOrder: v.displayOrder,
-          categoryLabel: v.categoryLabel,
-          status: 'Published',
-          mainImage: v.mainImage,
-          heroImage: v.heroImage,
-          gallery: v.gallery,
-          specs: v.specs,
-          features: v.features,
-          colorOptions: v.colorOptions,
-          overview: v.overview,
-          whyT9Benefits: v.whyT9Benefits,
-          warranty: v.warranty,
-          brochureAvailable: v.brochureAvailable,
-          brochureUrl: v.brochureUrl,
-        },
+        update: {}, // DO NOT OVERWRITE EXISTING DATA
         create: v,
       });
       console.log(`✅ Vehicle seeded/updated: ${v.name} (${v.slug})`);
@@ -108,7 +86,7 @@ async function seed() {
 
     await prisma.pageContent.upsert({
       where: { key: 'home' },
-      update: { data: JSON.stringify(homeContent) },
+      update: {}, // DO NOT OVERWRITE EXISTING DATA
       create: { key: 'home', data: JSON.stringify(homeContent) },
     });
     console.log('✅ Home page content seeded.');
@@ -151,7 +129,7 @@ async function seed() {
 
     await prisma.pageContent.upsert({
       where: { key: 'contact' },
-      update: { data: JSON.stringify(contactContent) },
+      update: {}, // DO NOT OVERWRITE EXISTING DATA
       create: { key: 'contact', data: JSON.stringify(contactContent) },
     });
     console.log('✅ Contact page content seeded.');
