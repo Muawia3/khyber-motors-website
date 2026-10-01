@@ -59,8 +59,6 @@ async function seedDefaultDepartmentsIfEmpty() {
 // GET /api/departments (Public & Admin)
 router.get('/', async (req, res) => {
   try {
-    await seedDefaultDepartmentsIfEmpty();
-
     const { activeOnly, active, all } = req.query;
     const filterActive = (activeOnly === 'true' || active === 'true') && all !== 'true';
     const whereClause = filterActive ? { isActive: true } : (all === 'true' ? {} : { isActive: true });

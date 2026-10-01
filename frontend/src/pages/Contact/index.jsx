@@ -244,10 +244,7 @@ export const ContactPage = () => {
                               label: `${d.name} (${d.contactPerson || d.personName || ''})`,
                             }))
                           : [
-                              { value: 'sales', label: 'New Vehicle Sales' },
-                              { value: 'service', label: '3S Service & Maintenance' },
-                              { value: 'parts', label: 'Genuine Spare Parts' },
-                              { value: 'fleet', label: 'Corporate & Fleet Sales' },
+                              { value: 'general', label: 'General Inquiry' },
                             ]
                       }
                     />
