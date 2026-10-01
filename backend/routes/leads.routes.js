@@ -55,8 +55,7 @@ router.post('/', async (req, res) => {
       relatedId: lead.id,
     });
 
-    // Send email asynchronously (don't await it so we don't block the response)
-    sendLeadEmail(lead).catch(err => console.error('Email send error:', err));
+    // sendLeadEmail(lead).catch(err => console.error('Email send error:', err));
 
     return res.status(201).json({
       success: true,
@@ -109,6 +108,24 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     await prisma.lead.delete({ where: { id } });
     return res.json({ success: true, message: 'Lead deleted successfully.' });
   } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+// POST /api/leads/:id/forward (Admin protected)
+router.post('/:id/forward', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const lead = await prisma.lead.findUnique({ where: { id } });
+    if (!lead) {
+      return res.status(404).json({ success: false, error: 'Lead not found.' });
+    }
+    
+    // Manually trigger the email
+    await sendLeadEmail(lead);
+    
+    return res.json({ success: true, message: 'Lead forwarded successfully via email.' });
+  } catch (error) {
+    console.error('Forward lead error:', error);
     return res.status(500).json({ success: false, error: error.message });
   }
 });

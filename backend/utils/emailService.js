@@ -33,7 +33,7 @@ export const sendLeadEmail = async (lead) => {
   let toEmail = process.env.ADMIN_EMAIL || 'muawiakhan000@gmail.com';
   
   // If the user selected 'hawad khan' as department (case-insensitive check)
-  if (lead.department && lead.department.toLowerCase().includes('hawad')) {
+  if (lead.type && lead.type.toLowerCase().includes('hawad')) {
     // We send it to hawad khan's direct email if we have it, else fallback to a placeholder/admin
     // You can change this email to Hawad Khan's actual email
     toEmail = process.env.HAWAD_EMAIL || 'hawadkhan@khybermotors.com'; 
