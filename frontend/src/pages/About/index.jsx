@@ -285,17 +285,6 @@ export const AboutPage = () => {
           </div>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/test-drive">
-              <Button
-                variant="primary"
-                size="lg"
-                leftIcon={<Calendar className="w-5 h-5" />}
-                className="py-3.5 px-8 text-sm uppercase font-bold tracking-wider"
-              >
-                Book a Test Drive
-              </Button>
-            </Link>
-
             <Link to="/contact">
               <Button
                 variant="outline"
