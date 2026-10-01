@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Expand, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { Expand, ChevronLeft, ChevronRight, Image as ImageIcon, Maximize, Minimize } from 'lucide-react';
 import { Modal } from '../ui/Modal';
 import { SafeImage } from '../common/SafeImage';
 
@@ -9,6 +9,7 @@ export const VehicleImageGallery = ({
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [imageFit, setImageFit] = useState('cover'); // 'cover' or 'contain'
 
   const validImages = Array.isArray(images)
     ? images.filter((img) => img && typeof img === 'string' && img.trim())
@@ -65,7 +66,7 @@ export const VehicleImageGallery = ({
           src={activeImage}
           alt={`${vehicleName} View ${selectedIndex + 1} of ${validImages.length}`}
           loading="eager"
-          className="w-full h-full object-cover transition-all duration-300 animate-fadeIn motion-reduce:animate-none"
+          className={`w-full h-full transition-all duration-300 animate-fadeIn motion-reduce:animate-none ${imageFit === 'cover' ? 'object-cover' : 'object-contain bg-gray-100'}`}
         />
 
         {/* Navigation Buttons for Quick Cycling */}
@@ -100,6 +101,27 @@ export const VehicleImageGallery = ({
           aria-label="Expand image to fullscreen"
         >
           <Expand className="w-5 h-5" />
+        </button>
+
+        {/* Fit / Fill Toggle */}
+        <button
+          type="button"
+          onClick={() => setImageFit(prev => prev === 'cover' ? 'contain' : 'cover')}
+          className="absolute top-4 right-16 bg-black/70 hover:bg-[#C8102E] text-white p-2.5 rounded-full transition-colors opacity-90 group-hover:opacity-100 cursor-pointer focus:ring-2 focus:ring-white z-10 flex items-center gap-1.5"
+          title="Toggle Image Fit (Full / Crop)"
+          aria-label="Toggle Image Fit"
+        >
+          {imageFit === 'cover' ? (
+            <>
+              <Minimize className="w-4 h-4" />
+              <span className="text-[10px] font-bold uppercase hidden sm:block">Full</span>
+            </>
+          ) : (
+            <>
+              <Maximize className="w-4 h-4" />
+              <span className="text-[10px] font-bold uppercase hidden sm:block">Crop</span>
+            </>
+          )}
         </button>
 
         {/* Caption */}
