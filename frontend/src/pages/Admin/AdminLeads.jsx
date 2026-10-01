@@ -59,10 +59,10 @@ export const AdminLeads = () => {
     document.title = 'Leads Directory | Admin CRM';
     fetchLeads();
     
-    // Auto-refresh leads every 15 seconds
+    // Auto-refresh leads every 5 seconds
     const interval = setInterval(() => {
       fetchLeads();
-    }, 15000);
+    }, 5000);
     
     return () => clearInterval(interval);
   }, []);

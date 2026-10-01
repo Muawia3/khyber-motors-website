@@ -40,7 +40,7 @@ export const AdminDashboard = () => {
   useEffect(() => {
     document.title = 'Admin Dashboard | Khyber Motors CRM';
     fetchDashboardData();
-    const timer = setInterval(fetchDashboardData, 10000);
+    const timer = setInterval(fetchDashboardData, 5000);
     return () => clearInterval(timer);
   }, []);
 

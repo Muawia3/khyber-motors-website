@@ -52,7 +52,11 @@ export const WebsiteAnalyticsSection = () => {
 
   useEffect(() => {
     fetchAnalytics(dateRange.startDate, dateRange.endDate);
-  }, []);
+    const interval = setInterval(() => {
+      fetchAnalytics(dateRange.startDate, dateRange.endDate);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const handlePresetChange = (preset) => {
     setDatePreset(preset);

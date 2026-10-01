@@ -22,6 +22,8 @@ export const AdminReports = () => {
       }
     };
     fetchMetrics();
+    const interval = setInterval(fetchMetrics, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const leadCount = leadsList.length;

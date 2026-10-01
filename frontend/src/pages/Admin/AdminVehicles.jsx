@@ -30,6 +30,9 @@ export const AdminVehicles = () => {
   useEffect(() => {
     document.title = 'Vehicle Catalog | Admin CRM';
     loadInventory();
+    
+    const interval = setInterval(loadInventory, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const columns = [
