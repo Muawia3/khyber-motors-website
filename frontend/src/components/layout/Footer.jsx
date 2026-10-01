@@ -283,7 +283,7 @@ export const Footer = () => {
               <a
                 href={
                   contactData.mapLink ||
-                  'https://www.google.com/maps/search/?api=1&query=XHQQ%2B8GV%2C+Ring+Road+Sohailabad%2C+near+Kakakhel+CNG%2C+Hazara+Khawani%2C+Peshawar%2C+25000%2C+Pakistan'
+                  'https://maps.google.com/maps?q=Khyber+Motors,+Ring+Road,+Sohailabad,+Peshawar,+Pakistan'
                 }
                 target="_blank"
                 rel="noopener noreferrer"

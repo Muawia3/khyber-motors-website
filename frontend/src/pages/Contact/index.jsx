@@ -336,7 +336,7 @@ export const ContactPage = () => {
                   title="Khyber Motors Location Map"
                   src={
                     contactData.mapEmbedUrl ||
-                    'https://maps.google.com/maps?q=XHQQ%2B8GV%2C+Ring+Road+Sohailabad%2C+near+Kakakhel+CNG%2C+Hazara+Khawani%2C+Peshawar%2C+25000%2C+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed'
+                    'https://maps.google.com/maps?q=Khyber+Motors,+Ring+Road,+Sohailabad,+Peshawar,+Pakistan&t=&z=16&ie=UTF8&iwloc=&output=embed'
                   }
                   className="w-full h-full border-0 grayscale opacity-90 hover:grayscale-0 transition-all duration-500"
                   allowFullScreen
@@ -371,7 +371,7 @@ export const ContactPage = () => {
                   <a
                     href={
                       contactData.mapLink ||
-                      'https://www.google.com/maps/search/?api=1&query=XHQQ%2B8GV%2C+Ring+Road+Sohailabad%2C+near+Kakakhel+CNG%2C+Hazara+Khawani%2C+Peshawar%2C+25000%2C+Pakistan'
+                      'https://maps.google.com/maps?q=Khyber+Motors,+Ring+Road,+Sohailabad,+Peshawar,+Pakistan'
                     }
                     target="_blank"
                     rel="noopener noreferrer"
