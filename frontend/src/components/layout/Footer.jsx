@@ -283,7 +283,7 @@ export const Footer = () => {
               <a
                 href={
                   contactData.mapLink ||
-                  'https://maps.google.com/maps?q=Khyber+Motors,+Ring+Road,+Sohailabad,+Peshawar,+Pakistan'
+                  'https://maps.google.com/maps?q=Kakakhel+CNG,+Ring+Road,+Peshawar,+Pakistan'
                 }
                 target="_blank"
                 rel="noopener noreferrer"
