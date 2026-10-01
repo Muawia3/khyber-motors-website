@@ -30,6 +30,15 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Edge Caching Middleware to prevent cold starts
+const cacheMiddleware = (req, res, next) => {
+  if (req.method === 'GET') {
+    // Cache on Edge for 10 seconds, serve stale while revalidating for 24 hours
+    res.setHeader('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=86400');
+  }
+  next();
+};
+
 // Dedicated file routes & static asset serving
 app.use('/api/files', filesRoutes);
 app.use('/uploads', handleUploadsStaticServing);
@@ -50,18 +59,20 @@ app.get('/api/health', (_req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/products', vehicleRoutes);
 app.use('/api/leads', leadRoutes);
-app.use('/api/content', contentRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/hero-images', heroImagesRoutes);
-app.use('/api/social-links', socialLinksRoutes);
 app.use('/api/notifications', notificationsRoutes);
-app.use('/api/reviews', reviewsRoutes);
-app.use('/api/departments', departmentsRoutes);
-app.use('/api/team', teamRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Cached Public Routes
+app.use('/api/vehicles', cacheMiddleware, vehicleRoutes);
+app.use('/api/products', cacheMiddleware, vehicleRoutes);
+app.use('/api/content', cacheMiddleware, contentRoutes);
+app.use('/api/hero-images', cacheMiddleware, heroImagesRoutes);
+app.use('/api/social-links', cacheMiddleware, socialLinksRoutes);
+app.use('/api/reviews', cacheMiddleware, reviewsRoutes);
+app.use('/api/departments', cacheMiddleware, departmentsRoutes);
+app.use('/api/team', cacheMiddleware, teamRoutes);
 
 // Global Error Handler
 app.use((err, _req, res, _next) => {
