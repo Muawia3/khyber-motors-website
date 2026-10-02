@@ -188,85 +188,7 @@ export const HomePage = () => {
         return true;
       });
 
-  // Featured why choose us features (4 features with clean line icons)
-  const whyChooseUsFeatures = [
-    {
-      title: 'Genuine JAC Vehicles',
-      description: 'Factory-direct commercial trucks and pickups engineered for maximum payload strength and performance.',
-      icon: ShieldCheck,
-    },
-    {
-      title: 'Professional Support',
-      description: 'Dedicated automotive consultants providing clear guidance for personal, fleet, and commercial needs.',
-      icon: Headphones,
-    },
-    {
-      title: 'Sales & After-Sales Service',
-      description: 'Comprehensive 3S facility handling new vehicle sales, routine servicing, and original spare parts.',
-      icon: Wrench,
-    },
-    {
-      title: 'Customer-Focused Experience',
-      description: 'Transparent pricing, responsive communication, and dependable long-term support for every driver.',
-      icon: HeartHandshake,
-    },
-  ];
 
-  // Services section (4 services cards)
-  const servicesList = [
-    {
-      id: 'sales',
-      title: 'Vehicle Sales',
-      description: 'Explore our lineup of commercial pickups, heavy trucks, and utility crossovers tailored for work and transport.',
-      icon: Car,
-      link: '/products',
-    },
-    {
-      id: 'service',
-      title: 'After-Sales Service',
-      description: 'State-of-the-art 3S service bay with certified technicians, scheduled maintenance, and diagnostic tools.',
-      icon: Wrench,
-      link: '/services',
-    },
-    {
-      id: 'parts',
-      title: 'Spare Parts',
-      description: '100% genuine JAC replacement parts, filters, and factory accessories for long-term vehicle endurance.',
-      icon: Settings,
-      link: '/services',
-    },
-    {
-      id: 'support',
-      title: 'Customer Support',
-      description: 'Dedicated dealership support desk for vehicle inquiries, maintenance advice, and fleet consultations.',
-      icon: Headphones,
-      link: '/contact',
-    },
-  ];
-
-  // Dealership Trust items (Strictly real commitments, no fake stats/ratings/awards)
-  const trustHighlights = [
-    {
-      title: 'Professional Team',
-      description: 'Factory-trained sales advisors and technical staff committed to delivering transparent service.',
-      icon: Users,
-    },
-    {
-      title: 'Customer Support',
-      description: 'Prompt assistance for model inquiries, maintenance scheduling, and corporate fleet consultations.',
-      icon: Headphones,
-    },
-    {
-      title: 'Genuine Vehicles',
-      description: 'Authentic JAC commercial trucks and 4x4 pickups backed by manufacturer warranty standards.',
-      icon: ShieldCheck,
-    },
-    {
-      title: 'After-Sales Assistance',
-      description: 'Dedicated workshop support, rapid spare parts availability, and continuous maintenance care.',
-      icon: Award,
-    },
-  ];
 
   const handleScrollToVehicles = () => {
     const section = document.getElementById('featured-vehicles');
@@ -461,36 +383,52 @@ export const HomePage = () => {
         </AnimatedSection>
       </section>
 
-      {/* 3. WHY CHOOSE US */}
+      {/* 3. 3S AUTHORIZED DEALERSHIP */}
       <section className="bg-gray-900 text-white py-16 sm:py-20 border-y border-gray-800">
         <Container size="xl" className="space-y-12">
           <SectionHeading
-            badge="Why JAC"
-            title="Why Choose Us"
-            subtitle="Dependable automotive engineering paired with committed sales and service excellence."
+            badge="Dealership Standard"
+            title="3S Authorized Dealership"
+            subtitle="Sales, Service, and Spare Parts under one roof. Complete automotive solutions for JAC vehicles."
             dark
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {whyChooseUsFeatures.map((feat, idx) => {
-              const IconComp = feat.icon;
-              return (
-                <div
-                  key={idx}
-                  className="bg-gray-800/60 p-6 rounded-sm border border-gray-700/80 hover:border-[#C8102E] transition-all duration-300 space-y-4 group"
-                >
-                  <div className="w-12 h-12 rounded-xs bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-[#C8102E] group-hover:bg-[#C8102E] group-hover:text-white transition-colors duration-300">
-                    <IconComp className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white uppercase tracking-tight">
-                    {feat.title}
-                  </h3>
-                  <p className="text-xs text-gray-400 leading-relaxed">
-                    {feat.description}
-                  </p>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gray-800/60 p-8 rounded-sm border border-gray-700/80 hover:border-[#C8102E] transition-all duration-300 space-y-4 group">
+              <div className="w-14 h-14 rounded-xs bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-[#C8102E] group-hover:bg-[#C8102E] group-hover:text-white transition-colors duration-300">
+                <Car className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+                Sales (Showroom)
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Explore the latest JAC double-cabin pickups and heavy commercial vehicles. Our expert sales advisors offer transparent pricing, vehicle walkarounds, and tailored corporate fleet solutions.
+              </p>
+            </div>
+
+            <div className="bg-gray-800/60 p-8 rounded-sm border border-gray-700/80 hover:border-[#C8102E] transition-all duration-300 space-y-4 group">
+              <div className="w-14 h-14 rounded-xs bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-[#C8102E] group-hover:bg-[#C8102E] group-hover:text-white transition-colors duration-300">
+                <Wrench className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+                Service (Workshop)
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                State-of-the-art diagnostic bays and factory-trained technicians. We provide authorized warranty repairs, routine maintenance, and computerized engine scanning to keep your JAC running flawlessly.
+              </p>
+            </div>
+
+            <div className="bg-gray-800/60 p-8 rounded-sm border border-gray-700/80 hover:border-[#C8102E] transition-all duration-300 space-y-4 group">
+              <div className="w-14 h-14 rounded-xs bg-[#C8102E]/10 border border-[#C8102E]/30 flex items-center justify-center text-[#C8102E] group-hover:bg-[#C8102E] group-hover:text-white transition-colors duration-300">
+                <Settings className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-white uppercase tracking-tight">
+                Spare Parts
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Access a massive inventory of 100% genuine JAC factory OEM parts. From brake pads to engine components, we ensure your vehicle maintains factory-grade safety and reliability.
+              </p>
+            </div>
           </div>
         </Container>
       </section>
@@ -618,48 +556,6 @@ export const HomePage = () => {
         )}
       </Container>
 
-      {/* 5. SERVICES */}
-      <Container size="xl" className="space-y-12">
-        <SectionHeading
-          badge="Dealership Solutions"
-          title="Our Services"
-          subtitle="Explore comprehensive 3S services designed to keep your vehicle performing at its best."
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {servicesList.map((srv) => {
-            const IconComponent = srv.icon;
-            return (
-              <div
-                key={srv.id}
-                className="bg-white border border-gray-200 p-6 rounded-sm space-y-4 hover:shadow-md hover:border-gray-300 transition-all duration-200 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="w-10 h-10 bg-gray-100 text-[#C8102E] rounded-xs flex items-center justify-center">
-                    <IconComponent className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 uppercase tracking-tight">
-                    {srv.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 leading-relaxed">
-                    {srv.description}
-                  </p>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100">
-                  <Link
-                    to={srv.link}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#C8102E] hover:text-[#A80C24] transition-colors uppercase tracking-wider"
-                  >
-                    <span>Learn More</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Container>
 
       {/* 6. REQUEST INFORMATION CTA */}
       <Container size="xl">
@@ -689,38 +585,6 @@ export const HomePage = () => {
         </div>
       </Container>
 
-      {/* 7. TRUST SECTION */}
-      <section className="bg-gray-100/80 py-16 border-y border-gray-200">
-        <Container size="xl" className="space-y-12">
-          <SectionHeading
-            badge="Dealership Standard"
-            title="Built on Trust & Service"
-            subtitle="Our commitment to delivering genuine commercial vehicles with transparent support."
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trustHighlights.map((trust, idx) => {
-              const TrustIcon = trust.icon;
-              return (
-                <div
-                  key={idx}
-                  className="bg-white p-6 rounded-sm border border-gray-200 space-y-3 shadow-2xs"
-                >
-                  <div className="w-10 h-10 bg-[#C8102E]/10 text-[#C8102E] rounded-xs flex items-center justify-center">
-                    <TrustIcon className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-gray-900 uppercase tracking-tight">
-                    {trust.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 leading-relaxed">
-                    {trust.description}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
 
       {/* 7.5 CUSTOMER REVIEWS SECTION */}
       {reviews.length > 0 && (
