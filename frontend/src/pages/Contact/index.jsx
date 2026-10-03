@@ -104,14 +104,8 @@ export const ContactPage = () => {
       newErrors.phone = 'Please enter a valid Pakistani phone number (e.g. 0300 1234567)';
     }
 
-    if (!validateRequired(formData.email)) {
-      newErrors.email = 'Email address is required';
-    } else if (!validateEmail(formData.email, true)) {
+    if (formData.email && !validateEmail(formData.email, true)) {
       newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!validateRequired(formData.city)) {
-      newErrors.city = 'City / Location is required';
     }
 
     if (!validateRequired(formData.message)) {
@@ -222,10 +216,9 @@ export const ContactPage = () => {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
-                      label="Email Address"
+                      label="Email Address (Optional)"
                       type="email"
                       placeholder="name@example.com"
-                      required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       onBlur={() => handleBlur('email')}
@@ -251,9 +244,8 @@ export const ContactPage = () => {
                   </div>
 
                   <Input
-                    label="City / Location"
+                    label="City / Location (Optional)"
                     placeholder="e.g. Peshawar"
-                    required
                     value={formData.city}
                     onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                     onBlur={() => handleBlur('city')}
