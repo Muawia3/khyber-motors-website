@@ -29,3 +29,6 @@ dist-ssr
 prisma/*.db
 prisma/*.db-journal
 
+
+# Scratch files and scripts
+scratch/
