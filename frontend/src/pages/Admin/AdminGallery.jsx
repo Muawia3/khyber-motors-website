@@ -6,7 +6,6 @@ import { Input } from '../../components/ui/Input';
 import { Textarea } from '../../components/ui/Textarea';
 import { Modal } from '../../components/ui/Modal';
 import { galleryService } from '../../services/galleryService';
-import { uploadService } from '../../services/uploadService';
 import { SafeImage } from '../../components/common/SafeImage';
 
 export const AdminGallery = () => {
@@ -84,9 +83,9 @@ export const AdminGallery = () => {
       let finalImageUrl = formData.imageUrl;
 
       if (selectedFile) {
-        const uploadRes = await uploadService.uploadFile(selectedFile);
-        if (uploadRes && uploadRes.success) {
-          finalImageUrl = uploadRes.url;
+        const uploadUrl = await galleryService.uploadImageFile(selectedFile);
+        if (uploadUrl) {
+          finalImageUrl = uploadUrl;
         } else {
           alert('Image upload failed');
           setIsSubmitting(false);

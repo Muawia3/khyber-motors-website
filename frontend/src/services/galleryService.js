@@ -38,4 +38,19 @@ export const galleryService = {
       body: JSON.stringify({ items }),
     });
   },
+
+  uploadImageFile: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await apiFetch('/upload/single', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (res && res.success && (res.data?.url || res.url)) {
+      return res.data?.url || res.url;
+    }
+    throw new Error(res?.error || 'Image file upload failed.');
+  },
 };
