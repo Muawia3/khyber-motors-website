@@ -10,6 +10,7 @@ import { ServicesPage } from '../pages/Services';
 import { AboutPage } from '../pages/About';
 import { ContactPage } from '../pages/Contact';
 import { ProfilesPage } from '../pages/Profiles';
+import { GalleryPage } from '../pages/Gallery';
 
 
 // Admin layout & core pages
@@ -41,6 +42,7 @@ import { HeroImagesCMS } from '../pages/Admin/Content/HeroImagesCMS';
 import { SocialMediaCMS } from '../pages/Admin/Content/SocialMediaCMS';
 import { AdminReviews } from '../pages/Admin/Content/AdminReviews';
 import { TeamCMS } from '../pages/Admin/Content/TeamCMS';
+import { AdminGallery } from '../pages/Admin/AdminGallery';
 
 const ProtectedRoute = ({ children }) => {
 
@@ -91,6 +93,7 @@ export const AppRoutes = () => {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/profiles" element={<ProfilesPage />} />
+      <Route path="/gallery" element={<GalleryPage />} />
 
 
       {/* Admin Login Route */}
@@ -129,6 +132,7 @@ export const AppRoutes = () => {
       <Route path="/admin/content/contact" element={<ProtectedRoute><AdminLayout><ContactCMS /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/content/team" element={<ProtectedRoute><AdminLayout><TeamCMS /></AdminLayout></ProtectedRoute>} />
       <Route path="/admin/content/profiles" element={<ProtectedRoute><AdminLayout><TeamCMS /></AdminLayout></ProtectedRoute>} />
+      <Route path="/admin/content/gallery" element={<ProtectedRoute><AdminLayout><AdminGallery /></AdminLayout></ProtectedRoute>} />
 
 
       {/* Sales & Operations */}

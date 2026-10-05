@@ -20,6 +20,7 @@ export const Navbar = () => {
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
     { name: 'Profiles', path: '/profiles' },
+    { name: 'Gallery', path: '/gallery' },
   ];
 
   const isActive = (path) => {

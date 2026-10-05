@@ -40,6 +40,7 @@ export const ADMIN_NAV_GROUPS = [
       { label: 'Customer Reviews', path: '/admin/content/reviews', icon: Star },
       { label: 'Contact', path: '/admin/content/contact', icon: Phone },
       { label: 'Profiles / Our Team', path: '/admin/content/team', icon: Users },
+      { label: 'Gallery', path: '/admin/content/gallery', icon: ImageIcon },
       { label: 'Services', path: '/admin/content/services', icon: Wrench },
       { label: 'About Us', path: '/admin/content/about', icon: Info },
 

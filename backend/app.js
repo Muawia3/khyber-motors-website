@@ -17,6 +17,7 @@ import reviewsRoutes from './routes/reviews.routes.js';
 import departmentsRoutes from './routes/departments.routes.js';
 import teamRoutes from './routes/team.routes.js';
 import analyticsRoutes from './routes/analytics.routes.js';
+import galleryRoutes from './routes/gallery.routes.js';
 
 dotenv.config();
 
@@ -73,6 +74,7 @@ app.use('/api/social-links', cacheMiddleware, socialLinksRoutes);
 app.use('/api/reviews', cacheMiddleware, reviewsRoutes);
 app.use('/api/departments', cacheMiddleware, departmentsRoutes);
 app.use('/api/team', cacheMiddleware, teamRoutes);
+app.use('/api/gallery', cacheMiddleware, galleryRoutes);
 
 // Global Error Handler
 app.use((err, _req, res, _next) => {
