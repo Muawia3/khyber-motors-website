@@ -170,25 +170,7 @@ export const AdminLeads = () => {
         </span>
       ),
     },
-    {
-      header: 'Status',
-      accessor: 'status',
-      cell: (row) => (
-        <Select
-          value={row.status}
-          onChange={(e) => handleStatusChange(row.id, e.target.value)}
-          options={[
-            { value: 'New', label: 'New' },
-            { value: 'Contacted', label: 'Contacted' },
-            { value: 'Follow-up', label: 'Follow-up' },
-            { value: 'Qualified', label: 'Qualified' },
-            { value: 'Converted', label: 'Converted' },
-            { value: 'Lost', label: 'Lost' },
-          ]}
-          className="py-1 text-[11px] bg-white border-gray-200"
-        />
-      ),
-    },
+
     {
       header: 'Date',
       accessor: 'date',
@@ -252,9 +234,7 @@ export const AdminLeads = () => {
         data={leadsList}
         searchKey="customerName"
         searchPlaceholder="Search by customer name, phone, or vehicle..."
-        filterOptions={['New', 'Contacted', 'Follow-up', 'Qualified', 'Converted', 'Lost']}
-        filterKey="status"
-        filterLabel="Status"
+
         pageSize={6}
       />
 
@@ -271,7 +251,7 @@ export const AdminLeads = () => {
                 <h3 className="text-base font-extrabold text-gray-900">{selectedLead.customerName}</h3>
                 <p className="text-xs text-gray-500 font-mono">{selectedLead.phone} • {selectedLead.email}</p>
               </div>
-              <StatusBadge status={selectedLead.status} />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-xs">
