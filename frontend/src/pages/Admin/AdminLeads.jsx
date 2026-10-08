@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Eye, UserPlus, X, Trash2 } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
-import { StatusBadge } from '../../components/admin/StatusBadge';
 import { ConfirmModal } from '../../components/admin/ConfirmModal';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -115,14 +114,6 @@ export const AdminLeads = () => {
     }
   };
 
-  const handleStatusChange = (leadId, newStatus) => {
-    setLeadsList((prev) =>
-      prev.map((ld) => (ld.id === leadId ? { ...ld, status: newStatus } : ld))
-    );
-    if (selectedLead && selectedLead.id === leadId) {
-      setSelectedLead((prev) => ({ ...prev, status: newStatus }));
-    }
-  };
 
   const handleConfirmDeleteLead = async () => {
     if (!deleteTarget) return;
@@ -250,7 +241,6 @@ export const AdminLeads = () => {
               <div>
                 <h3 className="text-base font-extrabold text-gray-900">{selectedLead.customerName}</h3>
                 <p className="text-xs text-gray-500 font-mono">{selectedLead.phone} • {selectedLead.email}</p>
-              </div>
               </div>
             </div>
 
