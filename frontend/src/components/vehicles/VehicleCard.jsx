@@ -10,13 +10,13 @@ const KNOWN_ORIENTATIONS = {
   't9-hunter': 'portrait',          // 960x1042 (0.92) - Pickup portrait
   't9-frison': 'portrait',          // 960x1280 (0.75) - Double cabin portrait
   'jac-1120': 'portrait',           // 960x1280 (0.75) - Heavy cargo portrait
-  'jac-x200': 'wide-landscape',     // 1600x1131 (1.41) - Crops excess top white space, fills card tightly
+  'jac-x200': 'wide-landscape',     // 1600x1131 - Fixed aspect-[16/10] matching 1020 perfectly
   'jac-1020': 'wide-landscape',     // 597x335 (1.78) - Wide truck landscape
-  'jac-1042': 'landscape',          // 871x625 (1.39) - Cargo truck landscape
-  'jac-1091': 'landscape',          // 1600x1132 (1.41) - Logistics truck landscape
-  'dongfeng-prime-mover': 'landscape',
-  'dongfeng-rigid': 'landscape',
-  'dongfeng-light': 'landscape',
+  'jac-1042': 'wide-landscape',     // 871x625 (1.39) - Cargo truck landscape
+  'jac-1091': 'wide-landscape',     // 1600x1132 (1.41) - Logistics truck landscape
+  'dongfeng-prime-mover': 'wide-landscape',
+  'dongfeng-rigid': 'wide-landscape',
+  'dongfeng-light': 'wide-landscape',
 };
 
 export const VehicleCard = ({ vehicle }) => {
@@ -29,10 +29,13 @@ export const VehicleCard = ({ vehicle }) => {
   });
 
   const handleImageLoad = (e) => {
+    // Preserve configured known orientation to guarantee symmetrical card heights in each row
+    if (vehicle.slug && KNOWN_ORIENTATIONS[vehicle.slug]) return;
+
     const { naturalWidth, naturalHeight } = e.target;
     if (naturalWidth && naturalHeight) {
       const ratio = naturalWidth / naturalHeight;
-      if (ratio > 1.55) {
+      if (ratio > 1.25) {
         setOrientation('wide-landscape');
       } else if (ratio >= 1.05) {
         setOrientation('landscape');
@@ -65,7 +68,7 @@ export const VehicleCard = ({ vehicle }) => {
   const hasAnySpec = Boolean(engineVal || fuelVal || transVal || payloadVal);
 
   return (
-    <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none">
+    <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col h-full hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none">
       {/* Top Banner & Image */}
       <div>
         <div className={`relative ${getAspectClass()} w-full bg-gray-900 overflow-hidden`}>

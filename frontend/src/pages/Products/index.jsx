@@ -623,7 +623,7 @@ export const ProductsPage = () => {
                 </div>
 
                 {/* 5 Models Grid: X200, 1020, 1042, 1091, 1120 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                   {loading ? (
                     Array.from({ length: 5 }).map((_, i) => <VehicleCardSkeleton key={i} />)
                   ) : commercialVehicles.filter(

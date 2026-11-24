@@ -370,7 +370,7 @@ export const HomePage = () => {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn items-start max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn max-w-5xl mx-auto">
                 {filteredVehicles.map((vehicle) => (
                   <VehicleCard
                     key={vehicle.id}
