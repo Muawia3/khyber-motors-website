@@ -6,6 +6,7 @@ import { Navbar } from './components/navigation/Navbar';
 import { Footer } from './components/layout/Footer';
 import { AppRoutes } from './routes/AppRoutes';
 import { analyticsService } from './services/analyticsService';
+import { LoadingScreen } from './components/common/LoadingScreen';
 
 // Scroll to top component on route changes
 const ScrollToTop = () => {
@@ -63,6 +64,7 @@ export function App() {
     <AuthProvider>
       <ContactProvider>
         <BrowserRouter>
+          <LoadingScreen />
           <AppContent />
         </BrowserRouter>
       </ContactProvider>
