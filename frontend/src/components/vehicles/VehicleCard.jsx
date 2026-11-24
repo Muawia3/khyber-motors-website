@@ -10,7 +10,7 @@ const KNOWN_ORIENTATIONS = {
   't9-hunter': 'portrait',          // 960x1042 (0.92) - Pickup portrait
   't9-frison': 'portrait',          // 960x1280 (0.75) - Double cabin portrait
   'jac-1120': 'portrait',           // 960x1280 (0.75) - Heavy cargo portrait
-  'jac-x200': 'landscape',          // 1600x1131 (1.41) - Commercial truck landscape
+  'jac-x200': 'wide-landscape',     // 1600x1131 (1.41) - Crops excess top white space, fills card tightly
   'jac-1020': 'wide-landscape',     // 597x335 (1.78) - Wide truck landscape
   'jac-1042': 'landscape',          // 871x625 (1.39) - Cargo truck landscape
   'jac-1091': 'landscape',          // 1600x1132 (1.41) - Logistics truck landscape
@@ -55,16 +55,17 @@ export const VehicleCard = ({ vehicle }) => {
   };
 
   const engineVal = specs.displacement || specs.engine || specs.Engine || '';
-  const fuelVal = specs.fuelType || specs['Fuel Type'] || specs.fuel || '';
+  const powerVal = specs.Power || specs.power || specs.horsepower || specs.Torque || specs.torque || '';
+  const fuelVal = specs.fuelType || specs['Fuel Type'] || specs.fuel || powerVal;
   const transVal = specs.transmission || specs.Transmission || '';
   const payloadVal = specs.payloadCapacityKg
     ? `${specs.payloadCapacityKg} kg Payload`
-    : specs.payload || specs.Payload || (specs.seatingCapacity ? `${specs.seatingCapacity} Seats` : '');
+    : specs['Payload Capacity'] || specs['payload capacity'] || specs.payload || specs.Payload || (specs.seatingCapacity ? `${specs.seatingCapacity} Seats` : '');
 
   const hasAnySpec = Boolean(engineVal || fuelVal || transVal || payloadVal);
 
   return (
-    <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none h-full">
+    <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none">
       {/* Top Banner & Image */}
       <div>
         <div className={`relative ${getAspectClass()} w-full bg-gray-900 overflow-hidden`}>
@@ -145,7 +146,7 @@ export const VehicleCard = ({ vehicle }) => {
       </div>
 
       {/* Card Actions */}
-      <div className="p-3.5 pt-0 grid grid-cols-2 gap-2 mt-2">
+      <div className="p-3.5 pt-1 pb-3.5 grid grid-cols-2 gap-2 mt-auto">
         <Link to={`/products/${vehicle.slug}`} className="w-full">
           <Button
             variant="outline"

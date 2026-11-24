@@ -623,7 +623,7 @@ export const ProductsPage = () => {
                 </div>
 
                 {/* 5 Models Grid: X200, 1020, 1042, 1091, 1120 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                   {loading ? (
                     Array.from({ length: 5 }).map((_, i) => <VehicleCardSkeleton key={i} />)
                   ) : commercialVehicles.filter(
@@ -638,7 +638,7 @@ export const ProductsPage = () => {
                           v.slug.toLowerCase().includes(selectedCommercialTab.toLowerCase())
                       )
                       .map((truck) => (
-                        <div key={truck.slug || truck.id} className="flex flex-col justify-between">
+                        <div key={truck.slug || truck.id} className="flex flex-col">
                           <VehicleCard vehicle={truck} />
                         </div>
                       ))
