@@ -23,34 +23,24 @@ export const VehicleCard = ({ vehicle }) => {
     <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none h-full">
       {/* Top Banner & Image */}
       <div>
-        <div className="relative h-60 sm:h-64 w-full bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden flex items-center justify-center p-2.5">
+        <div className="relative aspect-[4/5] w-full bg-gray-900 overflow-hidden">
           {/* Badge Overlays */}
-          <div className="absolute top-2.5 left-2.5 z-20 flex flex-wrap gap-1">
+          <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5">
             <Badge variant="gray">{vehicle.categoryLabel || vehicle.category}</Badge>
             {vehicle.brand && <Badge variant="red">{vehicle.brand}</Badge>}
           </div>
 
           {imageSrc ? (
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-              {/* Subtle ambient backdrop to avoid empty space */}
-              <img
-                src={imageSrc}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover blur-md opacity-30 scale-110 pointer-events-none"
-              />
-              {/* Full vehicle image - completely visible without cropping */}
-              <SafeImage
-                src={imageSrc}
-                alt={vehicle.altText || vehicle.name}
-                loading="lazy"
-                className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain object-center group-hover:scale-105 transition-transform duration-500 ease-out motion-reduce:transform-none drop-shadow-2xl"
-              />
-            </div>
+            <SafeImage
+              src={imageSrc}
+              alt={vehicle.altText || vehicle.name}
+              loading="lazy"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"
+            />
           ) : (
-            <div className="text-center p-2 space-y-1 text-gray-400">
-              <Car className="w-7 h-7 mx-auto text-gray-500 stroke-[1.5]" />
-              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+            <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center text-gray-400">
+              <Car className="w-8 h-8 mx-auto text-gray-500 stroke-[1.5]" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mt-2">
                 {vehicle.name}
               </p>
               <p className="text-[10px] text-gray-500">Image to be added</p>

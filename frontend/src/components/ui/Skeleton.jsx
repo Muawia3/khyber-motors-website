@@ -12,7 +12,7 @@ export const Skeleton = ({ className = '', ...props }) => {
 export const VehicleCardSkeleton = () => {
   return (
     <div className="bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between shadow-xs">
-      <div className="h-60 sm:h-64 w-full bg-gray-200/90 animate-pulse" />
+      <div className="aspect-[4/5] w-full bg-gray-200/90 animate-pulse" />
       <div className="p-3 pb-1 space-y-2">
         <Skeleton className="h-4 w-3/4" />
         <Skeleton className="h-3 w-1/2" />

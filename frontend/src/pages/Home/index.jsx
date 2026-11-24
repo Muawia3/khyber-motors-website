@@ -438,17 +438,11 @@ export const HomePage = () => {
         {featuredPickup ? (
           <div className="bg-white border border-gray-200 rounded-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 shadow-lg">
             {/* Left: Large Vehicle Image */}
-            <div className="lg:col-span-6 relative aspect-16/10 lg:aspect-auto min-h-[320px] bg-gray-900 overflow-hidden flex items-center justify-center p-3">
-              <img
-                src={featuredPickup.heroImage || featuredPickup.mainImage}
-                alt=""
-                aria-hidden="true"
-                className="absolute inset-0 w-full h-full object-cover blur-md opacity-25 scale-110 pointer-events-none"
-              />
-              <img
+            <div className="lg:col-span-6 relative aspect-[4/5] sm:aspect-16/10 lg:aspect-auto min-h-[360px] lg:min-h-[460px] bg-gray-900 overflow-hidden">
+              <SafeImage
                 src={featuredPickup.heroImage || featuredPickup.mainImage}
                 alt={featuredPickup.name}
-                className="relative z-10 max-h-full max-w-full w-auto h-auto object-contain drop-shadow-xl"
+                className="w-full h-full object-cover object-center"
               />
               <div className="absolute top-4 left-4">
                 <Badge variant="red">Featured Pickup</Badge>
