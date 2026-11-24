@@ -7,7 +7,6 @@ import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/ui/Button';
 import { VehicleImageGallery } from '../../components/vehicles/VehicleImageGallery';
 import { SpecificationTable } from '../../components/vehicles/SpecificationTable';
-import { VehicleCard } from '../../components/vehicles/VehicleCard';
 import { vehicleService } from '../../services/vehicleService';
 import { handleDownloadBrochure } from '../../utils/brochureHelper';
 
@@ -19,10 +18,6 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
   const [vehicle, setVehicle] = useState(() =>
     vehicleService.getCachedVehicles().find((v) => v.slug === targetId || String(v.id) === String(targetId)) || null
   );
-  const [relatedVehicles, setRelatedVehicles] = useState(() => {
-    const cached = vehicleService.getCachedVehicles();
-    return cached.filter((v) => v.slug !== targetId && String(v.id) !== String(targetId)).slice(0, 3);
-  });
   const [loading, setLoading] = useState(() =>
     !vehicleService.getCachedVehicles().some((v) => v.slug === targetId || String(v.id) === String(targetId))
   );
@@ -38,18 +33,6 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
         if (isMounted) {
           if (found) {
             setVehicle(found);
-            const all = await vehicleService.getVehicles();
-            setRelatedVehicles(
-              all
-                .filter(
-                  (v) =>
-                    v.id !== found.id &&
-                    v.slug !== found.slug &&
-                    v.status !== 'Draft' &&
-                    v.status !== 'Hidden'
-                )
-                .slice(0, 3)
-            );
           }
         }
       } catch (err) {
@@ -405,23 +388,6 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
             Contact Sales Team
           </Button>
         </div>
-
-        {/* 9. Related Vehicles (Only rendered if other real published vehicles exist) */}
-        {relatedVehicles.length > 0 && (
-          <div className="space-y-6">
-            <SectionHeading
-              badge="Lineup Showcase"
-              title="Explore Related Vehicles"
-              subtitle="Compare other commercial trucks and haulers in our inventory."
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {relatedVehicles.map((relVehicle) => (
-                <VehicleCard key={relVehicle.id} vehicle={relVehicle} />
-              ))}
-            </div>
-          </div>
-        )}
       </Container>
 
       {/* Sticky Mobile CTA Bar */}
