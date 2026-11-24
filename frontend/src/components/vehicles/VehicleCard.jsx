@@ -1,14 +1,58 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Gauge, Fuel, Weight, ArrowRight, Car } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { Button } from '../ui/Button';
 import { SafeImage } from '../common/SafeImage';
 
+// Known orientations for immediate zero-flicker render
+const KNOWN_ORIENTATIONS = {
+  't9-hunter': 'portrait',          // 960x1042 (0.92) - Pickup portrait
+  't9-frison': 'portrait',          // 960x1280 (0.75) - Double cabin portrait
+  'jac-1120': 'portrait',           // 960x1280 (0.75) - Heavy cargo portrait
+  'jac-x200': 'landscape',          // 1600x1131 (1.41) - Commercial truck landscape
+  'jac-1020': 'wide-landscape',     // 597x335 (1.78) - Wide truck landscape
+  'jac-1042': 'landscape',          // 871x625 (1.39) - Cargo truck landscape
+  'jac-1091': 'landscape',          // 1600x1132 (1.41) - Logistics truck landscape
+  'dongfeng-prime-mover': 'landscape',
+  'dongfeng-rigid': 'landscape',
+  'dongfeng-light': 'landscape',
+};
+
 export const VehicleCard = ({ vehicle }) => {
   if (!vehicle) return null;
   const imageSrc = vehicle.mainImage || vehicle.heroImage;
   const specs = vehicle.specs || {};
+
+  const [orientation, setOrientation] = useState(() => {
+    return (vehicle.slug && KNOWN_ORIENTATIONS[vehicle.slug]) || 'landscape';
+  });
+
+  const handleImageLoad = (e) => {
+    const { naturalWidth, naturalHeight } = e.target;
+    if (naturalWidth && naturalHeight) {
+      const ratio = naturalWidth / naturalHeight;
+      if (ratio > 1.55) {
+        setOrientation('wide-landscape');
+      } else if (ratio >= 1.05) {
+        setOrientation('landscape');
+      } else {
+        setOrientation('portrait');
+      }
+    }
+  };
+
+  const getAspectClass = () => {
+    switch (orientation) {
+      case 'portrait':
+        return 'aspect-[4/5]';        // Optimal for 3:4 and 4:5 vertical vehicle photos
+      case 'wide-landscape':
+        return 'aspect-[16/10]';      // Optimal for wide 16:9 vehicle photos
+      case 'landscape':
+      default:
+        return 'aspect-[4/3]';        // Optimal for standard 4:3 vehicle photos
+    }
+  };
 
   const engineVal = specs.displacement || specs.engine || specs.Engine || '';
   const fuelVal = specs.fuelType || specs['Fuel Type'] || specs.fuel || '';
@@ -23,7 +67,7 @@ export const VehicleCard = ({ vehicle }) => {
     <div className="group bg-white border border-gray-200 rounded-sm overflow-hidden flex flex-col justify-between hover:shadow-xl hover:border-gray-400 hover:-translate-y-1.5 transition-all duration-300 ease-out motion-reduce:hover:transform-none h-full">
       {/* Top Banner & Image */}
       <div>
-        <div className="relative aspect-[4/5] w-full bg-gray-900 overflow-hidden">
+        <div className={`relative ${getAspectClass()} w-full bg-gray-900 overflow-hidden`}>
           {/* Badge Overlays */}
           <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5">
             <Badge variant="gray">{vehicle.categoryLabel || vehicle.category}</Badge>
@@ -35,6 +79,7 @@ export const VehicleCard = ({ vehicle }) => {
               src={imageSrc}
               alt={vehicle.altText || vehicle.name}
               loading="lazy"
+              onLoad={handleImageLoad}
               className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out motion-reduce:transform-none"
             />
           ) : (
@@ -49,7 +94,7 @@ export const VehicleCard = ({ vehicle }) => {
         </div>
 
         {/* Content Body */}
-        <div className="p-3 pb-1">
+        <div className="p-3.5 pb-1">
           <div className="mb-1">
             <Link to={`/products/${vehicle.slug}`}>
               <h3 className="text-base font-bold text-gray-900 group-hover:text-[#C8102E] transition-colors tracking-tight truncate">
@@ -67,7 +112,7 @@ export const VehicleCard = ({ vehicle }) => {
             ) : null}
           </div>
 
-          {/* Quick Spec Highlights Grid (Rendered only if real specs exist) */}
+          {/* Quick Spec Highlights Grid */}
           {hasAnySpec && (
             <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 py-1 border-y border-gray-100 my-1.5 text-[11px] text-gray-600 bg-gray-50/70 px-2 rounded-xs">
               {engineVal && (
@@ -100,7 +145,7 @@ export const VehicleCard = ({ vehicle }) => {
       </div>
 
       {/* Card Actions */}
-      <div className="p-3 pt-0 grid grid-cols-2 gap-2">
+      <div className="p-3.5 pt-0 grid grid-cols-2 gap-2 mt-2">
         <Link to={`/products/${vehicle.slug}`} className="w-full">
           <Button
             variant="outline"
