@@ -415,7 +415,7 @@ export const VehicleDetailsPage = ({ overrideVehicleId }) => {
               subtitle="Compare other commercial trucks and haulers in our inventory."
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {relatedVehicles.map((relVehicle) => (
                 <VehicleCard key={relVehicle.id} vehicle={relVehicle} />
               ))}

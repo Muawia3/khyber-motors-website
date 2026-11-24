@@ -369,7 +369,7 @@ export const ProductsPage = () => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl">
                       <div className="flex flex-col">
                         <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
                           <div className="flex items-center gap-2">
@@ -623,7 +623,7 @@ export const ProductsPage = () => {
                 </div>
 
                 {/* 5 Models Grid: X200, 1020, 1042, 1091, 1120 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start max-w-5xl mx-auto">
                   {loading ? (
                     Array.from({ length: 5 }).map((_, i) => <VehicleCardSkeleton key={i} />)
                   ) : commercialVehicles.filter(
@@ -766,14 +766,14 @@ export const ProductsPage = () => {
                   </div>
 
                   {loading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                      {Array.from({ length: 6 }).map((_, i) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                      {Array.from({ length: 4 }).map((_, i) => (
                         <VehicleCardSkeleton key={i} />
                       ))}
                     </div>
                   ) : products.filter((p) => p.status !== 'Draft' && p.status !== 'Hidden').length >
                     0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                       {products
                         .filter((p) => p.status !== 'Draft' && p.status !== 'Hidden')
                         .map((product) => (

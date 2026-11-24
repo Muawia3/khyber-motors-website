@@ -362,15 +362,15 @@ export const HomePage = () => {
               ))}
             </div>
 
-            {/* Vehicle Cards Grid */}
+            {/* Vehicle Cards Grid - 2 Cards Per Row */}
             {vehicles.length === 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {Array.from({ length: 3 }).map((_, i) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                {Array.from({ length: 4 }).map((_, i) => (
                   <VehicleCardSkeleton key={i} />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fadeIn items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn items-start max-w-5xl mx-auto">
                 {filteredVehicles.map((vehicle) => (
                   <VehicleCard
                     key={vehicle.id}
